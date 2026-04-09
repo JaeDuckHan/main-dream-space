@@ -88,19 +88,19 @@ const CalculatorSection = () => {
           <div className="bg-card rounded-xl border border-border p-6 space-y-6">
             <div>
               <label className="text-[15px] font-semibold text-foreground mb-2 block">도시 선택</label>
-              <ChipGroup items={cityList} value={city} onChange={setCity} />
+              <ChipGroup items={cityList} value={city} onChange={(v) => setCity(v as City)} />
             </div>
             <div>
               <label className="text-[15px] font-semibold text-foreground mb-2 block">숙소 유형</label>
-              <ChipGroup items={housingList} value={housing} onChange={setHousing} />
+              <ChipGroup items={housingList} value={housing} onChange={(v) => setHousing(v as Housing)} />
             </div>
             <div>
               <label className="text-[15px] font-semibold text-foreground mb-2 block">식사 스타일</label>
-              <ChipGroup items={foodList} value={food} onChange={setFood} />
+              <ChipGroup items={foodList} value={food} onChange={(v) => setFood(v as Food)} />
             </div>
             <div>
               <label className="text-[15px] font-semibold text-foreground mb-2 block">교통</label>
-              <ChipGroup items={transportList} value={transport} onChange={setTransport} />
+              <ChipGroup items={transportList} value={transport} onChange={(v) => setTransport(v as Transport)} />
             </div>
           </div>
 
