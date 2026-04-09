@@ -75,7 +75,8 @@ const CalculatorSection = () => {
         </button>
       ))}
     </div>
-  );
+    );
+  }
 
   return (
     <section className="py-20 bg-muted/50">
