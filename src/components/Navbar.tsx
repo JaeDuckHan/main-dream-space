@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 
-const navItems = ["한달살기", "은퇴·장기체류", "도시비교", "업체찾기", "뉴스"];
+const navItems = [
+  { label: "한달살기", href: "/living" },
+  { label: "은퇴·장기체류", href: "#" },
+  { label: "도시비교", href: "#" },
+  { label: "업체찾기", href: "#" },
+  { label: "뉴스", href: "#" },
+];
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
