@@ -20,7 +20,7 @@ const Navbar = () => {
             <a
               key={item}
               href="#"
-              className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted"
+              className="px-3 py-2 text-[15px] font-medium text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted"
             >
               {item}
             </a>
@@ -30,7 +30,7 @@ const Navbar = () => {
         <div className="hidden md:block">
           <a
             href="#"
-            className="inline-flex items-center px-4 py-2 text-sm font-semibold bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+            className="inline-flex items-center px-4 py-2 text-[15px] font-semibold bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
           >
             업체 등록
           </a>
@@ -52,14 +52,14 @@ const Navbar = () => {
             <a
               key={item}
               href="#"
-              className="block py-3 text-sm font-medium text-muted-foreground border-b border-border last:border-0"
+              className="block py-3 text-[15px] font-medium text-muted-foreground border-b border-border last:border-0"
             >
               {item}
             </a>
           ))}
           <a
             href="#"
-            className="mt-3 block text-center px-4 py-2.5 text-sm font-semibold bg-primary text-primary-foreground rounded-lg"
+            className="mt-3 block text-center px-4 py-2.5 text-[15px] font-semibold bg-primary text-primary-foreground rounded-lg"
           >
             업체 등록
           </a>

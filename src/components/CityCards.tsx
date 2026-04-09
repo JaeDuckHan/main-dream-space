@@ -24,8 +24,8 @@ const CityCards = () => {
     <section className="py-20 bg-background">
       <div className="container">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-xl md:text-2xl font-bold text-foreground">도시별 생활비</h2>
-          <a href="#" className="text-sm font-medium text-primary hover:underline flex items-center gap-1">
+          <h2 className="text-[28px] md:text-[32px] font-[800] text-foreground">도시별 생활비</h2>
+          <a href="#" className="text-[15px] font-medium text-primary hover:underline flex items-center gap-1">
             전체 비교 <ArrowRight size={14} />
           </a>
         </div>
@@ -39,26 +39,26 @@ const CityCards = () => {
             >
               <div className={`h-1.5 ${city.color}`} />
               <div className="p-5">
-                <h3 className="text-lg font-bold text-foreground mb-4">{city.name}</h3>
-                <div className="space-y-3 text-sm">
+                <h3 className="text-[20px] font-bold text-foreground mb-4">{city.name}</h3>
+                <div className="space-y-3">
                   <div>
-                    <span className="text-muted-foreground">월 생활비</span>
-                    <p className="font-[800] text-foreground text-[24px] leading-tight font-number">{city.monthlyCostKRW}</p>
-                    <p className="text-xs text-muted-foreground font-number">{city.monthlyCostUSD}</p>
+                    <span className="text-[14px] text-muted-foreground">월 생활비</span>
+                    <p className="font-[800] text-foreground text-[28px] leading-tight font-number">{city.monthlyCostKRW}</p>
+                    <p className="text-[14px] text-muted-foreground font-number">{city.monthlyCostUSD}</p>
                   </div>
                   <div>
-                    <span className="text-muted-foreground">원룸 월세</span>
-                    <p className="font-[800] text-foreground text-[24px] leading-tight font-number">{city.rentKRW}</p>
-                    <p className="text-xs text-muted-foreground font-number">{city.rentUSD}</p>
+                    <span className="text-[14px] text-muted-foreground">원룸 월세</span>
+                    <p className="font-[800] text-foreground text-[28px] leading-tight font-number">{city.rentKRW}</p>
+                    <p className="text-[14px] text-muted-foreground font-number">{city.rentUSD}</p>
                   </div>
                   <div className="flex justify-between pt-2 border-t border-border">
                     <div>
-                      <span className="text-xs text-muted-foreground">한인 수</span>
-                      <p className="text-sm font-medium text-foreground">{city.koreans}</p>
+                      <span className="text-[13px] text-muted-foreground">한인 수</span>
+                      <p className="text-[15px] font-medium text-foreground">{city.koreans}</p>
                     </div>
                     <div className="text-right">
-                      <span className="text-xs text-muted-foreground">기후</span>
-                      <p className="text-sm font-medium text-foreground">{city.climate}</p>
+                      <span className="text-[13px] text-muted-foreground">기후</span>
+                      <p className="text-[15px] font-medium text-foreground">{city.climate}</p>
                     </div>
                   </div>
                 </div>
@@ -67,7 +67,7 @@ const CityCards = () => {
           ))}
         </div>
 
-        <p className="mt-4 text-xs text-muted-foreground text-center">
+        <p className="mt-4 text-[13px] text-muted-foreground text-center">
           ※ 1인 기준, 렌트 제외. Numbeo + 현지 확인. 환율 <span className="font-number">1$ ≈ ₩1,400</span> 기준
         </p>
       </div>

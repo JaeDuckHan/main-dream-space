@@ -48,8 +48,8 @@ const WeeklyUpdates = () => {
     <section className="py-20 bg-muted/50">
       <div className="container">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-xl md:text-2xl font-bold text-foreground">이번 주 변경사항</h2>
-          <a href="#" className="text-sm font-medium text-primary hover:underline flex items-center gap-1">
+          <h2 className="text-[28px] md:text-[32px] font-[800] text-foreground">이번 주 변경사항</h2>
+          <a href="#" className="text-[15px] font-medium text-primary hover:underline flex items-center gap-1">
             전체 보기 <ArrowRight size={14} />
           </a>
         </div>
@@ -67,16 +67,16 @@ const WeeklyUpdates = () => {
               />
               <div className="p-5 flex-1">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs text-muted-foreground font-number">{item.date}</span>
-                  <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${item.tagColor}`}>
+                  <span className="text-[13px] text-muted-foreground font-number">{item.date}</span>
+                  <span className={`px-2 py-0.5 text-[13px] font-medium rounded-full ${item.tagColor}`}>
                     {item.tag}
                   </span>
                 </div>
-                <h3 className="font-bold text-foreground">{item.title}</h3>
-                <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">
+                <h3 className="text-[18px] font-bold text-foreground">{item.title}</h3>
+                <p className="mt-1.5 text-[15px] text-muted-foreground leading-relaxed">
                   {item.interpretation}
                 </p>
-                <p className="mt-2 text-xs text-muted-foreground/70">출처: {item.source}</p>
+                <p className="mt-2 text-[13px] text-muted-foreground/70">출처: {item.source}</p>
               </div>
             </div>
           ))}
