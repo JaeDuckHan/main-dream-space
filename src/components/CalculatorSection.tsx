@@ -114,7 +114,7 @@ const CalculatorSection = () => {
               (${toUSD(total).toLocaleString()})
             </p>
 
-            <div className="space-y-3 flex-1">
+            <div className="space-y-4 flex-1">
               {Object.entries(breakdown).map(([label, value]) => (
                 <div key={label} className="flex justify-between items-center">
                   <span className="text-[15px] text-muted-foreground">{label}</span>
@@ -126,7 +126,7 @@ const CalculatorSection = () => {
             <div className="border-t border-border mt-4 pt-4">
               <div className="flex justify-between items-center">
                 <span className="text-[16px] font-bold text-foreground">합계</span>
-                <span className="text-[18px] font-[800] text-foreground font-number">{total}만원</span>
+                <span className="text-[18px] font-[700] text-foreground font-number">{total}만원</span>
               </div>
             </div>
 

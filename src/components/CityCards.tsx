@@ -35,8 +35,13 @@ const CityCards = () => {
             <a
               key={city.name}
               href="#"
-              className="group block bg-card rounded-xl border border-border overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
+              className={`group block bg-card rounded-xl overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200 ${
+                city.name === "다낭" ? "border-2 border-[hsl(210,72%,41%)] relative" : "border border-border"
+              }`}
             >
+              {city.name === "다낭" && (
+                <span className="absolute top-3 right-3 px-2 py-0.5 text-[13px] font-medium rounded-full bg-primary text-primary-foreground">현지 운영</span>
+              )}
               <div className={`h-1.5 ${city.color}`} />
               <div className="p-5">
                 <h3 className="text-[20px] font-bold text-foreground mb-4">{city.name}</h3>

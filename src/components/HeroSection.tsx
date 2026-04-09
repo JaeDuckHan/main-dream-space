@@ -1,6 +1,7 @@
 import { Search } from "lucide-react";
 
 const cities = ["전체", "호치민", "하노이", "다낭", "나트랑", "푸꾸옥"];
+const defaultCity = "다낭";
 
 const HeroSection = () => {
   return (
@@ -28,7 +29,7 @@ const HeroSection = () => {
             <button
               key={city}
               className={`px-4 py-1.5 text-[15px] rounded-full font-medium transition-colors ${
-                i === 0
+                city === defaultCity
                   ? "bg-white text-foreground"
                   : "bg-white/10 text-white/80 border border-white/20 hover:bg-white/20 hover:text-white"
               }`}
