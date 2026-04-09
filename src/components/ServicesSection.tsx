@@ -41,8 +41,8 @@ const ServicesSection = () => {
     <section className="py-20 bg-background">
       <div className="container">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-xl md:text-2xl font-bold text-foreground">다낭 현지 검증 서비스</h2>
-          <a href="#" className="text-sm font-medium text-primary hover:underline flex items-center gap-1">
+          <h2 className="text-[28px] md:text-[32px] font-[800] text-foreground">다낭 현지 검증 서비스</h2>
+          <a href="#" className="text-[15px] font-medium text-primary hover:underline flex items-center gap-1">
             전체 업체 보기 <ArrowRight size={14} />
           </a>
         </div>
@@ -56,27 +56,27 @@ const ServicesSection = () => {
               <div className="flex items-start gap-3">
                 <span className="text-2xl">{s.icon}</span>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-foreground">{s.name}</h3>
-                  <p className="text-xs text-muted-foreground mt-0.5">{s.category}</p>
+                  <h3 className="text-[18px] font-bold text-foreground">{s.name}</h3>
+                  <p className="text-[13px] text-muted-foreground mt-0.5">{s.category}</p>
                 </div>
               </div>
-              <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{s.description}</p>
+              <p className="mt-3 text-[15px] text-muted-foreground leading-relaxed">{s.description}</p>
               <div className="flex flex-wrap gap-1.5 mt-3">
                 {s.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="px-2 py-0.5 text-xs rounded-full bg-accent text-accent-foreground font-medium"
+                    className="px-2 py-0.5 text-[13px] rounded-full bg-accent text-accent-foreground font-medium"
                   >
                     {tag}
                   </span>
                 ))}
               </div>
-              <p className="mt-3 text-xs text-muted-foreground">✓ 운영자 확인 {s.verified}</p>
+              <p className="mt-3 text-[13px] text-muted-foreground">✓ 운영자 확인 {s.verified}</p>
             </div>
           ))}
         </div>
 
-        <p className="mt-4 text-xs text-muted-foreground text-center">※ 유료 등록 업체 포함</p>
+        <p className="mt-4 text-[13px] text-muted-foreground text-center">※ 유료 등록 업체 포함</p>
       </div>
     </section>
   );
