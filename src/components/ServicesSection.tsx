@@ -41,7 +41,7 @@ const ServicesSection = () => {
     <section className="py-20 bg-background">
       <div className="container">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-[28px] md:text-[32px] font-[800] text-foreground">다낭 현지 검증 서비스</h2>
+          <h2 className="text-[28px] md:text-[32px] font-[800] text-foreground">다낭 현지 서비스</h2>
           <a href="#" className="text-[15px] font-medium text-primary hover:underline flex items-center gap-1">
             전체 업체 보기 <ArrowRight size={14} />
           </a>
@@ -54,7 +54,7 @@ const ServicesSection = () => {
               className="bg-card rounded-xl border border-border p-5 hover:shadow-md transition-shadow"
             >
               <div className="flex items-start gap-3">
-                <span className="text-2xl">{s.icon}</span>
+                <span className="text-[56px] leading-none">{s.icon}</span>
                 <div className="flex-1 min-w-0">
                   <h3 className="text-[18px] font-bold text-foreground">{s.name}</h3>
                   <p className="text-[13px] text-muted-foreground mt-0.5">{s.category}</p>
