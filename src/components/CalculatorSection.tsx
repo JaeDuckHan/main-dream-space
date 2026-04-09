@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { ArrowRight } from "lucide-react";
 
 type City = "호치민" | "하노이" | "다낭" | "나트랑" | "푸꾸옥";
@@ -49,11 +49,19 @@ function toUSD(manwon: number): number {
   return Math.round((manwon * 10000) / 1400);
 }
 
-const CalculatorSection = () => {
-  const [city, setCity] = useState<City>("다낭");
+interface CalculatorProps {
+  defaultCity?: City;
+}
+
+const CalculatorSection = ({ defaultCity }: CalculatorProps = {}) => {
+  const [city, setCity] = useState<City>(defaultCity || "다낭");
   const [housing, setHousing] = useState<Housing>("원룸");
   const [food, setFood] = useState<Food>("로컬 위주");
   const [transport, setTransport] = useState<Transport>("도보+그랩");
+
+  useEffect(() => {
+    if (defaultCity) setCity(defaultCity);
+  }, [defaultCity]);
 
   const breakdown = useMemo(() => calculate(city, housing, food, transport), [city, housing, food, transport]);
   const total = useMemo(() => Object.values(breakdown).reduce((a, b) => a + b, 0), [breakdown]);
