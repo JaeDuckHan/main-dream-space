@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { ArrowRight } from "lucide-react";
 
 type City = "호치민" | "하노이" | "다낭" | "나트랑" | "푸꾸옥";
