@@ -49,8 +49,12 @@ function toUSD(manwon: number): number {
   return Math.round((manwon * 10000) / 1400);
 }
 
-const CalculatorSection = () => {
-  const [city, setCity] = useState<City>("다낭");
+interface CalculatorProps {
+  defaultCity?: City;
+}
+
+const CalculatorSection = ({ defaultCity }: CalculatorProps = {}) => {
+  const [city, setCity] = useState<City>(defaultCity || "다낭");
   const [housing, setHousing] = useState<Housing>("원룸");
   const [food, setFood] = useState<Food>("로컬 위주");
   const [transport, setTransport] = useState<Transport>("도보+그랩");
