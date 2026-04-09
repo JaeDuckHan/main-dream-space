@@ -59,6 +59,10 @@ const CalculatorSection = ({ defaultCity }: CalculatorProps = {}) => {
   const [food, setFood] = useState<Food>("로컬 위주");
   const [transport, setTransport] = useState<Transport>("도보+그랩");
 
+  useEffect(() => {
+    if (defaultCity) setCity(defaultCity);
+  }, [defaultCity]);
+
   const breakdown = useMemo(() => calculate(city, housing, food, transport), [city, housing, food, transport]);
   const total = useMemo(() => Object.values(breakdown).reduce((a, b) => a + b, 0), [breakdown]);
 
