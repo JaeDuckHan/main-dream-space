@@ -2,7 +2,7 @@ import { Mail } from "lucide-react";
 
 const NewsletterSection = () => {
   return (
-    <section className="py-16 bg-primary">
+    <section className="py-20 bg-primary">
       <div className="container text-center">
         <Mail className="mx-auto mb-4 text-primary-foreground/80" size={28} />
         <h2 className="text-xl md:text-2xl font-bold text-primary-foreground">

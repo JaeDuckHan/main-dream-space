@@ -14,7 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['"Noto Sans KR"', 'system-ui', 'sans-serif'],
+        sans: ['"Pretendard Variable"', 'Pretendard', 'system-ui', 'sans-serif'],
+        number: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -58,6 +59,10 @@ export default {
           red: "hsl(var(--kbiz-red))",
           purple: "hsl(var(--kbiz-purple))",
           "city-blue": "hsl(var(--kbiz-city-blue))",
+        },
+        hero: {
+          from: "hsl(var(--hero-from))",
+          to: "hsl(var(--hero-to))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",

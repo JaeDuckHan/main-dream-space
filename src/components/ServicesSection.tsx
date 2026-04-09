@@ -38,7 +38,7 @@ const services: Service[] = [
 
 const ServicesSection = () => {
   return (
-    <section className="py-16 bg-background">
+    <section className="py-20 bg-background">
       <div className="container">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-xl md:text-2xl font-bold text-foreground">다낭 현지 검증 서비스</h2>
