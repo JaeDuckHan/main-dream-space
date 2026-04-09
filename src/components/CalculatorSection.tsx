@@ -58,7 +58,8 @@ const CalculatorSection = () => {
   const breakdown = useMemo(() => calculate(city, housing, food, transport), [city, housing, food, transport]);
   const total = useMemo(() => Object.values(breakdown).reduce((a, b) => a + b, 0), [breakdown]);
 
-  const ChipGroup = <T extends string>({ items, value, onChange }: { items: T[]; value: T; onChange: (v: T) => void }) => (
+  function ChipGroup<T extends string>({ items, value, onChange }: { items: readonly T[]; value: T; onChange: (v: T) => void }) {
+    return (
     <div className="flex flex-wrap gap-2">
       {items.map((item) => (
         <button
