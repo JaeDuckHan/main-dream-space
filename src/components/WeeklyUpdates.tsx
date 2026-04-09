@@ -45,7 +45,7 @@ const updates: UpdateItem[] = [
 
 const WeeklyUpdates = () => {
   return (
-    <section className="py-16 bg-muted/50">
+    <section className="py-20 bg-muted/50">
       <div className="container">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-xl md:text-2xl font-bold text-foreground">이번 주 변경사항</h2>
@@ -67,7 +67,7 @@ const WeeklyUpdates = () => {
               />
               <div className="p-5 flex-1">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs text-muted-foreground">{item.date}</span>
+                  <span className="text-xs text-muted-foreground font-number">{item.date}</span>
                   <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${item.tagColor}`}>
                     {item.tag}
                   </span>

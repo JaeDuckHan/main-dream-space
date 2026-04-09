@@ -21,7 +21,7 @@ const cities: CityData[] = [
 
 const CityCards = () => {
   return (
-    <section className="py-16 bg-background">
+    <section className="py-20 bg-background">
       <div className="container">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-xl md:text-2xl font-bold text-foreground">도시별 생활비</h2>
@@ -43,13 +43,13 @@ const CityCards = () => {
                 <div className="space-y-3 text-sm">
                   <div>
                     <span className="text-muted-foreground">월 생활비</span>
-                    <p className="font-bold text-foreground text-base">{city.monthlyCostKRW}</p>
-                    <p className="text-xs text-muted-foreground">{city.monthlyCostUSD}</p>
+                    <p className="font-[800] text-foreground text-[24px] leading-tight font-number">{city.monthlyCostKRW}</p>
+                    <p className="text-xs text-muted-foreground font-number">{city.monthlyCostUSD}</p>
                   </div>
                   <div>
                     <span className="text-muted-foreground">원룸 월세</span>
-                    <p className="font-bold text-foreground text-base">{city.rentKRW}</p>
-                    <p className="text-xs text-muted-foreground">{city.rentUSD}</p>
+                    <p className="font-[800] text-foreground text-[24px] leading-tight font-number">{city.rentKRW}</p>
+                    <p className="text-xs text-muted-foreground font-number">{city.rentUSD}</p>
                   </div>
                   <div className="flex justify-between pt-2 border-t border-border">
                     <div>
@@ -68,7 +68,7 @@ const CityCards = () => {
         </div>
 
         <p className="mt-4 text-xs text-muted-foreground text-center">
-          ※ 1인 기준, 렌트 제외. Numbeo + 현지 확인. 환율 1$ ≈ ₩1,400 기준
+          ※ 1인 기준, 렌트 제외. Numbeo + 현지 확인. 환율 <span className="font-number">1$ ≈ ₩1,400</span> 기준
         </p>
       </div>
     </section>
