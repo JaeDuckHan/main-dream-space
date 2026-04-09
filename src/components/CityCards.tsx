@@ -1,0 +1,78 @@
+import { ArrowRight } from "lucide-react";
+
+interface CityData {
+  name: string;
+  color: string;
+  monthlyCostKRW: string;
+  monthlyCostUSD: string;
+  rentKRW: string;
+  rentUSD: string;
+  koreans: string;
+  climate: string;
+}
+
+const cities: CityData[] = [
+  { name: "호치민", color: "bg-kbiz-orange", monthlyCostKRW: "192만원", monthlyCostUSD: "$1,370", rentKRW: "77만원", rentUSD: "$550", koreans: "약 10만명", climate: "연중 고온" },
+  { name: "하노이", color: "bg-kbiz-green", monthlyCostKRW: "168만원", monthlyCostUSD: "$1,200", rentKRW: "70만원", rentUSD: "$500", koreans: "약 5만명", climate: "사계절" },
+  { name: "다낭", color: "bg-kbiz-city-blue", monthlyCostKRW: "130만원", monthlyCostUSD: "$930", rentKRW: "49만원", rentUSD: "$350", koreans: "약 7천명", climate: "온난 해변" },
+  { name: "나트랑", color: "bg-kbiz-red", monthlyCostKRW: "112만원", monthlyCostUSD: "$800", rentKRW: "42만원", rentUSD: "$300", koreans: "약 2천명", climate: "온난 해변" },
+  { name: "푸꾸옥", color: "bg-kbiz-purple", monthlyCostKRW: "133만원", monthlyCostUSD: "$950", rentKRW: "56만원", rentUSD: "$400", koreans: "약 500명", climate: "열대 섬" },
+];
+
+const CityCards = () => {
+  return (
+    <section className="py-16 bg-background">
+      <div className="container">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-xl md:text-2xl font-bold text-foreground">도시별 생활비</h2>
+          <a href="#" className="text-sm font-medium text-primary hover:underline flex items-center gap-1">
+            전체 비교 <ArrowRight size={14} />
+          </a>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+          {cities.map((city) => (
+            <a
+              key={city.name}
+              href="#"
+              className="group block bg-card rounded-xl border border-border overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
+            >
+              <div className={`h-1.5 ${city.color}`} />
+              <div className="p-5">
+                <h3 className="text-lg font-bold text-foreground mb-4">{city.name}</h3>
+                <div className="space-y-3 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">월 생활비</span>
+                    <p className="font-bold text-foreground text-base">{city.monthlyCostKRW}</p>
+                    <p className="text-xs text-muted-foreground">{city.monthlyCostUSD}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">원룸 월세</span>
+                    <p className="font-bold text-foreground text-base">{city.rentKRW}</p>
+                    <p className="text-xs text-muted-foreground">{city.rentUSD}</p>
+                  </div>
+                  <div className="flex justify-between pt-2 border-t border-border">
+                    <div>
+                      <span className="text-xs text-muted-foreground">한인 수</span>
+                      <p className="text-sm font-medium text-foreground">{city.koreans}</p>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-xs text-muted-foreground">기후</span>
+                      <p className="text-sm font-medium text-foreground">{city.climate}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+
+        <p className="mt-4 text-xs text-muted-foreground text-center">
+          ※ 1인 기준, 렌트 제외. Numbeo + 현지 확인. 환율 1$ ≈ ₩1,400 기준
+        </p>
+      </div>
+    </section>
+  );
+};
+
+export default CityCards;
