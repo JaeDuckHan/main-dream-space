@@ -1,14 +1,22 @@
 import { Search } from "lucide-react";
+import { Suspense, lazy } from "react";
+
+const HeroScene = lazy(() => import("@/components/HeroScene"));
 
 const cities = ["전체", "호치민", "하노이", "다낭", "나트랑", "푸꾸옥"];
 const defaultCity = "다낭";
 
 const HeroSection = () => {
   return (
-    <section className="relative bg-gradient-to-b from-hero-from to-hero-to pt-[100px] pb-[80px]">
+    <section className="relative bg-gradient-to-b from-hero-from to-hero-to pt-[100px] pb-[80px] overflow-hidden">
       <div className="absolute inset-0 hero-dot-pattern pointer-events-none" />
 
-      <div className="container relative text-center">
+      {/* 3D Scene */}
+      <Suspense fallback={null}>
+        <HeroScene />
+      </Suspense>
+
+      <div className="container relative text-center" style={{ zIndex: 2 }}>
         <h1 className="text-[32px] md:text-[48px] font-[800] leading-tight text-white">
           다낭 한달살기 비용·월세·비자,
           <br />
@@ -25,7 +33,7 @@ const HeroSection = () => {
 
         {/* City chips */}
         <div className="flex flex-wrap justify-center gap-2 mt-8">
-          {cities.map((city, i) => (
+          {cities.map((city) => (
             <button
               key={city}
               className={`px-4 py-1.5 text-[15px] rounded-full font-medium transition-colors ${
