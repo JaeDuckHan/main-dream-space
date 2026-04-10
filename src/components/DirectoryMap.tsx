@@ -14,27 +14,33 @@ interface MarkerData {
 }
 
 const markers: MarkerData[] = [
-  { name: "Monarque Hotel Danang", category: "숙소", lat: 16.0544, lng: 108.2478, info: "미케비치 / 약 5~10만원/박", tel: "+84 236 3588 888" },
-  { name: "Chicland Hotel Danang Beach", category: "숙소", lat: 16.0557, lng: 108.2489, info: "보응우옌잡 / 약 7~14만원/박", tel: "+84 236 2232 222" },
-  { name: "Altara Suites by Ri-Yaz", category: "숙소", lat: 16.0562, lng: 108.2493, info: "보응우옌잡 / 장기체류 추천", tel: "+84 236 268 7979" },
-  { name: "Sanouva Danang Hotel", category: "숙소", lat: 16.0678, lng: 108.2205, info: "판쩌우찐 / 약 4~9만원/박", tel: "+84 236 3823 468" },
-  { name: "Family Medical Practice", category: "병원", lat: 16.0712, lng: 108.2131, info: "하이쩌우 / 일반진료, 소아, 응급", tel: "+84 23 6358 2699" },
+  // 숙소
+  { name: "Monarque Hotel Danang", category: "숙소", lat: 16.0544, lng: 108.2441, info: "미케비치 / 약 5~10만원/박", tel: "+84 236 3588 888" },
+  { name: "Chicland Hotel Danang Beach", category: "숙소", lat: 16.0570, lng: 108.2448, info: "보응우옌잡 / 약 7~14만원/박", tel: "+84 236 2232 222" },
+  { name: "Altara Suites by Ri-Yaz", category: "숙소", lat: 16.0558, lng: 108.2444, info: "보응우옌잡 / 장기체류 추천", tel: "+84 236 268 7979" },
+  { name: "Sanouva Danang Hotel", category: "숙소", lat: 16.0678, lng: 108.2198, info: "판쩌우찐 / 약 4~9만원/박", tel: "+84 236 3823 468" },
+  // 병원
+  { name: "Family Medical Practice Da Nang", category: "병원", lat: 16.0712, lng: 108.2131, info: "하이쩌우 / 일반진료, 소아, 응급", tel: "+84 23 6358 2699" },
   { name: "Family Hospital Da Nang", category: "병원", lat: 16.0598, lng: 108.2148, info: "하이쩌우 / 내과, 외과, 응급", tel: "0236 3632 111" },
-  { name: "Hoan My Da Nang Hospital", category: "병원", lat: 16.0720, lng: 108.2125, info: "하이쩌우 / 내과, 산부인과, 응급", tel: "0236 3650 676" },
-  { name: "Vinmec Da Nang International", category: "병원", lat: 16.0544, lng: 108.2012, info: "국제병원 / 검진, 국제진료", tel: "문의 필요" },
-  { name: "GoGi House Vincom Plaza", category: "한식당", lat: 16.0521, lng: 108.2441, info: "빈컴플라자 / 삼겹살, 소고기", tel: "" },
-  { name: "Dookki Vincom Plaza", category: "한식당", lat: 16.0519, lng: 108.2443, info: "빈컴플라자 / 떡볶이 무한리필", tel: "" },
-  { name: "KOGI BBQ Da Nang", category: "한식당", lat: 16.0398, lng: 108.2342, info: "안트엉 / 한식 바비큐, 삼겹살", tel: "" },
-  { name: "BHC Chicken Da Nang", category: "한식당", lat: 16.0392, lng: 108.2348, info: "안트엉 / 후라이드, 양념치킨", tel: "" },
+  { name: "Hoan My Da Nang Hospital", category: "병원", lat: 16.0695, lng: 108.2118, info: "하이쩌우 / 내과, 산부인과, 응급", tel: "0236 3650 676" },
+  { name: "Vinmec Da Nang International", category: "병원", lat: 16.0644, lng: 108.2156, info: "국제병원 / 검진, 국제진료", tel: "문의 필요" },
+  // 한식당
+  { name: "GoGi House Vincom Plaza", category: "한식당", lat: 16.0596, lng: 108.2412, info: "빈컴플라자 / 삼겹살, 소고기", tel: "" },
+  { name: "Dookki Vincom Plaza", category: "한식당", lat: 16.0594, lng: 108.2410, info: "빈컴플라자 / 떡볶이 무한리필", tel: "" },
+  { name: "KOGI BBQ Da Nang", category: "한식당", lat: 16.0401, lng: 108.2325, info: "안트엉 / 한식 바비큐, 삼겹살", tel: "" },
+  { name: "BHC Chicken Da Nang", category: "한식당", lat: 16.0395, lng: 108.2330, info: "안트엉 / 후라이드, 양념치킨", tel: "" },
+  // 부동산
   { name: "First Real", category: "부동산", lat: 16.0689, lng: 108.2187, info: "다낭, 하이쩌우, 해안권", tel: "1900 633 034" },
-  { name: "Dat Xanh Mien Trung", category: "부동산", lat: 16.0544, lng: 108.2022, info: "다낭, 중부권 분양/중개", tel: "1900 63 68 79" },
+  { name: "Dat Xanh Mien Trung", category: "부동산", lat: 16.0644, lng: 108.2142, info: "다낭, 중부권 분양/중개", tel: "1900 63 68 79" },
   { name: "Rever", category: "부동산", lat: 16.0711, lng: 108.2212, info: "전국 아파트/주거 플랫폼", tel: "1800 234 546" },
-  { name: "Visa5s", category: "비자", lat: 16.0678, lng: 108.2231, info: "e-visa, VOA, 연장/초청", tel: "0944 555 010" },
-  { name: "Vietnam-Visa", category: "비자", lat: 16.0655, lng: 108.2218, info: "e-visa, VOA, 한국인 안내", tel: "" },
-  { name: "Visana", category: "비자", lat: 16.0640, lng: 108.2198, info: "e-visa, urgent, 비즈니스 비자", tel: "1900 3498" },
-  { name: "K-Market / Kmart", category: "마트", lat: 16.0401, lng: 108.2356, info: "안트엉 / 한국 식재료, 생활용품", tel: "" },
-  { name: "Lotte Mart Da Nang", category: "마트", lat: 16.0241, lng: 108.1961, info: "하이쩌우 / 대형마트, 식품관", tel: "" },
-  { name: "MM Mega Market Da Nang", category: "마트", lat: 16.0389, lng: 108.2012, info: "창고형 / 대용량, 수입식품", tel: "" },
+  // 비자
+  { name: "Visa5s", category: "비자", lat: 16.0668, lng: 108.2215, info: "e-visa, VOA, 연장/초청", tel: "0944 555 010" },
+  { name: "Vietnam-Visa", category: "비자", lat: 16.0655, lng: 108.2205, info: "e-visa, VOA, 한국인 안내", tel: "" },
+  { name: "Visana", category: "비자", lat: 16.0640, lng: 108.2195, info: "e-visa, urgent, 비즈니스 비자", tel: "1900 3498" },
+  // 마트
+  { name: "K-Market / Kmart", category: "마트", lat: 16.0398, lng: 108.2328, info: "안트엉 / 한국 식재료, 생활용품", tel: "" },
+  { name: "Lotte Mart Da Nang", category: "마트", lat: 16.0201, lng: 108.1985, info: "하이쩌우남부 / 대형마트, 식품관", tel: "" },
+  { name: "MM Mega Market Da Nang", category: "마트", lat: 16.0380, lng: 108.1975, info: "창고형 / 대용량, 수입식품", tel: "" },
 ];
 
 const categoryColors: Record<Exclude<Category, "전체">, string> = {
