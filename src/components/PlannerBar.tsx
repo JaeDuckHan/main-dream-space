@@ -32,10 +32,11 @@ const PlannerBar = () => {
   const end = new Date(data.endDate);
   const dDay = differenceInDays(start, new Date());
 
-  // Calculate progress
-  const defaultCount = 16;
+  // Calculate progress — city-specific checklist count
+  const cityChecklistCounts: Record<string, number> = { 다낭: 16, 호치민: 15, 하노이: 15, 나트랑: 15, 푸꾸옥: 15 };
+  const baseCount = cityChecklistCounts[data.city] || 13;
   const customCount = (data.customItems || []).length;
-  const total = defaultCount + customCount;
+  const total = baseCount + customCount;
   const done = Object.keys(data.checklist || {}).filter(k => !k.endsWith("_date") && data.checklist[k]).length;
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
 
