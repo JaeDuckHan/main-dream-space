@@ -10,9 +10,8 @@ const Footer = () => {
       <div className="container py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="col-span-2 md:col-span-1">
-            <a href="/" className="text-lg font-bold">
-              <span className="text-primary">KBiz</span>
-              <span className="text-background">Link</span>
+            <a href="/" className="text-lg font-bold text-primary">
+              럭키다낭
             </a>
             <p className="mt-3 text-[14px] text-background/60 leading-relaxed">
               다낭 한달살기·장기체류 가이드.
@@ -38,7 +37,7 @@ const Footer = () => {
         </div>
 
         <div className="mt-10 pt-6 border-t border-background/10 text-[13px] text-background/40">
-          © 2026 KBizLink. All rights reserved.
+          © 2026 럭키다낭 (Lucky Danang). All rights reserved.
         </div>
       </div>
     </footer>

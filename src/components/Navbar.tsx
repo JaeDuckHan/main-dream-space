@@ -15,9 +15,8 @@ const Navbar = () => {
   return (
     <nav className="sticky top-0 z-50 bg-card/95 backdrop-blur-md border-b border-border">
       <div className="container flex items-center justify-between h-16">
-        <a href="/" className="text-xl font-bold tracking-tight">
-          <span className="text-primary">KBiz</span>
-          <span className="text-foreground">Link</span>
+        <a href="/" className="text-xl font-bold tracking-tight text-primary">
+          럭키다낭
         </a>
 
         {/* Desktop */}
