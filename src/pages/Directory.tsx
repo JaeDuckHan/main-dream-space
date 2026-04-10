@@ -1,7 +1,9 @@
-import { useState, useRef } from "react";
+import { useState, useRef, lazy, Suspense } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { MapPin, Phone, ExternalLink } from "lucide-react";
+import { MapPin, Phone, ExternalLink, List, Map } from "lucide-react";
+
+const DirectoryMap = lazy(() => import("@/components/DirectoryMap"));
 
 type Category = "전체" | "숙소" | "병원" | "한식당" | "부동산" | "비자" | "마트";
 
@@ -72,6 +74,7 @@ const businesses: Business[] = [
 
 const Directory = () => {
   const [activeCategory, setActiveCategory] = useState<Category>("전체");
+  const [viewMode, setViewMode] = useState<"list" | "map">("list");
   const ctaRef = useRef<HTMLDivElement>(null);
 
   const filtered = activeCategory === "전체" ? businesses : businesses.filter((b) => b.category === activeCategory);
@@ -106,6 +109,30 @@ const Directory = () => {
         </div>
       </section>
 
+      {/* View Toggle */}
+      <div className="container flex gap-2 pt-6 pb-2">
+        <button
+          onClick={() => setViewMode("list")}
+          className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[14px] font-bold transition-colors ${
+            viewMode === "list"
+              ? "bg-primary text-primary-foreground"
+              : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+          }`}
+        >
+          <List size={15} /> 리스트 보기
+        </button>
+        <button
+          onClick={() => setViewMode("map")}
+          className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-[14px] font-bold transition-colors ${
+            viewMode === "map"
+              ? "bg-primary text-primary-foreground"
+              : "bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+          }`}
+        >
+          <Map size={15} /> 지도 보기
+        </button>
+      </div>
+
       {/* Category Tabs */}
       <div className="sticky top-16 z-40 bg-card/95 backdrop-blur-md border-b border-border">
         <div className="container flex gap-1 overflow-x-auto py-3 scrollbar-hide">
@@ -125,7 +152,17 @@ const Directory = () => {
         </div>
       </div>
 
+      {/* Map View */}
+      {viewMode === "map" && (
+        <section className="container py-10">
+          <Suspense fallback={<div className="w-full h-[400px] md:h-[600px] rounded-xl bg-muted animate-pulse" />}>
+            <DirectoryMap activeCategory={activeCategory} />
+          </Suspense>
+        </section>
+      )}
+
       {/* Cards Grid */}
+      {viewMode === "list" && (
       <section className="container py-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filtered.map((b) => (
