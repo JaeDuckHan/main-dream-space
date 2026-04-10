@@ -51,19 +51,21 @@ const Navbar = () => {
         </div>
 
         <div className="hidden md:flex items-center gap-2">
-          {hasPlanner && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={() => navigate("/planner")}
-                  className="p-2 text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <ClipboardList size={20} />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>내 한달살기 계획</TooltipContent>
-            </Tooltip>
-          )}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => navigate("/planner")}
+                className="relative p-2 transition-colors hover:text-foreground"
+                style={{ color: hasPlanner ? "#0052CC" : "#999" }}
+              >
+                <ClipboardList size={20} />
+                {hasPlanner && (
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#0052CC]" />
+                )}
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>한달살기 플래너</TooltipContent>
+          </Tooltip>
           <a
             href="#"
             className="inline-flex items-center px-4 py-2 text-[16px] font-bold bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
@@ -93,14 +95,13 @@ const Navbar = () => {
               {item.label}
             </a>
           ))}
-          {hasPlanner && (
-            <a
-              href="/planner"
-              className="block py-3 text-[16px] font-bold text-foreground border-b border-border"
-            >
-              📋 내 계획
-            </a>
-          )}
+          <a
+            href="/planner"
+            className="block py-3 text-[16px] font-bold border-b border-border"
+            style={{ color: hasPlanner ? "#0052CC" : "#999" }}
+          >
+            📋 한달살기 플래너
+          </a>
           <a
             href="#"
             className="mt-3 block text-center px-4 py-2.5 text-[16px] font-bold bg-primary text-primary-foreground rounded-lg"
