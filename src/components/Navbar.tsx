@@ -60,7 +60,12 @@ const Navbar = () => {
               >
                 <ClipboardList size={20} />
                 {hasPlanner && (
-                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#0052CC]" />
+                  <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full animate-pulse"
+                    style={{
+                      background: "radial-gradient(circle at 30% 30%, #FF6B35, #0052CC 60%, #7B2FF7)",
+                      boxShadow: "0 0 6px 2px rgba(0,82,204,0.45), 0 0 12px 4px rgba(123,47,247,0.2)",
+                    }}
+                  />
                 )}
               </button>
             </TooltipTrigger>
