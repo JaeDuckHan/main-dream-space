@@ -7,6 +7,7 @@ const navItems = [
   { label: "도시비교", href: "#" },
   { label: "업체찾기", href: "#" },
   { label: "뉴스", href: "#" },
+  { label: "커뮤니티", href: "/community" },
 ];
 
 const Navbar = () => {
