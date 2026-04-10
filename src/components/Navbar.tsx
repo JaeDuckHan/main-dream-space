@@ -55,10 +55,24 @@ const Navbar = () => {
             <TooltipTrigger asChild>
               <button
                 onClick={() => navigate("/planner")}
-                className="relative p-2 transition-colors hover:text-foreground"
-                style={{ color: hasPlanner ? "#0052CC" : "#999" }}
+                className="relative p-2 transition-all duration-300 hover:scale-110"
               >
-                <ClipboardList size={20} />
+                <ClipboardList
+                  size={22}
+                  style={{
+                    stroke: hasPlanner ? "url(#planner-gradient)" : "#999",
+                    filter: hasPlanner ? "drop-shadow(0 1px 3px rgba(0,82,204,0.35))" : "none",
+                  }}
+                />
+                <svg width="0" height="0" className="absolute">
+                  <defs>
+                    <linearGradient id="planner-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#FF6B35" />
+                      <stop offset="50%" stopColor="#0052CC" />
+                      <stop offset="100%" stopColor="#7B2FF7" />
+                    </linearGradient>
+                  </defs>
+                </svg>
                 {hasPlanner && (
                   <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full animate-pulse"
                     style={{
