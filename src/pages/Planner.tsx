@@ -104,14 +104,38 @@ function saveData(data: PlannerData) {
 }
 
 /* ── Creation Form ── */
+const mockBudgetItems = [
+  { label: "숙소", amount: 55, color: "hsl(214,100%,40%)" },
+  { label: "식비", amount: 45, color: "hsl(214,80%,55%)" },
+  { label: "이동", amount: 15, color: "hsl(214,60%,70%)" },
+  { label: "기타", amount: 10, color: "hsl(214,40%,80%)" },
+];
+const mockTotal = mockBudgetItems.reduce((s, i) => s + i.amount, 0);
+
 const CreationForm = ({ onCreated }: { onCreated: (d: PlannerData) => void }) => {
   const [city, setCity] = useState("다낭");
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [party, setParty] = useState("혼자");
   const [budget, setBudget] = useState("150");
+  const [loading, setLoading] = useState(false);
+  const [showResult, setShowResult] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const resultRef = useCallback((node: HTMLDivElement | null) => {
+    if (node) node.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
 
   const handleSubmit = () => {
+    if (!startDate || !endDate) return;
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      setShowResult(true);
+    }, 2000);
+  };
+
+  const handleSavePlan = () => {
     if (!startDate || !endDate) return;
     const data: PlannerData = {
       city,
@@ -127,6 +151,19 @@ const CreationForm = ({ onCreated }: { onCreated: (d: PlannerData) => void }) =>
     };
     saveData(data);
     onCreated(data);
+  };
+
+  const handleCopy = () => {
+    const text = `🌴 내 다낭 플랜\n도시: ${city} | 동행: ${party} | 예산: ${budget}만원\n\n추천 동네: 미케비치\n해변과 카페가 많아 혼자 지내기 딱이에요\n\n월 예산 분석:\n숙소 55만원 / 식비 45만원 / 이동 15만원 / 기타 10만원 = 총 125만원\n\n꼭 알아야 할 것:\n1. 미케비치 서비스 아파트는 2개월 이상 계약 시 10~15% 할인돼요\n2. 9~11월은 우기라 실내 작업 공간 미리 알아두세요\n3. 그랩 앱 미리 설치하면 공항부터 바로 쓸 수 있어요\n\n💬 150만원이면 다낭에서 꽤 여유롭게 지낼 수 있어요. 미케비치 카페에서 노트북 켜는 상상해보세요 ☀️`;
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  const handleRetry = () => {
+    setShowResult(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
@@ -221,11 +258,113 @@ const CreationForm = ({ onCreated }: { onCreated: (d: PlannerData) => void }) =>
 
       <Button
         onClick={handleSubmit}
-        disabled={!startDate || !endDate}
+        disabled={!startDate || !endDate || loading}
         className="w-full h-11 text-[15px] font-bold bg-[hsl(214,100%,40%)] hover:bg-[hsl(214,100%,35%)] text-white rounded"
       >
-        계획 시작하기
+        {loading ? (
+          <span className="flex items-center gap-2">
+            <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+            럭키가 플랜 짜는 중... 🌴
+          </span>
+        ) : (
+          "계획 시작하기"
+        )}
       </Button>
+
+      {/* Result Card */}
+      {showResult && (
+        <div
+          ref={resultRef}
+          className="mt-8 bg-white rounded-[16px] shadow-lg p-6 animate-in slide-in-from-bottom-4 duration-500"
+        >
+          {/* Header */}
+          <h2 className="text-[20px] font-bold text-foreground mb-3">🌴 내 다낭 플랜</h2>
+          <div className="flex flex-wrap gap-2 mb-6">
+            <span className="px-3 py-1 text-[13px] rounded-full bg-[hsl(0,0%,95%)] text-muted-foreground">{city}</span>
+            <span className="px-3 py-1 text-[13px] rounded-full bg-[hsl(0,0%,95%)] text-muted-foreground">{party}</span>
+            <span className="px-3 py-1 text-[13px] rounded-full bg-[hsl(0,0%,95%)] text-muted-foreground">{budget}만원</span>
+          </div>
+
+          {/* 추천 동네 */}
+          <div className="mb-6">
+            <span className="text-[12px] text-muted-foreground font-medium mb-1 block">추천 동네</span>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="px-3 py-1 text-[13px] rounded-full bg-[hsl(214,100%,95%)] text-[hsl(214,100%,40%)] font-semibold">미케비치</span>
+              <span className="text-[14px] text-foreground">해변과 카페가 많아 혼자 지내기 딱이에요</span>
+            </div>
+          </div>
+
+          {/* 월 예산 분석 */}
+          <div className="mb-6">
+            <span className="text-[12px] text-muted-foreground font-medium mb-3 block">월 예산 분석</span>
+            <div className="space-y-2">
+              {mockBudgetItems.map(item => (
+                <div key={item.label} className="flex items-center gap-3">
+                  <span className="text-[13px] text-foreground w-[40px]">{item.label}</span>
+                  <div className="flex-1 h-6 bg-[hsl(0,0%,95%)] rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full flex items-center justify-end pr-2"
+                      style={{
+                        width: `${(item.amount / mockTotal) * 100}%`,
+                        backgroundColor: item.color,
+                        minWidth: "40px",
+                      }}
+                    >
+                      <span className="text-[11px] text-white font-medium">{item.amount}만</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="text-right text-[13px] font-semibold text-foreground mt-2">총 {mockTotal}만원</div>
+          </div>
+
+          {/* 꼭 알아야 할 것 */}
+          <div className="mb-6">
+            <span className="text-[12px] text-muted-foreground font-medium mb-2 block">꼭 알아야 할 것</span>
+            <ol className="list-decimal list-inside space-y-1.5 text-[14px] text-foreground">
+              <li>미케비치 서비스 아파트는 2개월 이상 계약 시 10~15% 할인돼요</li>
+              <li>9~11월은 우기라 실내 작업 공간 미리 알아두세요</li>
+              <li>그랩 앱 미리 설치하면 공항부터 바로 쓸 수 있어요</li>
+            </ol>
+          </div>
+
+          {/* 럭키 한마디 */}
+          <div className="bg-[hsl(0,0%,96%)] rounded-[12px] p-4 mb-6">
+            <p className="text-[14px] text-muted-foreground italic">
+              "150만원이면 다낭에서 꽤 여유롭게 지낼 수 있어요. 미케비치 카페에서 노트북 켜는 상상해보세요 ☀️"
+            </p>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={handleRetry}
+              className="flex-1 h-10 text-[14px] rounded-[8px]"
+            >
+              다시 계획하기
+            </Button>
+            <Button
+              onClick={handleCopy}
+              className="flex-1 h-10 text-[14px] rounded-[8px] bg-[hsl(214,100%,40%)] hover:bg-[hsl(214,100%,35%)] text-white"
+            >
+              {copied ? "복사됐어요! ✓" : "결과 복사하기"}
+            </Button>
+          </div>
+
+          {/* Save to planner */}
+          <button
+            onClick={handleSavePlan}
+            className="w-full mt-3 text-[13px] text-[hsl(214,100%,40%)] hover:underline"
+          >
+            이 플랜으로 대시보드 시작하기 →
+          </button>
+        </div>
+      )}
     </div>
   );
 };
