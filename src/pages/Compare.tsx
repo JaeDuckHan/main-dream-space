@@ -261,7 +261,7 @@ export default function Compare() {
         {sections.map((sec) => (
           <section
             key={sec.id}
-            ref={(el) => { sectionRefs.current[sec.id] = el; }}
+            ref={(el: HTMLDivElement | null) => { sectionRefs.current[sec.id] = el; }}
             className="scroll-mt-32"
           >
             <h2 className="text-xl font-bold text-foreground mb-4">
