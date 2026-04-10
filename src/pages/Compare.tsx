@@ -223,12 +223,12 @@ export default function Compare() {
       {/* ── Ranking Badges ── */}
       <section className="bg-card border-b border-border">
         <div className="container py-6">
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory">
             {rankings.map((r) => (
               <div
                 key={r.label}
-                className={`flex-shrink-0 rounded-xl border-2 px-5 py-3.5 text-center min-w-[160px] ${
-                  r.isDanang ? "border-[#3B82F6] bg-[#EFF6FF]" : "border-border bg-card"
+                className={`flex-shrink-0 snap-start rounded-xl px-5 py-3.5 text-center min-w-[160px] ${
+                  r.isDanang ? "border-[3px] border-[#3B82F6] bg-[#EFF6FF]" : "border-2 border-border bg-card"
                 }`}
               >
                 <p className="text-xs text-muted-foreground font-medium">{r.label}</p>
