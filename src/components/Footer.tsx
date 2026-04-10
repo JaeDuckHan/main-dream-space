@@ -1,7 +1,15 @@
 const footerLinks = {
   "살아보기": ["한달살기", "은퇴·장기체류", "도시비교"],
   "도시": ["호치민", "하노이", "다낭", "나트랑", "푸꾸옥"],
-  "서비스": ["업체 찾기", "업체 등록", "광고 문의", "이용약관", "개인정보처리방침", "데이터 산출 기준"],
+  "서비스": [
+    { label: "업체 찾기", href: "#" },
+    { label: "업체 등록", href: "#" },
+    { label: "한달살기 플래너", href: "/planner" },
+    { label: "광고 문의", href: "#" },
+    { label: "이용약관", href: "#" },
+    { label: "개인정보처리방침", href: "#" },
+    { label: "데이터 산출 기준", href: "#" },
+  ],
 };
 
 const Footer = () => {
@@ -24,13 +32,18 @@ const Footer = () => {
             <div key={title}>
               <h4 className="text-[14px] font-semibold text-background mb-3">{title}</h4>
               <ul className="space-y-2">
-                {links.map((link) => (
-                  <li key={link}>
-                    <a href="#" className="text-[14px] text-background/60 hover:text-background transition-colors">
-                      {link}
-                    </a>
-                  </li>
-                ))}
+                {links.map((link) => {
+                  const isObj = typeof link === "object";
+                  const label = isObj ? link.label : link;
+                  const href = isObj ? link.href : "#";
+                  return (
+                    <li key={label}>
+                      <a href={href} className="text-[14px] text-background/60 hover:text-background transition-colors">
+                        {label}
+                      </a>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}
