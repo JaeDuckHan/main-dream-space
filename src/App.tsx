@@ -10,6 +10,7 @@ import Retire from "./pages/Retire.tsx";
 import Community from "./pages/Community.tsx";
 import Planner from "./pages/Planner.tsx";
 import Compare from "./pages/Compare.tsx";
+import Directory from "./pages/Directory.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/community" element={<Community />} />
           <Route path="/planner" element={<Planner />} />
           <Route path="/compare" element={<Compare />} />
+          <Route path="/directory" element={<Directory />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -9,7 +9,7 @@ const navItems = [
   { label: "한달살기", href: "/living" },
   { label: "은퇴·장기체류", href: "/retire" },
   { label: "도시비교", href: "/compare" },
-  { label: "업체찾기", href: "#" },
+  { label: "업체찾기", href: "/directory" },
   { label: "뉴스", href: "#" },
   { label: "커뮤니티", href: "/community" },
 ];
