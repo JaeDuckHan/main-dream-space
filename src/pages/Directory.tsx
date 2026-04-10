@@ -227,6 +227,7 @@ const Directory = () => {
           ※ 업체 정보는 정기적으로 업데이트되며, 방문 전 연락처를 확인해주세요.
         </p>
       </section>
+      )}
 
       {/* CTA Banner */}
       <div ref={ctaRef}>
