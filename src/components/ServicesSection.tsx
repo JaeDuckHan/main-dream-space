@@ -1,22 +1,28 @@
 import { ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "@/lib/routes";
 
 interface Service {
   icon: string;
+  id?: number;
   name: string;
   category: string;
   description: string;
   tags: string[];
   verified: string;
+  href: string;
 }
 
 const services: Service[] = [
   {
     icon: "🏠",
+    id: 1,
     name: "다낭 하우스 에이전시",
     category: "월세 · 한달살기 숙소 · 장기체류",
     description: "한국어 상담. 다낭 한달살기 원룸부터 가족형 아파트까지.",
     tags: ["다낭", "월세", "한국어 응대"],
     verified: "2026.04 확인",
+    href: ROUTES.directory("real_estate"),
   },
   {
     icon: "🛡️",
@@ -25,6 +31,7 @@ const services: Service[] = [
     description: "한국 보험사 제휴. 1개월~1년 체류 보험 비교 상담.",
     tags: ["다낭", "보험", "한국어 응대"],
     verified: "2026.04 확인",
+    href: ROUTES.directory(),
   },
   {
     icon: "📋",
@@ -33,25 +40,34 @@ const services: Service[] = [
     description: "비자 종류별 대행. 연장, 변경까지.",
     tags: ["다낭", "비자대행", "한국어 응대"],
     verified: "2026.04 확인",
+    href: ROUTES.directory(),
   },
 ];
 
 const ServicesSection = () => {
+  const navigate = useNavigate();
+
   return (
     <section className="py-20 bg-background">
       <div className="container">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-[28px] md:text-[32px] font-[800] text-foreground">다낭 현지 서비스</h2>
-          <a href="#" className="text-[15px] font-medium text-primary hover:underline flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => navigate(ROUTES.directory())}
+            className="text-[15px] font-medium text-primary hover:underline flex items-center gap-1"
+          >
             전체 업체 보기 <ArrowRight size={14} />
-          </a>
+          </button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {services.map((s) => (
-            <div
+            <button
               key={s.name}
-              className="bg-card rounded-xl border border-border p-5 hover:shadow-md transition-shadow"
+              type="button"
+              onClick={() => navigate(s.href)}
+              className="bg-card rounded-xl border border-border p-5 text-left hover:shadow-md transition-shadow"
             >
               <div className="flex items-start gap-3">
                 <span className="text-[56px] leading-none">{s.icon}</span>
@@ -72,7 +88,7 @@ const ServicesSection = () => {
                 ))}
               </div>
               <p className="mt-3 text-[13px] text-muted-foreground">✓ 운영자 확인 {s.verified}</p>
-            </div>
+            </button>
           ))}
         </div>
 

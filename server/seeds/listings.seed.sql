@@ -1,0 +1,55 @@
+TRUNCATE TABLE listings RESTART IDENTITY CASCADE;
+
+INSERT INTO listings
+  (slug, category, name, name_ko, district, address, lat, lng, google_maps_url, google_maps_place_id,
+   thumbnail_url, image_urls, rating, review_count, category_data,
+   agoda_url, agoda_hotel_id, source, status, is_active, place_id_verified, url_verified)
+VALUES
+  (
+    'danang-beach-hotel',
+    'accommodation',
+    'Danang Beach Hotel',
+    '다낭 비치 호텔',
+    'My Khe',
+    '232 Vo Nguyen Giap, Da Nang',
+    16.0605000,
+    108.2463000,
+    'https://www.google.com/maps/search/?api=1&query=Danang+Beach+Hotel',
+    'seed-accommodation-1',
+    'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=900&q=80',
+    '[{"url":"https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80","source":"official"}]'::jsonb,
+    4.2,
+    1203,
+    '{"subtype":"hotel","price_min_usd":45,"price_max_usd":85,"price_monthly_usd":950,"bedrooms":1,"max_guests":2,"amenities":["wifi","pool","breakfast","ac"]}'::jsonb,
+    'https://www.agoda.com/danang-beach-hotel/hotel/da-nang-vn.html?cid={AFFILIATE_ID}',
+    '12345',
+    'manual',
+    'approved',
+    TRUE,
+    FALSE,
+    TRUE
+  ),
+  (
+    'gogi-house-danang',
+    'restaurant',
+    'GoGi House Vincom Plaza',
+    '고기하우스 빈컴플라자',
+    'Son Tra',
+    'Vincom Plaza, Da Nang',
+    16.0732000,
+    108.2314000,
+    'https://www.google.com/maps/search/?api=1&query=GoGi+House+Vincom+Plaza+Da+Nang',
+    'seed-restaurant-1',
+    'https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=900&q=80',
+    '[{"url":"https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=1200&q=80","source":"official"}]'::jsonb,
+    4.5,
+    640,
+    '{"cuisine_type":"korean","price_per_person_usd":18,"menu_highlights":["삼겹살","소고기 세트"],"has_korean_menu":true,"has_korean_staff":true,"delivery_available":false,"reservation_recommended":true,"alcohol_served":true,"kid_friendly":true,"vegetarian_options":false}'::jsonb,
+    NULL,
+    NULL,
+    'manual',
+    'approved',
+    TRUE,
+    FALSE,
+    TRUE
+  );

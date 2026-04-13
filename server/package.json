@@ -1,0 +1,36 @@
+{
+  "name": "dreamspace-server",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "migrate": "node scripts/run-sql.mjs migrations/001_init.sql migrations/003_oauth.sql migrations/004_listings.sql migrations/004b_migrate_accommodations.sql migrations/005_community.sql migrations/006_residents_patch.sql",
+    "seed": "node scripts/run-sql.mjs seeds/checklist.seed.sql seeds/listings.seed.sql",
+    "import:listings": "node scripts/import-listings.mjs",
+    "cleanup:images": "tsx src/cron/cleanup-orphan-images.ts"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "express-rate-limit": "^8.3.2",
+    "isomorphic-dompurify": "^3.8.0",
+    "marked": "^18.0.0",
+    "multer": "^2.1.1",
+    "papaparse": "^5.5.3",
+    "pg": "^8.16.3",
+    "sharp": "^0.34.5",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/node": "^22.16.5",
+    "@types/papaparse": "^5.3.16",
+    "@types/pg": "^8.15.5",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  }
+}

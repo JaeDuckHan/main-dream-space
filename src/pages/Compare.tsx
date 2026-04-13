@@ -1,10 +1,17 @@
-import { useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useAccommodations, type Accommodation } from "@/hooks/use-accommodations";
+import { filtersFromSearchParams, filtersToSearchParams, type AccommodationFilters } from "@/lib/accommodation-filters";
+import { INTENT_CONFIG, type Intent } from "@/lib/routes";
+import { getSessionId } from "@/lib/session";
 import { Trophy, Quote, Info, ExternalLink } from "lucide-react";
 
 /* ── Ranking badges ── */
@@ -195,8 +202,45 @@ const sections = [
   { id: "overall", emoji: "🏅", title: "종합 평가", data: overallData },
 ];
 
+const districtOptions = ["My Khe", "An Thuong", "Son Tra", "City Center"];
+const typeOptions = [
+  { value: "", label: "전체 유형" },
+  { value: "hotel", label: "호텔" },
+  { value: "resort", label: "리조트" },
+  { value: "apartment", label: "아파트" },
+  { value: "villa", label: "빌라" },
+  { value: "guesthouse", label: "게스트하우스" },
+];
+
+const CITY_PARAM_LABELS: Record<string, string> = {
+  hochiminh: "호치민",
+  hanoi: "하노이",
+  danang: "다낭",
+  nhatrang: "나트랑",
+  phuquoc: "푸꾸옥",
+};
+
 export default function Compare() {
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const [searchParams, setSearchParams] = useSearchParams();
+  const intentParam = searchParams.get("intent") || "";
+  const intent = (intentParam || "") as Intent | "";
+  const preset = useMemo(() => {
+    if (intent && INTENT_CONFIG[intent]) return INTENT_CONFIG[intent];
+    return null;
+  }, [intent]);
+  const [sessionId] = useState(() => getSessionId());
+  const [filters, setFilters] = useState<AccommodationFilters>(() => filtersFromSearchParams(searchParams));
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [compareOpen, setCompareOpen] = useState(false);
+  const [compareItems, setCompareItems] = useState<Accommodation[]>([]);
+  const [commonAmenities, setCommonAmenities] = useState<string[]>([]);
+  const [compareLoading, setCompareLoading] = useState(false);
+  const { data: accommodations, total, loading, error } = useAccommodations(filters);
+  const cityParam = searchParams.get("city") || "";
+  const budgetParam = searchParams.get("budget");
+  const queryParam = searchParams.get("q") || "";
+  const compareCityLabel = CITY_PARAM_LABELS[cityParam] || "다낭";
 
   const scrollTo = (id: string) => {
     if (id === "all") {
@@ -206,19 +250,272 @@ export default function Compare() {
     sectionRefs.current[id]?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
+  useEffect(() => {
+    setFilters(filtersFromSearchParams(searchParams));
+  }, [searchParams]);
+
+  useEffect(() => {
+    const nextParams = new URLSearchParams();
+    const filterParams = filtersToSearchParams(filters);
+
+    if (intentParam) nextParams.set("intent", intentParam);
+    if (queryParam) nextParams.set("q", queryParam);
+    if (cityParam) nextParams.set("city", cityParam);
+    if (budgetParam) nextParams.set("budget", budgetParam);
+
+    filterParams.forEach((value, key) => nextParams.set(key, value));
+    setSearchParams(nextParams, { replace: true });
+  }, [budgetParam, cityParam, filters, intentParam, queryParam, setSearchParams]);
+
+  useEffect(() => {
+    if (!budgetParam) return;
+
+    const parsedBudget = Number(budgetParam);
+    if (!Number.isFinite(parsedBudget) || parsedBudget <= 0) return;
+
+    const nightlyBudget = Math.max(20, Math.min(200, Math.round(parsedBudget / 3)));
+    setFilters((current) => (current.priceMax === nightlyBudget ? current : { ...current, priceMax: nightlyBudget }));
+  }, [budgetParam]);
+
+  useEffect(() => {
+    setSelectedIds((current) => current.filter((id) => accommodations.some((item) => item.id === id)));
+  }, [accommodations]);
+
+  useEffect(() => {
+    if (!compareOpen || selectedIds.length < 2) return;
+
+    const controller = new AbortController();
+    setCompareLoading(true);
+
+    fetch(`/api/accommodations/compare?ids=${selectedIds.join(",")}`, { signal: controller.signal })
+      .then(async (response) => {
+        if (!response.ok) {
+          throw new Error(`Failed to compare accommodations: ${response.status}`);
+        }
+        return response.json() as Promise<{ items: Accommodation[]; common_amenities: string[] }>;
+      })
+      .then((payload) => {
+        setCompareItems(payload.items);
+        setCommonAmenities(payload.common_amenities);
+      })
+      .catch((err: unknown) => {
+        if (!controller.signal.aborted) {
+          console.error(err);
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) {
+          setCompareLoading(false);
+        }
+      });
+
+    return () => controller.abort();
+  }, [compareOpen, selectedIds]);
+
+  const updateFilters = (patch: Partial<AccommodationFilters>) => {
+    setFilters((current) => ({ ...current, ...patch }));
+  };
+
+  const toggleCompareSelection = (id: number, checked: boolean) => {
+    setSelectedIds((current) => {
+      if (checked) {
+        if (current.includes(id) || current.length >= 4) return current;
+        return [...current, id];
+      }
+      return current.filter((value) => value !== id);
+    });
+  };
+
+  const handleAgodaClick = async (acc: Accommodation) => {
+    if (!acc.agoda_url) return;
+
+    try {
+      await fetch("/api/affiliate/click", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          session_id: sessionId,
+          partner: "agoda",
+          target_type: "accommodation",
+          target_id: acc.id,
+        }),
+      });
+    } catch (err) {
+      console.error(err);
+    }
+
+    window.open(acc.agoda_url, "_blank", "noopener,noreferrer");
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
 
+      {preset && (
+        <section className={`${preset.bgClass} py-12 text-white`}>
+          <div className="mx-auto max-w-7xl px-4">
+            <div className={`mb-3 inline-block rounded-full px-3 py-1 text-xs font-semibold ${preset.badgeColor}`}>
+              {preset.label}
+            </div>
+            <h1 className="mb-3 text-3xl font-bold md:text-4xl lg:text-5xl">
+              {preset.heroTitle}
+            </h1>
+            <p className="text-base text-white/85 md:text-lg">{preset.heroSubtitle}</p>
+          </div>
+        </section>
+      )}
+
       {/* ── Header ── */}
-      <header className="bg-card border-b border-border">
-        <div className="container py-12 md:py-16 text-center">
-          <h1 className="text-3xl md:text-4xl font-bold text-foreground">베트남 5개 도시 한달살기 비교</h1>
-          <p className="mt-3 text-muted-foreground text-base md:text-lg">
-            다낭 · 호치민 · 하노이 · 나트랑 · 푸꾸옥 — 실거주 데이터 기준
-          </p>
+      {!preset && (
+        <header className="bg-card border-b border-border">
+          <div className="container py-12 md:py-16 text-center">
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground">베트남 5개 도시 한달살기 비교</h1>
+            <p className="mt-3 text-muted-foreground text-base md:text-lg">
+              다낭 · 호치민 · 하노이 · 나트랑 · 푸꾸옥 — 실거주 데이터 기준
+            </p>
+          </div>
+        </header>
+      )}
+
+      <section className="container py-8 space-y-6">
+        <Card className="p-4 md:p-6 border">
+          <div className="flex items-center justify-between gap-4 flex-wrap mb-4">
+            <div>
+              <h2 className="text-xl font-bold text-foreground">{compareCityLabel} 숙소 비교</h2>
+              <p className="text-sm text-muted-foreground mt-1">가격대와 지역을 맞춰서 Agoda 예약 링크까지 바로 확인할 수 있습니다.</p>
+              {queryParam ? <p className="mt-1 text-xs text-muted-foreground">검색어: {queryParam}</p> : null}
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {loading ? "불러오는 중..." : `${total}개 숙소`}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <label className="text-sm">
+              <span className="block text-muted-foreground mb-1">지역</span>
+              <select
+                value={filters.district ?? ""}
+                onChange={(event) => updateFilters({ district: event.target.value || undefined })}
+                className="w-full h-10 rounded-md border border-input bg-background px-3"
+              >
+                <option value="">전체 지역</option>
+                {districtOptions.map((district) => (
+                  <option key={district} value={district}>{district}</option>
+                ))}
+              </select>
+            </label>
+
+            <label className="text-sm">
+              <span className="block text-muted-foreground mb-1">유형</span>
+              <select
+                value={filters.type ?? ""}
+                onChange={(event) => updateFilters({ type: (event.target.value || undefined) as AccommodationFilters["type"] })}
+                className="w-full h-10 rounded-md border border-input bg-background px-3"
+              >
+                {typeOptions.map((option) => (
+                  <option key={option.label} value={option.value}>{option.label}</option>
+                ))}
+              </select>
+            </label>
+
+            <label className="text-sm">
+              <span className="block text-muted-foreground mb-1">최대 1박 가격 ${filters.priceMax ?? 100}</span>
+              <input
+                type="range"
+                min="20"
+                max="200"
+                step="5"
+                value={filters.priceMax ?? 100}
+                onChange={(event) => updateFilters({ priceMax: Number(event.target.value) })}
+                className="w-full mt-2"
+              />
+            </label>
+
+            <label className="text-sm">
+              <span className="block text-muted-foreground mb-1">정렬</span>
+              <select
+                value={filters.sort ?? "price_asc"}
+                onChange={(event) => updateFilters({ sort: event.target.value as AccommodationFilters["sort"] })}
+                className="w-full h-10 rounded-md border border-input bg-background px-3"
+              >
+                <option value="price_asc">가격 낮은 순</option>
+                <option value="price_desc">가격 높은 순</option>
+                <option value="rating_desc">평점 높은 순</option>
+              </select>
+            </label>
+          </div>
+
+          <div className="flex items-center justify-between gap-3 flex-wrap mt-4">
+            <p className="text-xs text-muted-foreground">제휴 링크 포함. 예약 전에 최종 `cid` 값은 실제 Agoda 파트너 ID로 확인이 필요합니다.</p>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setCompareOpen(true)}
+              disabled={selectedIds.length < 2}
+            >
+              비교하기 {selectedIds.length > 0 ? `(${selectedIds.length}/4)` : ""}
+            </Button>
+          </div>
+        </Card>
+
+        {error && <p className="text-sm text-red-600">{error}</p>}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {accommodations.map((acc) => (
+            <Card key={acc.id} className="overflow-hidden border">
+              {acc.thumbnail_url && (
+                <img
+                  src={acc.thumbnail_url}
+                  alt={acc.name}
+                  className="w-full h-44 object-cover"
+                />
+              )}
+              <div className="p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap mb-2">
+                      <Badge variant="secondary">{acc.district}</Badge>
+                      <Badge variant="outline">{acc.type}</Badge>
+                    </div>
+                    <h3 className="font-bold text-foreground">{acc.name_ko || acc.name}</h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      ${acc.price_min_usd}~${acc.price_max_usd} / 1박
+                      {typeof acc.rating === "number" && ` · 평점 ${acc.rating.toFixed(1)}`}
+                    </p>
+                  </div>
+                  <Checkbox
+                    checked={selectedIds.includes(acc.id)}
+                    onCheckedChange={(checked) => toggleCompareSelection(acc.id, checked === true)}
+                    aria-label={`${acc.name} compare`}
+                  />
+                </div>
+
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {acc.amenities.slice(0, 5).map((amenity) => (
+                    <span key={amenity} className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">
+                      {amenity}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="flex items-center justify-between mt-4">
+                  <span className="text-xs text-muted-foreground">
+                    월 예상 ${acc.price_monthly_usd ?? acc.price_min_usd * 20}
+                  </span>
+                  <Button
+                    type="button"
+                    onClick={() => void handleAgodaClick(acc)}
+                    disabled={!acc.agoda_url}
+                    className="bg-[#3B82F6] hover:bg-[#2563EB] text-white"
+                  >
+                    Agoda에서 보기
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          ))}
         </div>
-      </header>
+      </section>
 
       {/* ── Ranking Badges ── */}
       <section className="bg-card border-b border-border">
@@ -307,6 +604,61 @@ export default function Compare() {
           </div>
         </div>
       </section>
+
+      <Dialog open={compareOpen} onOpenChange={setCompareOpen}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>숙소 비교</DialogTitle>
+          </DialogHeader>
+          {compareLoading ? (
+            <p className="text-sm text-muted-foreground">비교 데이터를 불러오는 중입니다.</p>
+          ) : (
+            <div className="space-y-4">
+              <div className="flex flex-wrap gap-2">
+                {commonAmenities.map((amenity) => (
+                  <Badge key={amenity} variant="secondary">{amenity}</Badge>
+                ))}
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[640px] text-sm border-collapse">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="text-left py-3 px-2 font-semibold">항목</th>
+                      {compareItems.map((item) => (
+                        <th key={item.id} className="text-left py-3 px-2 font-semibold">{item.name_ko || item.name}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b border-border/50">
+                      <td className="py-3 px-2 text-muted-foreground">지역</td>
+                      {compareItems.map((item) => <td key={item.id} className="py-3 px-2">{item.district}</td>)}
+                    </tr>
+                    <tr className="border-b border-border/50">
+                      <td className="py-3 px-2 text-muted-foreground">가격</td>
+                      {compareItems.map((item) => <td key={item.id} className="py-3 px-2">${item.price_min_usd}~${item.price_max_usd}</td>)}
+                    </tr>
+                    <tr className="border-b border-border/50">
+                      <td className="py-3 px-2 text-muted-foreground">월 예상</td>
+                      {compareItems.map((item) => <td key={item.id} className="py-3 px-2">${item.price_monthly_usd ?? "-"}</td>)}
+                    </tr>
+                    <tr className="border-b border-border/50">
+                      <td className="py-3 px-2 text-muted-foreground">평점</td>
+                      {compareItems.map((item) => <td key={item.id} className="py-3 px-2">{item.rating?.toFixed(1) ?? "-"}</td>)}
+                    </tr>
+                    <tr className="border-b border-border/50">
+                      <td className="py-3 px-2 text-muted-foreground">편의시설</td>
+                      {compareItems.map((item) => (
+                        <td key={item.id} className="py-3 px-2">{item.amenities.join(", ")}</td>
+                      ))}
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </div>

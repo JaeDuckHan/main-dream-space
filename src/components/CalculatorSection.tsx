@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
-import { ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "@/lib/routes";
 
 type City = "호치민" | "하노이" | "다낭" | "나트랑" | "푸꾸옥";
 type Housing = "원룸" | "아파트(방2)" | "서비스드레지던스";
@@ -58,6 +59,7 @@ const CalculatorSection = ({ defaultCity }: CalculatorProps = {}) => {
   const [housing, setHousing] = useState<Housing>("원룸");
   const [food, setFood] = useState<Food>("로컬 위주");
   const [transport, setTransport] = useState<Transport>("도보+그랩");
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (defaultCity) setCity(defaultCity);
@@ -141,9 +143,29 @@ const CalculatorSection = ({ defaultCity }: CalculatorProps = {}) => {
             <p className="mt-4 text-[13px] text-muted-foreground">
               ※ 1인 기준, Numbeo + 현지 확인
             </p>
-            <a href="#" className="inline-flex items-center gap-1 mt-3 text-[15px] font-medium text-primary hover:underline">
-              다른 도시와 비교하기 <ArrowRight size={14} />
-            </a>
+            <div className="mt-6 flex flex-col gap-2 sm:flex-row">
+              <button
+                type="button"
+                onClick={() => navigate(ROUTES.compare({ city: city === "호치민" ? "hochiminh" : city === "하노이" ? "hanoi" : city === "다낭" ? "danang" : city === "나트랑" ? "nhatrang" : "phuquoc", budget: total }))}
+                className="flex-1 rounded-lg bg-primary px-4 py-3 font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+              >
+                이 예산으로 가능한 숙소 보기 →
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate("/planner")}
+                className="flex-1 rounded-lg border border-primary px-4 py-3 font-semibold text-primary transition-colors hover:bg-primary/5"
+              >
+                한달살기 플래너 시작 →
+              </button>
+            </div>
+            <button
+              type="button"
+              onClick={() => navigate(ROUTES.compare())}
+              className="mt-3 text-[15px] font-medium text-primary hover:underline"
+            >
+              다른 도시와 비교하기 →
+            </button>
           </div>
         </div>
       </div>

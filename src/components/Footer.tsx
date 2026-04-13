@@ -1,9 +1,13 @@
 const footerLinks = {
-  "살아보기": ["한달살기", "은퇴·장기체류", "도시비교"],
+  "바로가기": [
+    { label: "도시비교", href: "/compare" },
+    { label: "업체찾기", href: "/directory" },
+    { label: "커뮤니티", href: "/community" },
+  ],
   "도시": ["호치민", "하노이", "다낭", "나트랑", "푸꾸옥"],
   "서비스": [
-    { label: "업체 찾기", href: "#" },
-    { label: "업체 등록", href: "#" },
+    { label: "업체 찾기", href: "/directory" },
+    { label: "업체 등록", href: "/business/register" },
     { label: "한달살기 플래너", href: "/planner" },
     { label: "광고 문의", href: "#" },
     { label: "이용약관", href: "#" },

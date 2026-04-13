@@ -11,6 +11,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { usePlannerChecklist } from "@/hooks/use-planner-checklist";
+import { getSessionId } from "@/lib/session";
 import { cn } from "@/lib/utils";
 import { format, differenceInDays, differenceInWeeks } from "date-fns";
 import { ko } from "date-fns/locale";
@@ -26,6 +28,13 @@ interface ChecklistItem {
   completedAt?: string;
   link?: { text: string; href: string };
   group: string;
+  description?: string | null;
+  actionType?: "external" | "internal" | "none";
+  actionUrl?: string | null;
+  actionLabel?: string | null;
+  affiliatePartner?: "agoda" | "booking" | "tripcom" | "skyscanner" | "none";
+  isRemote?: boolean;
+  remoteId?: number;
 }
 
 interface Housing {
@@ -747,6 +756,7 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
   const [data, setData] = useState<PlannerData>(initialData);
   const [tab, setTab] = useState<"summary" | "checklist" | "housing" | "notes">("summary");
   const [resetOpen, setResetOpen] = useState(false);
+  const [sessionId] = useState(() => getSessionId());
 
   const persist = useCallback((updated: PlannerData) => {
     setData(updated);
@@ -758,17 +768,21 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
   const dDay = differenceInDays(start, new Date());
   const weeks = Math.max(1, Math.ceil(differenceInDays(end, start) / 7));
   const dateStr = `${format(start, "yyyy.MM.dd")} → ${format(end, "MM.dd")}`;
+  const useRemoteChecklist = data.city === "다낭";
+  const {
+    items: remoteChecklistItems,
+    setItems: setRemoteChecklistItems,
+    loading: remoteChecklistLoading,
+  } = usePlannerChecklist("danang-basic", useRemoteChecklist ? sessionId : null);
 
-  // City-specific checklist
-  const cityChecklist = useMemo(() => getChecklist(data.city), [data.city]);
-
-  const allChecklistItems: ChecklistItem[] = useMemo(() => {
-    const base = cityChecklist.map(item => ({
+  const localChecklistItems: ChecklistItem[] = useMemo(() => {
+    const cityChecklist = getChecklist(data.city);
+    const base = cityChecklist.map((item) => ({
       ...item,
       checked: data.checklist[item.id] || false,
       completedAt: data.checklist[item.id] ? (data.checklist[`${item.id}_date`] as unknown as string || "") : undefined,
     }));
-    const custom = (data.customItems || []).map(ci => ({
+    const custom = (data.customItems || []).map((ci) => ({
       id: ci.id,
       label: ci.label,
       group: ci.group,
@@ -776,19 +790,45 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
       completedAt: data.checklist[ci.id] ? (data.checklist[`${ci.id}_date`] as unknown as string || "") : undefined,
     }));
     return [...base, ...custom];
-  }, [data.checklist, data.customItems, cityChecklist]);
+  }, [data.checklist, data.city, data.customItems]);
 
   const checklistGroups = useMemo(() => {
     const groups: Record<string, ChecklistItem[]> = {};
-    allChecklistItems.forEach(item => {
+    const combinedItems = useRemoteChecklist
+      ? [
+          ...remoteChecklistItems.map<ChecklistItem>((item) => ({
+            id: `remote-${item.id}`,
+            remoteId: item.id,
+            label: item.title,
+            description: item.description,
+            checked: item.checked,
+            group: "다낭 여행 준비",
+            actionType: item.action_type,
+            actionUrl: item.action_url,
+            actionLabel: item.action_label,
+            affiliatePartner: item.affiliate_partner,
+            isRemote: true,
+          })),
+          ...(data.customItems || []).map((ci) => ({
+            id: ci.id,
+            label: ci.label,
+            group: "직접 추가한 항목",
+            checked: data.checklist[ci.id] || false,
+            completedAt: data.checklist[ci.id] ? (data.checklist[`${ci.id}_date`] as unknown as string || "") : undefined,
+          })),
+        ]
+      : localChecklistItems;
+
+    combinedItems.forEach((item) => {
       if (!groups[item.group]) groups[item.group] = [];
       groups[item.group].push(item);
     });
     return groups;
-  }, [allChecklistItems]);
+  }, [data.checklist, data.customItems, localChecklistItems, remoteChecklistItems, useRemoteChecklist]);
 
+  const allChecklistItems = Object.values(checklistGroups).flat();
   const totalChecklist = allChecklistItems.length;
-  const doneChecklist = allChecklistItems.filter(i => i.checked).length;
+  const doneChecklist = allChecklistItems.filter((item) => item.checked).length;
   const progressPct = totalChecklist > 0 ? Math.round((doneChecklist / totalChecklist) * 100) : 0;
 
   // Budget
@@ -809,6 +849,60 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
       (newChecklist as any)[`${id}_date`] = format(new Date(), "MM/dd");
     }
     persist({ ...data, checklist: newChecklist });
+  };
+
+  const toggleRemoteCheck = async (itemId: number, checked: boolean) => {
+    setRemoteChecklistItems((current) =>
+      current.map((item) => (item.id === itemId ? { ...item, checked } : item)),
+    );
+
+    try {
+      await fetch("/api/planner/progress", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          session_id: sessionId,
+          item_id: itemId,
+          checked,
+        }),
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const logAffiliateClick = async (partner: "agoda" | "booking" | "tripcom" | "skyscanner", targetId: number) => {
+    try {
+      await fetch("/api/affiliate/click", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          session_id: sessionId,
+          partner,
+          target_type: "checklist_item",
+          target_id: targetId,
+        }),
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleChecklistAction = async (item: ChecklistItem) => {
+    if (!item.actionType || item.actionType === "none" || !item.actionUrl) {
+      return;
+    }
+
+    if (item.actionType === "internal") {
+      navigate(item.actionUrl);
+      return;
+    }
+
+    if (item.affiliatePartner && item.affiliatePartner !== "none" && item.remoteId) {
+      await logAffiliateClick(item.affiliatePartner, item.remoteId);
+    }
+
+    window.open(item.actionUrl, "_blank", "noopener,noreferrer");
   };
 
   const updateBudgetActual = (key: string, value: string) => {
@@ -974,33 +1068,64 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
       {/* Tab: Checklist */}
       {tab === "checklist" && (
         <div>
+          {useRemoteChecklist && remoteChecklistLoading && (
+            <div className="text-[13px] text-muted-foreground mb-4">체크리스트를 불러오는 중입니다.</div>
+          )}
           {Object.entries(checklistGroups).map(([group, items]) => (
             <div key={group} className="mb-6">
               <h3 className="text-[14px] font-bold text-foreground mb-3 px-1">{group}</h3>
               <div className="space-y-0">
                 {items.map(item => (
-                  <div key={item.id} className="flex items-center justify-between py-2.5 px-1 border-b border-[#EEE]">
+                  <div key={item.id} className="flex items-center justify-between gap-3 py-2.5 px-1 border-b border-[#EEE]">
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       <Checkbox
                         checked={item.checked}
-                        onCheckedChange={() => toggleCheck(item.id)}
+                        onCheckedChange={(checked) => {
+                          if (item.isRemote && item.remoteId) {
+                            toggleRemoteCheck(item.remoteId, checked === true);
+                            return;
+                          }
+                          toggleCheck(item.id);
+                        }}
                         className="rounded-sm"
                       />
-                      <span className={cn("text-[14px]", item.checked ? "line-through text-[#AAA]" : "text-foreground")}>
-                        {item.label}
-                      </span>
-                      {item.checked && item.completedAt && (
-                        <span className="text-[12px] text-[#AAA]">{item.completedAt}</span>
-                      )}
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className={cn("text-[14px]", item.checked ? "line-through text-[#AAA]" : "text-foreground")}>
+                            {item.label}
+                          </span>
+                          {item.affiliatePartner && item.affiliatePartner !== "none" && (
+                            <span className="text-[11px] px-1.5 py-0.5 rounded-full bg-[#EFF6FF] text-[hsl(214,100%,40%)]">
+                              제휴
+                            </span>
+                          )}
+                          {item.checked && item.completedAt && (
+                            <span className="text-[12px] text-[#AAA]">{item.completedAt}</span>
+                          )}
+                        </div>
+                        {item.description && (
+                          <p className="text-[12px] text-muted-foreground mt-0.5">{item.description}</p>
+                        )}
+                      </div>
                     </div>
-                    {item.link && (
+                    {item.isRemote && item.actionType && item.actionType !== "none" && item.actionLabel ? (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => void handleChecklistAction(item)}
+                        className="h-8 text-[12px] whitespace-nowrap"
+                      >
+                        {item.actionLabel}
+                        {item.actionType === "external" && <ExternalLink size={12} className="ml-1" />}
+                      </Button>
+                    ) : item.link ? (
                       <a
                         href={item.link.href}
                         className="text-[13px] text-[hsl(214,100%,40%)] hover:underline whitespace-nowrap ml-2"
                       >
                         {item.link.text}
                       </a>
-                    )}
+                    ) : null}
                   </div>
                 ))}
               </div>
