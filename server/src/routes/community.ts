@@ -362,7 +362,7 @@ router.patch("/posts/:id", requireAuth, async (req, res, next) => {
   try {
     const { id } = z.object({ id: z.coerce.number().int().positive() }).parse(req.params);
     const payload = postSchema.parse(req.body);
-    await ensurePostWriter(req.authUser!.id, req.authUser!.role, id, false);
+    await ensurePostWriter(req.authUser!.id, req.authUser!.role, id, true);
 
     if (payload.category === "notice" && req.authUser!.role !== "admin") {
       throw new HttpError(403, "공지 작성은 관리자만 가능합니다");
@@ -380,10 +380,9 @@ router.patch("/posts/:id", requireAuth, async (req, res, next) => {
            content_html = $5,
            is_pinned = CASE WHEN $2 = 'notice' THEN is_pinned ELSE FALSE END
        WHERE id = $1
-         AND author_id = $6
          AND is_deleted = FALSE
        RETURNING id`,
-      [id, payload.category, payload.title, payload.content, contentHtml, req.authUser!.id],
+      [id, payload.category, payload.title, payload.content, contentHtml],
     );
 
     if (!updated.rows[0]) {
