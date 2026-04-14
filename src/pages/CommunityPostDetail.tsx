@@ -131,7 +131,7 @@ export default function CommunityPostDetailPage() {
     return <div className="container py-20 text-center text-muted-foreground">게시글을 찾을 수 없습니다.</div>;
   }
 
-  const canEditPost = user?.id === post.author.id;
+  const canEditPost = user?.id === post.author.id || user?.role === "admin";
   const canDeletePost = user?.id === post.author.id || user?.role === "admin";
 
   return (
