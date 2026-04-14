@@ -5,6 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import DashboardBar from "@/components/DashboardBar";
+import KakaoChannelButton from "@/components/KakaoChannelButton";
 import Navbar, { GlobalNavbarContext } from "@/components/Navbar";
 import PlannerBar from "@/components/PlannerBar";
 import { AuthProvider } from "@/hooks/use-auth";
@@ -37,6 +38,7 @@ const AppShell = () => (
     <Navbar forceRender />
     <DashboardBar />
     <Outlet />
+    <KakaoChannelButton />
   </GlobalNavbarContext.Provider>
 );
 

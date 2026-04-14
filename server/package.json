@@ -9,9 +9,11 @@
     "migrate": "node scripts/run-sql.mjs migrations/001_init.sql migrations/003_oauth.sql migrations/004_listings.sql migrations/004b_migrate_accommodations.sql migrations/005_community.sql migrations/006_residents_patch.sql",
     "seed": "node scripts/run-sql.mjs seeds/checklist.seed.sql seeds/listings.seed.sql",
     "import:listings": "node scripts/import-listings.mjs",
+    "import:notion": "node scripts/notion-import.mjs",
     "cleanup:images": "tsx src/cron/cleanup-orphan-images.ts"
   },
   "dependencies": {
+    "@notionhq/client": "^5.18.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.2",
@@ -19,6 +21,7 @@
     "isomorphic-dompurify": "^3.8.0",
     "marked": "^18.0.0",
     "multer": "^2.1.1",
+    "notion-to-md": "^3.1.9",
     "papaparse": "^5.5.3",
     "pg": "^8.16.3",
     "sharp": "^0.34.5",
