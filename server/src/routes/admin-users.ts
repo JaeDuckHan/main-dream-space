@@ -23,7 +23,8 @@ router.get("/", requireAdmin, async (req, res, next) => {
 
     if (search) {
       params.push(`%${search}%`);
-      conditions.push(`(u.email ILIKE $${params.length} OR u.display_name ILIKE $${params.length})`);
+      const searchIdx = params.length;
+      conditions.push(`(u.email ILIKE $${searchIdx} OR u.display_name ILIKE $${searchIdx})`);
     }
     if (role) {
       params.push(role);
