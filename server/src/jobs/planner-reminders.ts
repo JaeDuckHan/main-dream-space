@@ -10,8 +10,7 @@ interface ReminderRow {
   email: string;
   plan_id: string;
   plan_title: string;
-  plan_data: { city: string; startDate: string; checklist: Record<string, boolean> };
-  remind_at: string;
+  plan_data: { city?: string; startDate: string; checklist: Record<string, boolean> };
 }
 
 async function sendPendingReminders() {
@@ -34,14 +33,18 @@ async function sendPendingReminders() {
       ? Math.ceil((new Date(row.plan_data.startDate).getTime() - Date.now()) / 86400000)
       : null;
 
+    const subject = dDay && dDay > 0
+      ? `${row.plan_data.city || "여행"} 출발 D-${dDay}! 체크리스트 ${unchecked}개가 남았어요`
+      : `${row.plan_data.city || "여행"} 출발이 임박했어요! 체크리스트 ${unchecked}개가 남았어요`;
+
     try {
       await resend.emails.send({
         from: "럭키다낭 <noreply@luckydanang.com>",
         to: row.email,
-        subject: `${row.plan_data.city} 출발${dDay ? ` D-${dDay}` : ""}! 체크리스트 ${unchecked}개가 남았어요`,
+        subject,
         html: `
           <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
-            <h2 style="color:#1a1a1a">${row.plan_title || row.plan_data.city + " 한달살기 플랜"}</h2>
+            <h2 style="color:#1a1a1a">${row.plan_title || (row.plan_data.city || "여행") + " 한달살기 플랜"}</h2>
             <p style="color:#555">출발일 <strong>${startDate}</strong>까지 아직 <strong>${unchecked}개</strong>의 체크리스트가 남았어요.</p>
             <a href="${process.env.VITE_SITE_URL || "https://luckydanang.com"}/planner"
                style="display:inline-block;margin-top:16px;padding:12px 24px;background:#6366f1;color:#fff;border-radius:8px;text-decoration:none;font-weight:600">

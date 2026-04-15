@@ -1069,11 +1069,12 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
     if (!reminderPlanId || !reminderEmail) return;
     setSavingReminder(true);
     try {
-      await fetch(`/api/planner/plans/${reminderPlanId}/reminders`, {
+      const res = await fetch(`/api/planner/plans/${reminderPlanId}/reminders`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: reminderEmail }),
       });
+      if (!res.ok) throw new Error("Reminder save failed");
       toast.success("리마인더가 등록됐어요!");
       setShowReminderModal(false);
     } catch {

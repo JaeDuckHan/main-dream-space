@@ -231,14 +231,14 @@
   "hotPaths": [
     {
       "path": "src\\pages\\Planner.tsx",
-      "accessCount": 60,
-      "lastAccessed": 1776291650852,
+      "accessCount": 79,
+      "lastAccessed": 1776292125381,
       "type": "file"
     },
     {
       "path": "server\\src\\routes\\planner.ts",
-      "accessCount": 10,
-      "lastAccessed": 1776291306134,
+      "accessCount": 13,
+      "lastAccessed": 1776292002652,
       "type": "file"
     },
     {
@@ -248,9 +248,27 @@
       "type": "file"
     },
     {
+      "path": "server\\src\\jobs\\planner-reminders.ts",
+      "accessCount": 6,
+      "lastAccessed": 1776292138427,
+      "type": "file"
+    },
+    {
+      "path": "server\\package.json",
+      "accessCount": 5,
+      "lastAccessed": 1776292146155,
+      "type": "file"
+    },
+    {
       "path": "src\\App.tsx",
       "accessCount": 4,
       "lastAccessed": 1776290992982,
+      "type": "file"
+    },
+    {
+      "path": "server\\src\\index.ts",
+      "accessCount": 3,
+      "lastAccessed": 1776291892838,
       "type": "file"
     },
     {
@@ -267,14 +285,14 @@
     },
     {
       "path": "",
-      "accessCount": 1,
-      "lastAccessed": 1776291103830,
+      "accessCount": 2,
+      "lastAccessed": 1776292030751,
       "type": "directory"
     },
     {
       "path": "server\\migrations\\012_planner_plans.sql",
-      "accessCount": 1,
-      "lastAccessed": 1776291108165,
+      "accessCount": 2,
+      "lastAccessed": 1776292035752,
       "type": "file"
     },
     {
@@ -300,6 +318,12 @@
       "accessCount": 1,
       "lastAccessed": 1776291545420,
       "type": "directory"
+    },
+    {
+      "path": "server\\src\\db.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776291777206,
+      "type": "file"
     }
   ],
   "userDirectives": []
