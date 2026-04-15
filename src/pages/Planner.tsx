@@ -1058,6 +1058,16 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
     }
   };
 
+  // Feature D: D-day
+  const dDay = useMemo(() => {
+    if (!data.startDate) return null;
+    const start = new Date(data.startDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const diff = differenceInDays(start, today);
+    return diff;
+  }, [data.startDate]);
+
   const tabs = [
     { key: "summary" as const, label: "요약" },
     { key: "checklist" as const, label: "체크리스트" },
@@ -1107,6 +1117,17 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
           </button>
         ))}
         <div className="flex items-center gap-2 ml-auto">
+          {dDay !== null && (
+            <span className={cn(
+              "text-[12px] font-semibold px-2.5 py-1 rounded-full",
+              dDay > 14 ? "bg-blue-100 text-blue-700" :
+              dDay > 0 ? "bg-orange-100 text-orange-700" :
+              dDay === 0 ? "bg-green-100 text-green-700" :
+              "bg-slate-100 text-slate-500"
+            )}>
+              {dDay > 0 ? `D-${dDay}` : dDay === 0 ? "D-Day!" : `D+${Math.abs(dDay)}`}
+            </span>
+          )}
           {sharedId && (
             <a
               href={`/planner/share/${sharedId}`}
