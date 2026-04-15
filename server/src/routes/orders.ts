@@ -20,7 +20,7 @@ const createOrderSchema = z.object({
 router.post("/", requireAuth, async (req, res, next) => {
   try {
     const data = createOrderSchema.parse(req.body);
-    const userId = req.session.userId as number;
+    const userId = req.authUser!.id;
 
     // 상품 조회 + 활성 확인
     const products = await query<{ id: number; base_price: number; title: string }>(
@@ -38,6 +38,10 @@ router.post("/", requireAuth, async (req, res, next) => {
          WHERE id = ANY($1) AND product_id = $2`,
         [data.selected_option_ids, data.product_id],
       );
+    }
+
+    if (optionRows.length !== data.selected_option_ids.length) {
+      return res.status(400).json({ error: "Invalid options for this product" });
     }
 
     // 총액 계산
@@ -58,6 +62,9 @@ router.post("/", requireAuth, async (req, res, next) => {
         data.memo ?? null,
       ],
     );
+    if (!orderRows[0]) {
+      return res.status(500).json({ error: "Failed to create order" });
+    }
     const orderId = orderRows[0].id;
 
     // 옵션 스냅샷 저장
@@ -77,7 +84,7 @@ router.post("/", requireAuth, async (req, res, next) => {
 // 내 주문 목록
 router.get("/my", requireAuth, async (req, res, next) => {
   try {
-    const userId = req.session.userId as number;
+    const userId = req.authUser!.id;
 
     const items = await query<Record<string, unknown>>(
       `SELECT
