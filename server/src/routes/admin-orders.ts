@@ -8,6 +8,11 @@ import {
   sendOrderConfirmedEmail,
   sendOrderCancelledEmail,
 } from "../lib/email.js";
+import {
+  sendPaymentCheckingAlimtalk,
+  sendOrderConfirmedAlimtalk,
+  sendOrderCancelledAlimtalk,
+} from "../lib/alimtalk.js";
 
 const router = Router();
 
@@ -105,14 +110,14 @@ router.patch("/:id/status", requireAdmin, async (req, res, next) => {
 
     const rows = await query<{
       id: number; status: string; orderer_email: string;
-      orderer_name: string; product_title: string; total_price: number;
+      orderer_name: string; orderer_phone: string; product_title: string; total_price: number;
     }>(
       `UPDATE orders o
        SET status = $1
        FROM products p
        WHERE o.id = $2 AND p.id = o.product_id
-       RETURNING o.id, o.status, o.orderer_email, o.orderer_name, o.total_price,
-                 p.title AS product_title`,
+       RETURNING o.id, o.status, o.orderer_email, o.orderer_name, o.orderer_phone,
+                 o.total_price, p.title AS product_title`,
       [status, id],
     );
 
@@ -134,6 +139,27 @@ router.patch("/:id/status", requireAdmin, async (req, res, next) => {
       sendOrderConfirmedEmail(emailData).catch(console.error);
     } else if (status === "cancelled") {
       sendOrderCancelledEmail(emailData).catch(console.error);
+    }
+
+    // 알림톡 발송 (비동기, 실패해도 응답에 영향 없음)
+    const settingsRows = await query<{ key: string; value: string }>(
+      "SELECT key, value FROM site_settings WHERE key = 'company_email'",
+      [],
+    );
+    const companyEmail = settingsRows[0]?.value ?? "";
+    const alimtalkData = {
+      id: order.id,
+      orderer_name: order.orderer_name,
+      orderer_phone: order.orderer_phone,
+      product_title: order.product_title,
+      total_price: order.total_price,
+    };
+    if (status === "payment_checking") {
+      sendPaymentCheckingAlimtalk(alimtalkData, companyEmail).catch(console.error);
+    } else if (status === "confirmed") {
+      sendOrderConfirmedAlimtalk(alimtalkData, companyEmail).catch(console.error);
+    } else if (status === "cancelled") {
+      sendOrderCancelledAlimtalk(alimtalkData, companyEmail).catch(console.error);
     }
 
     res.json({ ok: true, status });
