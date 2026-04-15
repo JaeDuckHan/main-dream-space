@@ -485,14 +485,13 @@ router.patch("/comments/:id", requireAuth, async (req, res, next) => {
   try {
     const { id } = z.object({ id: z.coerce.number().int().positive() }).parse(req.params);
     const payload = z.object({ content: z.string().trim().min(1).max(2000) }).parse(req.body);
-    await ensureCommentWriter(req.authUser!.id, req.authUser!.role, id, false);
+    await ensureCommentWriter(req.authUser!.id, req.authUser!.role, id, true);
     await query(
       `UPDATE community_comments
        SET content = $2
        WHERE id = $1
-         AND author_id = $3
          AND is_deleted = FALSE`,
-      [id, payload.content, req.authUser!.id],
+      [id, payload.content],
     );
     res.json({ ok: true });
   } catch (error) {

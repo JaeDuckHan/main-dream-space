@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 const footerLinks = {
   "바로가기": [
     { label: "도시비교", href: "/compare" },
@@ -16,7 +18,28 @@ const footerLinks = {
   ],
 };
 
+interface SiteSettings {
+  company_name: string;
+  company_ceo: string;
+  company_biz_no: string;
+  company_email: string;
+  company_address: string;
+}
+
 const Footer = () => {
+  const [settings, setSettings] = useState<SiteSettings | null>(null);
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((data: SiteSettings) => setSettings(data))
+      .catch(() => null);
+  }, []);
+
+  const hasCompanyInfo = settings && (
+    settings.company_name || settings.company_biz_no || settings.company_address
+  );
+
   return (
     <footer className="bg-foreground text-background/80">
       <div className="container py-12">
@@ -53,8 +76,21 @@ const Footer = () => {
           ))}
         </div>
 
-        <div className="mt-10 pt-6 border-t border-background/10 text-[13px] text-background/40">
-          © 2026 럭키다낭 (Lucky Danang). All rights reserved.
+        <div className="mt-10 pt-6 border-t border-background/10 text-[13px] text-background/40 space-y-1">
+          {hasCompanyInfo ? (
+            <>
+              {settings.company_name && (
+                <p>
+                  {settings.company_name}
+                  {settings.company_ceo ? ` · 대표 ${settings.company_ceo}` : ""}
+                  {settings.company_biz_no ? ` · 사업자등록번호 ${settings.company_biz_no}` : ""}
+                </p>
+              )}
+              {settings.company_address && <p>{settings.company_address}</p>}
+              {settings.company_email && <p>이메일 {settings.company_email}</p>}
+            </>
+          ) : null}
+          <p>© 2026 럭키다낭 (Lucky Danang). All rights reserved.</p>
         </div>
       </div>
     </footer>

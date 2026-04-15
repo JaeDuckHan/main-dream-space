@@ -113,6 +113,21 @@ export default function CommunityPostDetailPage() {
     }
   };
 
+  const handleEditComment = async (commentId: number, newContent: string) => {
+    try {
+      await communityFetch(`/api/community/comments/${commentId}`, {
+        method: "PATCH",
+        body: JSON.stringify({ content: newContent }),
+      });
+      setComments((current) =>
+        current.map((comment) => (comment.id === commentId ? { ...comment, content: newContent } : comment)),
+      );
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "댓글 수정에 실패했습니다.");
+      throw error;
+    }
+  };
+
   const handleLikeComment = async (commentId: number) => {
     if (!user) return requireLogin();
     const response = await communityFetch<{ liked: boolean; like_count: number }>(`/api/community/comments/${commentId}/like`, { method: "POST" });
@@ -191,10 +206,13 @@ export default function CommunityPostDetailPage() {
                   comment={comment}
                   replies={comments.filter((reply) => reply.parent_id === comment.id)}
                   canDelete={user?.id === comment.author.id || user?.role === "admin"}
+                  canEdit={user?.id === comment.author.id || user?.role === "admin"}
                   onReply={() => setReplyTo(comment.id)}
                   onDelete={() => void handleDeleteComment(comment.id)}
+                  onEdit={handleEditComment}
                   onLike={() => void handleLikeComment(comment.id)}
                   onDeleteReply={handleDeleteComment}
+                  onEditReply={handleEditComment}
                   onLikeReply={handleLikeComment}
                   currentUserId={user?.id ?? null}
                   admin={user?.role === "admin"}
@@ -237,10 +255,13 @@ function CommentBlock({
   comment,
   replies,
   canDelete,
+  canEdit,
   onReply,
   onDelete,
+  onEdit,
   onLike,
   onDeleteReply,
+  onEditReply,
   onLikeReply,
   currentUserId,
   admin,
@@ -248,14 +269,56 @@ function CommentBlock({
   comment: CommunityComment;
   replies: CommunityComment[];
   canDelete: boolean;
+  canEdit: boolean;
   onReply: () => void;
   onDelete: () => void;
+  onEdit: (id: number, content: string) => Promise<void>;
   onLike: () => void;
   onDeleteReply: (id: number) => void;
+  onEditReply: (id: number, content: string) => Promise<void>;
   onLikeReply: (id: number) => void;
   currentUserId: number | null;
   admin: boolean;
 }) {
+  const [editing, setEditing] = useState(false);
+  const [editContent, setEditContent] = useState(comment.content);
+  const [saving, setSaving] = useState(false);
+  const [editingReplyId, setEditingReplyId] = useState<number | null>(null);
+  const [editReplyContent, setEditReplyContent] = useState("");
+  const [savingReply, setSavingReply] = useState(false);
+
+  const startEdit = () => {
+    setEditContent(comment.content);
+    setEditing(true);
+  };
+
+  const saveEdit = async () => {
+    if (!editContent.trim()) return;
+    setSaving(true);
+    try {
+      await onEdit(comment.id, editContent.trim());
+      setEditing(false);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const startEditReply = (reply: CommunityComment) => {
+    setEditReplyContent(reply.content);
+    setEditingReplyId(reply.id);
+  };
+
+  const saveEditReply = async (replyId: number) => {
+    if (!editReplyContent.trim()) return;
+    setSavingReply(true);
+    try {
+      await onEditReply(replyId, editReplyContent.trim());
+      setEditingReplyId(null);
+    } finally {
+      setSavingReply(false);
+    }
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between gap-3">
@@ -263,7 +326,7 @@ function CommentBlock({
           <div className="font-semibold text-foreground">{comment.author.display_name}</div>
           <div className="text-xs text-muted-foreground">{formatRelativeTime(comment.created_at)}</div>
         </div>
-        {!comment.is_deleted ? (
+        {!comment.is_deleted && !editing ? (
           <div className="flex gap-2">
             <Button size="sm" variant={comment.liked_by_me ? "default" : "ghost"} onClick={onLike}>
               추천 {comment.like_count}
@@ -271,6 +334,11 @@ function CommentBlock({
             <Button size="sm" variant="ghost" onClick={onReply}>
               답글
             </Button>
+            {canEdit ? (
+              <Button size="sm" variant="ghost" onClick={startEdit}>
+                수정
+              </Button>
+            ) : null}
             {canDelete ? (
               <Button size="sm" variant="ghost" onClick={onDelete}>
                 삭제
@@ -279,9 +347,21 @@ function CommentBlock({
           </div>
         ) : null}
       </div>
-      <div className="mt-3 whitespace-pre-wrap text-sm leading-6 text-foreground">
-        {comment.is_deleted ? <span className="italic text-muted-foreground">삭제된 댓글입니다.</span> : comment.content}
-      </div>
+      {editing ? (
+        <div className="mt-3 space-y-2">
+          <Textarea value={editContent} onChange={(e) => setEditContent(e.target.value)} rows={3} className="text-sm" />
+          <div className="flex gap-2 justify-end">
+            <Button size="sm" variant="outline" onClick={() => setEditing(false)} disabled={saving}>취소</Button>
+            <Button size="sm" onClick={() => void saveEdit()} disabled={saving || !editContent.trim()}>
+              {saving ? "저장 중..." : "저장"}
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="mt-3 whitespace-pre-wrap text-sm leading-6 text-foreground">
+          {comment.is_deleted ? <span className="italic text-muted-foreground">삭제된 댓글입니다.</span> : comment.content}
+        </div>
+      )}
 
       {replies.length > 0 ? (
         <div className="mt-4 space-y-3 border-l border-border pl-4">
@@ -292,22 +372,39 @@ function CommentBlock({
                   <div className="font-medium text-foreground">{reply.author.display_name}</div>
                   <div className="text-xs text-muted-foreground">{formatRelativeTime(reply.created_at)}</div>
                 </div>
-                {!reply.is_deleted ? (
+                {!reply.is_deleted && editingReplyId !== reply.id ? (
                   <div className="flex gap-2">
                     <Button size="sm" variant={reply.liked_by_me ? "default" : "ghost"} onClick={() => onLikeReply(reply.id)}>
                       추천 {reply.like_count}
                     </Button>
                     {currentUserId === reply.author.id || admin ? (
-                      <Button size="sm" variant="ghost" onClick={() => onDeleteReply(reply.id)}>
-                        삭제
-                      </Button>
+                      <>
+                        <Button size="sm" variant="ghost" onClick={() => startEditReply(reply)}>
+                          수정
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => onDeleteReply(reply.id)}>
+                          삭제
+                        </Button>
+                      </>
                     ) : null}
                   </div>
                 ) : null}
               </div>
-              <div className="mt-2 whitespace-pre-wrap text-sm text-foreground">
-                {reply.is_deleted ? <span className="italic text-muted-foreground">삭제된 댓글입니다.</span> : reply.content}
-              </div>
+              {editingReplyId === reply.id ? (
+                <div className="mt-2 space-y-2">
+                  <Textarea value={editReplyContent} onChange={(e) => setEditReplyContent(e.target.value)} rows={2} className="text-sm" />
+                  <div className="flex gap-2 justify-end">
+                    <Button size="sm" variant="outline" onClick={() => setEditingReplyId(null)} disabled={savingReply}>취소</Button>
+                    <Button size="sm" onClick={() => void saveEditReply(reply.id)} disabled={savingReply || !editReplyContent.trim()}>
+                      {savingReply ? "저장 중..." : "저장"}
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-2 whitespace-pre-wrap text-sm text-foreground">
+                  {reply.is_deleted ? <span className="italic text-muted-foreground">삭제된 댓글입니다.</span> : reply.content}
+                </div>
+              )}
             </div>
           ))}
         </div>
