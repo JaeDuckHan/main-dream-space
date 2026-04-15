@@ -22,6 +22,7 @@ interface SiteSettings {
   company_name: string;
   company_ceo: string;
   company_biz_no: string;
+  company_sale_no: string;
   company_email: string;
   company_address: string;
 }
@@ -37,7 +38,7 @@ const Footer = () => {
   }, []);
 
   const hasCompanyInfo = settings && (
-    settings.company_name || settings.company_biz_no || settings.company_address
+    settings.company_name || settings.company_biz_no || settings.company_sale_no || settings.company_address
   );
 
   return (
@@ -83,11 +84,17 @@ const Footer = () => {
                 <p>
                   {settings.company_name}
                   {settings.company_ceo ? ` · 대표 ${settings.company_ceo}` : ""}
-                  {settings.company_biz_no ? ` · 사업자등록번호 ${settings.company_biz_no}` : ""}
+                </p>
+              )}
+              {(settings.company_biz_no || settings.company_sale_no) && (
+                <p>
+                  {settings.company_biz_no ? `사업자등록번호 ${settings.company_biz_no}` : ""}
+                  {settings.company_biz_no && settings.company_sale_no ? " · " : ""}
+                  {settings.company_sale_no ? `통신판매업신고번호 ${settings.company_sale_no}` : ""}
                 </p>
               )}
               {settings.company_address && <p>{settings.company_address}</p>}
-              {settings.company_email && <p>이메일 {settings.company_email}</p>}
+              {settings.company_email && <p>{settings.company_email}</p>}
             </>
           ) : null}
           <p>© 2026 럭키다낭 (Lucky Danang). All rights reserved.</p>

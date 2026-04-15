@@ -5,7 +5,7 @@ const router = Router();
 
 const SETTING_KEYS = [
   "bank_name", "bank_account", "bank_holder", "bank_notice",
-  "company_name", "company_ceo", "company_biz_no", "company_email", "company_address",
+  "company_name", "company_ceo", "company_biz_no", "company_sale_no", "company_email", "company_address",
 ] as const;
 
 router.get("/", async (_req, res, next) => {

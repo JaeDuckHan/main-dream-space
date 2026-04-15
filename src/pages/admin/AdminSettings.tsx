@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 const BANK_KEYS = ["bank_name", "bank_account", "bank_holder", "bank_notice"] as const;
-const COMPANY_KEYS = ["company_name", "company_ceo", "company_biz_no", "company_email", "company_address"] as const;
+const COMPANY_KEYS = ["company_name", "company_ceo", "company_biz_no", "company_sale_no", "company_email", "company_address"] as const;
 
 const LABELS: Record<string, string> = {
   bank_name: "은행명",
@@ -14,7 +14,8 @@ const LABELS: Record<string, string> = {
   bank_notice: "입금 안내 문구",
   company_name: "회사명",
   company_ceo: "대표자",
-  company_biz_no: "통신판매업신고번호",
+  company_biz_no: "사업자등록번호",
+  company_sale_no: "통신판매업신고번호",
   company_email: "이메일",
   company_address: "주소",
 };
