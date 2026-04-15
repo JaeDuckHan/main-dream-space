@@ -65,6 +65,7 @@ export default function AdminUsers() {
       });
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { fetchUsers(); }, [roleFilter, statusFilter, page]);
 
   const handleSearchChange = (value: string) => {
@@ -77,19 +78,30 @@ export default function AdminUsers() {
   };
 
   const openDetail = async (userId: number) => {
-    const data = await fetch(`/api/admin/users/${userId}`, { credentials: "include" }).then((r) => r.json());
-    setSelected(data);
-    setSheetOpen(true);
+    try {
+      const res = await fetch(`/api/admin/users/${userId}`, { credentials: "include" });
+      if (!res.ok) return;
+      const data = await res.json();
+      setSelected(data);
+      setSheetOpen(true);
+    } catch {
+      // network error — silently ignore
+    }
   };
 
   const applyRoleChange = async (newRole: "user" | "admin") => {
     if (!selected) return;
-    await fetch(`/api/admin/users/${selected.id}/role`, {
+    const res = await fetch(`/api/admin/users/${selected.id}/role`, {
       method: "PATCH",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ role: newRole }),
     });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      alert(body.error ?? "역할 변경에 실패했습니다.");
+      return;
+    }
     setConfirmDialog(null);
     setSheetOpen(false);
     fetchUsers();
@@ -97,12 +109,17 @@ export default function AdminUsers() {
 
   const applyStatusChange = async (active: boolean) => {
     if (!selected) return;
-    await fetch(`/api/admin/users/${selected.id}/status`, {
+    const res = await fetch(`/api/admin/users/${selected.id}/status`, {
       method: "PATCH",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ active }),
     });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      alert(body.error ?? "상태 변경에 실패했습니다.");
+      return;
+    }
     setConfirmDialog(null);
     setSheetOpen(false);
     fetchUsers();

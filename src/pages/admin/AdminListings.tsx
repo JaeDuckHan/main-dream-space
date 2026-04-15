@@ -8,10 +8,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Textarea } from "@/components/ui/textarea";
 
 export default function AdminListings() {
-  return <AdminListingsContent />;
-}
-
-function AdminListingsContent() {
   const [filter, setFilter] = useState<"pending" | "approved" | "rejected" | "all">("pending");
   const [listings, setListings] = useState<Listing[]>([]);
   const [selected, setSelected] = useState<Listing | null>(null);
