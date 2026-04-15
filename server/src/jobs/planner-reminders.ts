@@ -3,6 +3,14 @@ import cron from "node-cron";
 import { query } from "../db.js";
 import { Resend } from "resend";
 
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 interface ReminderRow {
@@ -14,6 +22,10 @@ interface ReminderRow {
 }
 
 async function sendPendingReminders() {
+  if (!process.env.RESEND_API_KEY) {
+    console.warn("[planner-reminders] RESEND_API_KEY not set, skipping");
+    return;
+  }
   const rows = await query<ReminderRow>(
     `SELECT r.id, r.email, r.plan_id,
             p.title AS plan_title,
@@ -44,8 +56,8 @@ async function sendPendingReminders() {
         subject,
         html: `
           <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
-            <h2 style="color:#1a1a1a">${row.plan_title || (row.plan_data.city || "여행") + " 한달살기 플랜"}</h2>
-            <p style="color:#555">출발일 <strong>${startDate}</strong>까지 아직 <strong>${unchecked}개</strong>의 체크리스트가 남았어요.</p>
+            <h2 style="color:#1a1a1a">${escapeHtml(row.plan_title || "") || (escapeHtml(row.plan_data.city || "여행") + " 한달살기 플랜")}</h2>
+            <p style="color:#555">출발일 <strong>${escapeHtml(startDate)}</strong>까지 아직 <strong>${unchecked}개</strong>의 체크리스트가 남았어요.</p>
             <a href="${process.env.VITE_SITE_URL || "https://luckydanang.com"}/planner"
                style="display:inline-block;margin-top:16px;padding:12px 24px;background:#6366f1;color:#fff;border-radius:8px;text-decoration:none;font-weight:600">
               플래너 확인하기

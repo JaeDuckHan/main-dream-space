@@ -231,51 +231,63 @@
   "hotPaths": [
     {
       "path": "src\\pages\\Planner.tsx",
-      "accessCount": 86,
-      "lastAccessed": 1776292402104,
+      "accessCount": 95,
+      "lastAccessed": 1776292605669,
       "type": "file"
     },
     {
       "path": "server\\src\\routes\\planner.ts",
-      "accessCount": 13,
-      "lastAccessed": 1776292002652,
-      "type": "file"
-    },
-    {
-      "path": "src\\pages\\PlannerExplore.tsx",
-      "accessCount": 8,
-      "lastAccessed": 1776292468549,
+      "accessCount": 16,
+      "lastAccessed": 1776292613693,
       "type": "file"
     },
     {
       "path": "server\\src\\jobs\\planner-reminders.ts",
-      "accessCount": 7,
-      "lastAccessed": 1776292183744,
+      "accessCount": 12,
+      "lastAccessed": 1776292701075,
       "type": "file"
     },
     {
-      "path": "src\\pages\\PlannerShare.tsx",
-      "accessCount": 6,
-      "lastAccessed": 1776291299869,
+      "path": "src\\pages\\PlannerExplore.tsx",
+      "accessCount": 10,
+      "lastAccessed": 1776292565806,
       "type": "file"
     },
     {
       "path": "server\\package.json",
-      "accessCount": 6,
-      "lastAccessed": 1776292183859,
+      "accessCount": 9,
+      "lastAccessed": 1776292705717,
+      "type": "file"
+    },
+    {
+      "path": "src\\pages\\PlannerShare.tsx",
+      "accessCount": 7,
+      "lastAccessed": 1776292565343,
       "type": "file"
     },
     {
       "path": "src\\App.tsx",
-      "accessCount": 4,
-      "lastAccessed": 1776290992982,
+      "accessCount": 5,
+      "lastAccessed": 1776292563901,
       "type": "file"
     },
     {
       "path": "server\\src\\index.ts",
-      "accessCount": 3,
-      "lastAccessed": 1776291892838,
+      "accessCount": 4,
+      "lastAccessed": 1776292563405,
       "type": "file"
+    },
+    {
+      "path": "server\\migrations\\012_planner_plans.sql",
+      "accessCount": 3,
+      "lastAccessed": 1776292561668,
+      "type": "file"
+    },
+    {
+      "path": "server",
+      "accessCount": 3,
+      "lastAccessed": 1776292612918,
+      "type": "directory"
     },
     {
       "path": "server\\src\\routes\\newsletter.ts",
@@ -290,10 +302,10 @@
       "type": "directory"
     },
     {
-      "path": "server\\migrations\\012_planner_plans.sql",
+      "path": "src\\pages",
       "accessCount": 2,
-      "lastAccessed": 1776292035752,
-      "type": "file"
+      "lastAccessed": 1776292589715,
+      "type": "directory"
     },
     {
       "path": "server\\src",
@@ -305,18 +317,6 @@
       "path": "src",
       "accessCount": 1,
       "lastAccessed": 1776291110098,
-      "type": "directory"
-    },
-    {
-      "path": "server",
-      "accessCount": 1,
-      "lastAccessed": 1776291411680,
-      "type": "directory"
-    },
-    {
-      "path": "src\\pages",
-      "accessCount": 1,
-      "lastAccessed": 1776291545420,
       "type": "directory"
     },
     {
