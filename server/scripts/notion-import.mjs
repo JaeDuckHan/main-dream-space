@@ -64,15 +64,32 @@ function renderHtml(markdown) {
 
 // ── Notion 페이지에서 필드 추출 ───────────────────────────────
 function extractTitle(page) {
-  const titleProp = page.properties?.Title ?? page.properties?.이름;
+  const titleProp =
+    page.properties?.Title ?? page.properties?.제목 ?? page.properties?.이름;
   if (!titleProp || titleProp.type !== "title") return null;
   return titleProp.title.map((t) => t.plain_text).join("").trim() || null;
 }
 
+const CATEGORY_MAP = {
+  공지: "notice",
+  질문: "question",
+  후기: "review",
+  정보: "info",
+};
+
 function extractCategory(page) {
   const catProp = page.properties?.Category ?? page.properties?.카테고리;
-  if (!catProp || catProp.type !== "select") return null;
-  return catProp.select?.name?.toLowerCase() ?? null;
+  if (!catProp) return null;
+
+  let rawName = null;
+  if (catProp.type === "select") {
+    rawName = catProp.select?.name ?? null;
+  } else if (catProp.type === "multi_select") {
+    rawName = catProp.multi_select?.[0]?.name ?? null;
+  }
+  if (!rawName) return null;
+
+  return CATEGORY_MAP[rawName] ?? rawName.toLowerCase();
 }
 
 function extractStatus(page) {
@@ -88,29 +105,29 @@ async function pageToMarkdown(pageId) {
   return (result.parent ?? "").trim();
 }
 
-// ── Notion 페이지 상태를 "Published" 로 업데이트 ─────────────
+// ── Notion 페이지 상태를 "발행완료" 로 업데이트 ──────────────
 async function markAsPublished(pageId) {
   await notion.pages.update({
     page_id: pageId,
     properties: {
-      Status: { select: { name: "Published" } },
-      상태: { select: { name: "Published" } },
+      Status: { select: { name: "발행완료" } },
+      상태: { select: { name: "발행완료" } },
     },
   });
 }
 
-// ── Notion DB에서 "Ready" 상태 페이지 조회 ───────────────────
+// ── Notion DB에서 "발행대기" 상태 페이지 조회 ────────────────
 async function fetchReadyPages() {
   const pages = [];
   let cursor;
 
   do {
-    const response = await notion.databases.query({
-      database_id: NOTION_DATABASE_ID,
+    const response = await notion.dataSources.query({
+      data_source_id: NOTION_DATABASE_ID,
       filter: {
         or: [
-          { property: "Status", select: { equals: "Ready" } },
-          { property: "상태", select: { equals: "Ready" } },
+          { property: "Status", select: { equals: "발행대기" } },
+          { property: "상태", select: { equals: "발행대기" } },
         ],
       },
       start_cursor: cursor,
@@ -126,7 +143,7 @@ async function fetchReadyPages() {
 
 // ── 메인 ─────────────────────────────────────────────────────
 async function main() {
-  console.log(`🔍  Notion DB에서 "Ready" 상태 게시글 조회 중...`);
+  console.log(`🔍  Notion DB에서 "발행대기" 상태 게시글 조회 중...`);
   if (dryRun) console.log("⚠️   DRY RUN 모드 — DB에 실제로 저장하지 않습니다.\n");
 
   const pages = await fetchReadyPages();
@@ -160,7 +177,7 @@ async function main() {
       skipped++;
       continue;
     }
-    if (status !== "Ready" && status !== "Ready") {
+    if (status !== "발행대기") {
       skipped++;
       continue;
     }
