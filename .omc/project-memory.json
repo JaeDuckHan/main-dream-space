@@ -1,0 +1,451 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1776160376073,
+  "projectRoot": "D:\\claude\\main-dream-space",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      },
+      {
+        "name": "TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "tsconfig.json"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "react",
+        "version": "18.3.1",
+        "category": "frontend"
+      },
+      {
+        "name": "react-dom",
+        "version": "18.3.1",
+        "category": "frontend"
+      },
+      {
+        "name": "@playwright/test",
+        "version": "1.57.0",
+        "category": "testing"
+      },
+      {
+        "name": "vite",
+        "version": "5.4.19",
+        "category": "build"
+      },
+      {
+        "name": "vitest",
+        "version": "3.2.4",
+        "category": "testing"
+      }
+    ],
+    "packageManager": "npm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": "bun build",
+    "testCommand": "bun test",
+    "lintCommand": "bun lint",
+    "devCommand": "bun dev",
+    "scripts": {
+      "dev": "vite",
+      "build": "vite build",
+      "build:dev": "vite build --mode development",
+      "lint": "eslint .",
+      "preview": "vite preview",
+      "test": "vitest run",
+      "test:watch": "vitest"
+    }
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": "type-based"
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "docs",
+      "public",
+      "src"
+    ],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 0,
+      "lastAccessed": 1776160376020,
+      "keyFiles": []
+    },
+    "public": {
+      "path": "public",
+      "purpose": "Public files",
+      "fileCount": 4,
+      "lastAccessed": 1776160376021,
+      "keyFiles": [
+        "default-avatar.svg",
+        "favicon.ico",
+        "placeholder.svg",
+        "robots.txt"
+      ]
+    },
+    "server": {
+      "path": "server",
+      "purpose": null,
+      "fileCount": 4,
+      "lastAccessed": 1776160376032,
+      "keyFiles": [
+        "package-lock.json",
+        "package.json",
+        "tsconfig.json"
+      ]
+    },
+    "src": {
+      "path": "src",
+      "purpose": "Source code",
+      "fileCount": 5,
+      "lastAccessed": 1776160376033,
+      "keyFiles": [
+        "App.css",
+        "App.tsx",
+        "index.css",
+        "main.tsx",
+        "vite-env.d.ts"
+      ]
+    },
+    "server\\migrations": {
+      "path": "server\\migrations",
+      "purpose": "Database migrations",
+      "fileCount": 7,
+      "lastAccessed": 1776160376034,
+      "keyFiles": [
+        "001_init.sql",
+        "003_oauth.sql",
+        "004b_migrate_accommodations.sql"
+      ]
+    },
+    "server\\node_modules": {
+      "path": "server\\node_modules",
+      "purpose": "Dependencies",
+      "fileCount": 1,
+      "lastAccessed": 1776160376035,
+      "keyFiles": []
+    },
+    "server\\scripts": {
+      "path": "server\\scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 3,
+      "lastAccessed": 1776160376036,
+      "keyFiles": [
+        "import-listings.mjs",
+        "notion-import.mjs",
+        "run-sql.mjs"
+      ]
+    },
+    "server\\seeds": {
+      "path": "server\\seeds",
+      "purpose": "Database seeds",
+      "fileCount": 3,
+      "lastAccessed": 1776160376036,
+      "keyFiles": [
+        "accommodations.seed.sql",
+        "checklist.seed.sql",
+        "listings.seed.sql"
+      ]
+    },
+    "server\\src": {
+      "path": "server\\src",
+      "purpose": "Source code",
+      "fileCount": 4,
+      "lastAccessed": 1776160376037,
+      "keyFiles": [
+        "db.ts",
+        "express.d.ts",
+        "index.ts"
+      ]
+    },
+    "src\\components": {
+      "path": "src\\components",
+      "purpose": "UI components",
+      "fileCount": 15,
+      "lastAccessed": 1776160376038,
+      "keyFiles": [
+        "CalculatorSection.tsx",
+        "CityCards.tsx",
+        "DashboardBar.tsx"
+      ]
+    },
+    "src\\data": {
+      "path": "src\\data",
+      "purpose": "Data files",
+      "fileCount": 1,
+      "lastAccessed": 1776160376039,
+      "keyFiles": [
+        "weekly-news.json"
+      ]
+    },
+    "src\\lib": {
+      "path": "src\\lib",
+      "purpose": "Library code",
+      "fileCount": 7,
+      "lastAccessed": 1776160376039,
+      "keyFiles": [
+        "accommodation-filters.ts",
+        "agoda.ts",
+        "community.ts"
+      ]
+    },
+    "src\\pages": {
+      "path": "src\\pages",
+      "purpose": "Page components",
+      "fileCount": 20,
+      "lastAccessed": 1776160376040,
+      "keyFiles": [
+        "AdminListings.tsx",
+        "BusinessDashboard.tsx",
+        "BusinessRegister.tsx"
+      ]
+    },
+    "src\\test": {
+      "path": "src\\test",
+      "purpose": "Test files",
+      "fileCount": 4,
+      "lastAccessed": 1776160376040,
+      "keyFiles": [
+        "accommodation-filters.test.ts",
+        "example.test.ts",
+        "session.test.ts"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "server\\src\\index.ts",
+      "accessCount": 9,
+      "lastAccessed": 1776210876049,
+      "type": "file"
+    },
+    {
+      "path": "server\\src\\routes\\admin-stats.ts",
+      "accessCount": 4,
+      "lastAccessed": 1776210624355,
+      "type": "file"
+    },
+    {
+      "path": "server\\src\\routes\\admin-listings.ts",
+      "accessCount": 4,
+      "lastAccessed": 1776210628623,
+      "type": "file"
+    },
+    {
+      "path": "server\\src\\lib\\auth.ts",
+      "accessCount": 4,
+      "lastAccessed": 1776210761120,
+      "type": "file"
+    },
+    {
+      "path": "server\\src\\routes\\admin-users.ts",
+      "accessCount": 4,
+      "lastAccessed": 1776210809623,
+      "type": "file"
+    },
+    {
+      "path": "src\\App.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1776211246816,
+      "type": "file"
+    },
+    {
+      "path": "src\\pages\\CommunityPostDetail.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1776160457801,
+      "type": "file"
+    },
+    {
+      "path": "docs\\superpowers\\specs\\2026-04-15-admin-shell-users-design.md",
+      "accessCount": 2,
+      "lastAccessed": 1776210185787,
+      "type": "file"
+    },
+    {
+      "path": "server\\migrations\\001_init.sql",
+      "accessCount": 2,
+      "lastAccessed": 1776210767712,
+      "type": "file"
+    },
+    {
+      "path": "src\\hooks\\use-auth.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1776210928084,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\admin\\AdminLayout.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1776210990940,
+      "type": "file"
+    },
+    {
+      "path": "src\\pages\\AdminListings.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1776211211910,
+      "type": "file"
+    },
+    {
+      "path": "src\\lib\\routes.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776209140667,
+      "type": "file"
+    },
+    {
+      "path": "src\\pages\\BusinessDashboard.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776209146055,
+      "type": "file"
+    },
+    {
+      "path": "src\\hooks\\use-listings.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776209146397,
+      "type": "file"
+    },
+    {
+      "path": "C:\\Users\\jazze\\.claude\\plugins\\cache\\claude-plugins-official\\superpowers\\5.0.7\\skills\\brainstorming\\visual-companion.md",
+      "accessCount": 1,
+      "lastAccessed": 1776209223448,
+      "type": "file"
+    },
+    {
+      "path": ".superpowers\\brainstorm\\242-1776209243\\content\\admin-layout.html",
+      "accessCount": 1,
+      "lastAccessed": 1776209454735,
+      "type": "file"
+    },
+    {
+      "path": ".superpowers\\brainstorm\\242-1776209243\\content\\admin-approach.html",
+      "accessCount": 1,
+      "lastAccessed": 1776209746859,
+      "type": "file"
+    },
+    {
+      "path": ".superpowers\\brainstorm\\242-1776209243\\content\\admin-design.html",
+      "accessCount": 1,
+      "lastAccessed": 1776209942385,
+      "type": "file"
+    },
+    {
+      "path": "server\\src\\types.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776210266354,
+      "type": "file"
+    },
+    {
+      "path": "server\\migrations\\003_oauth.sql",
+      "accessCount": 1,
+      "lastAccessed": 1776210270403,
+      "type": "file"
+    },
+    {
+      "path": "docs\\superpowers\\plans\\2026-04-15-admin-shell-users.md",
+      "accessCount": 1,
+      "lastAccessed": 1776210407203,
+      "type": "file"
+    },
+    {
+      "path": "C:\\Users\\jazze\\.claude\\plugins\\cache\\claude-plugins-official\\superpowers\\5.0.7\\skills\\subagent-driven-development\\implementer-prompt.md",
+      "accessCount": 1,
+      "lastAccessed": 1776210481234,
+      "type": "file"
+    },
+    {
+      "path": "C:\\Users\\jazze\\.claude\\plugins\\cache\\claude-plugins-official\\superpowers\\5.0.7\\skills\\subagent-driven-development\\spec-reviewer-prompt.md",
+      "accessCount": 1,
+      "lastAccessed": 1776210481547,
+      "type": "file"
+    },
+    {
+      "path": "C:\\Users\\jazze\\.claude\\plugins\\cache\\claude-plugins-official\\superpowers\\5.0.7\\skills\\subagent-driven-development\\code-quality-reviewer-prompt.md",
+      "accessCount": 1,
+      "lastAccessed": 1776210481957,
+      "type": "file"
+    },
+    {
+      "path": "server\\src\\db.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776210601407,
+      "type": "file"
+    },
+    {
+      "path": "server\\src\\routes\\admin-community.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776210628766,
+      "type": "file"
+    },
+    {
+      "path": "server",
+      "accessCount": 1,
+      "lastAccessed": 1776210765442,
+      "type": "directory"
+    },
+    {
+      "path": "server\\migrations\\005_community.sql",
+      "accessCount": 1,
+      "lastAccessed": 1776210767893,
+      "type": "file"
+    },
+    {
+      "path": "server\\migrations\\004_listings.sql",
+      "accessCount": 1,
+      "lastAccessed": 1776210768065,
+      "type": "file"
+    },
+    {
+      "path": "src\\components\\RequireAuth.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776210927877,
+      "type": "file"
+    },
+    {
+      "path": "src\\lib\\utils.ts",
+      "accessCount": 1,
+      "lastAccessed": 1776210928289,
+      "type": "file"
+    },
+    {
+      "path": "src\\pages\\admin\\AdminHome.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776211046244,
+      "type": "file"
+    },
+    {
+      "path": "src\\pages\\admin\\AdminUsers.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776211163319,
+      "type": "file"
+    },
+    {
+      "path": "src\\pages\\admin\\AdminListings.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1776211234118,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

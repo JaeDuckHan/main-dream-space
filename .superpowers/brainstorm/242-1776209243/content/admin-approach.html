@@ -1,0 +1,67 @@
+<h2>서브시스템 1 — 구현 방식 선택</h2>
+<p class="subtitle">관리자 쉘 + 회원 관리 접근 방식</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>AdminLayout 컴포넌트 분리 (권장)</h3>
+      <p>기존 AppShell과 완전히 분리된 <code>AdminLayout.tsx</code> 신규 생성. 사이드바 고정, 콘텐츠 영역만 교체.</p>
+      <div class="mockup" style="margin-top:10px">
+        <div class="mockup-header">파일 구조</div>
+        <div class="mockup-body" style="font-size:11px;font-family:monospace;line-height:1.8">
+          src/components/admin/<br>
+          &nbsp;&nbsp;AdminLayout.tsx &nbsp;<span style="color:#22c55e">← NEW (사이드바 포함)</span><br>
+          src/pages/admin/<br>
+          &nbsp;&nbsp;AdminHome.tsx &nbsp;<span style="color:#22c55e">← NEW (/admin)</span><br>
+          &nbsp;&nbsp;AdminUsers.tsx &nbsp;<span style="color:#22c55e">← NEW (/admin/users)</span><br>
+          &nbsp;&nbsp;AdminListings.tsx &nbsp;<span style="color:#f59e0b">← 이동+개선</span><br>
+          &nbsp;&nbsp;AdminProducts.tsx &nbsp;<span style="color:#94a3b8">← 추후</span><br>
+          &nbsp;&nbsp;AdminOrders.tsx &nbsp;<span style="color:#94a3b8">← 추후</span>
+        </div>
+      </div>
+      <div class="pros-cons" style="margin-top:8px">
+        <div class="pros"><h4>장점</h4><ul><li>확장 쉬움</li><li>Navbar/KakaoBtn 안 뜸</li><li>나중에 서브시스템 추가 간단</li></ul></div>
+        <div class="cons"><h4>단점</h4><ul><li>초기 설정 약간 더 많음</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>기존 AdminListings 확장</h3>
+      <p>현재 <code>AdminListings.tsx</code>에 사이드바 추가하고 탭 확장. 새 레이아웃 없이 빠르게 구현.</p>
+      <div class="mockup" style="margin-top:10px">
+        <div class="mockup-header">파일 구조</div>
+        <div class="mockup-body" style="font-size:11px;font-family:monospace;line-height:1.8">
+          src/pages/<br>
+          &nbsp;&nbsp;AdminListings.tsx &nbsp;<span style="color:#f59e0b">← 대폭 확장</span><br>
+          &nbsp;&nbsp;AdminUsers.tsx &nbsp;<span style="color:#22c55e">← NEW</span><br>
+          <br>
+          <span style="color:#ef4444">기존 Navbar + KakaoBtn 계속 뜸</span><br>
+          <span style="color:#ef4444">나중에 리팩토링 필요</span>
+        </div>
+      </div>
+      <div class="pros-cons" style="margin-top:8px">
+        <div class="pros"><h4>장점</h4><ul><li>당장 빠름</li></ul></div>
+        <div class="cons"><h4>단점</h4><ul><li>기술 부채 쌓임</li><li>관리자에 카카오버튼 등 불필요</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top:24px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:16px">
+  <h3 style="margin:0 0 8px">회원 관리 화면 구성 (공통)</h3>
+  <div style="font-size:12px;line-height:1.8;color:#1e40af">
+    <strong>테이블:</strong> 아바타 | 이름/이메일 | 가입일 | 소셜로그인 | 역할 | 상태 | 주문수<br>
+    <strong>검색:</strong> 이름·이메일 검색 + 역할 필터 + 상태 필터<br>
+    <strong>클릭 → 사이드 패널:</strong><br>
+    &nbsp;&nbsp;• 기본 정보<br>
+    &nbsp;&nbsp;• 역할 변경 (user ↔ admin)<br>
+    &nbsp;&nbsp;• 계정 비활성화<br>
+    &nbsp;&nbsp;• 작성 글 목록 탭<br>
+    &nbsp;&nbsp;• 업체 등록 현황 탭<br>
+    &nbsp;&nbsp;• 주문 내역 탭 (서브시스템 3 연동)
+  </div>
+</div>

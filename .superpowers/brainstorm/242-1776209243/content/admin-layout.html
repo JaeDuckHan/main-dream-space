@@ -1,0 +1,111 @@
+<h2>관리자 대시보드 레이아웃 구조</h2>
+<p class="subtitle">어떤 구조로 관리자 섹션을 만들까요?</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>전용 사이드바 레이아웃</h3>
+      <p><code>/admin/*</code> 전용 레이아웃, 왼쪽 사이드바 네비게이션</p>
+      <div class="mockup" style="margin-top:12px">
+        <div class="mockup-body" style="display:flex;gap:0;padding:0;min-height:160px">
+          <div style="width:140px;background:#1e293b;color:#94a3b8;padding:12px;font-size:11px;flex-shrink:0;border-radius:6px 0 0 6px">
+            <div style="color:#f1f5f9;font-weight:700;margin-bottom:12px;font-size:12px">🛠 Admin</div>
+            <div style="padding:6px 8px;background:#334155;border-radius:4px;color:#fff;margin-bottom:4px">📊 대시보드</div>
+            <div style="padding:6px 8px;margin-bottom:4px">👥 회원 관리</div>
+            <div style="padding:6px 8px;margin-bottom:4px">🏢 업체 검수</div>
+            <div style="padding:6px 8px;margin-bottom:4px">🎁 기획상품</div>
+            <div style="padding:6px 8px;margin-bottom:4px">🚗 픽업 서비스</div>
+            <div style="padding:6px 8px">💬 커뮤니티</div>
+          </div>
+          <div style="flex:1;padding:12px;background:#f8fafc;border-radius:0 6px 6px 0">
+            <div style="font-size:11px;color:#64748b;margin-bottom:8px">대시보드 홈</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+              <div style="background:#fff;border:1px solid #e2e8f0;border-radius:4px;padding:8px;font-size:10px">
+                <div style="color:#94a3b8">대기중 업체</div>
+                <div style="font-size:18px;font-weight:700;color:#f59e0b">12</div>
+              </div>
+              <div style="background:#fff;border:1px solid #e2e8f0;border-radius:4px;padding:8px;font-size:10px">
+                <div style="color:#94a3b8">전체 회원</div>
+                <div style="font-size:18px;font-weight:700;color:#3b82f6">284</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pros-cons" style="margin-top:8px">
+        <div class="pros"><h4>장점</h4><ul><li>확장성 좋음</li><li>명확한 분리</li></ul></div>
+        <div class="cons"><h4>단점</h4><ul><li>새 레이아웃 구현 필요</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>탭 기반 단일 페이지</h3>
+      <p>기존 <code>/admin/listings</code> 확장, 상단 탭으로 섹션 전환</p>
+      <div class="mockup" style="margin-top:12px">
+        <div class="mockup-body" style="padding:12px;min-height:160px">
+          <div style="display:flex;gap:0;border-bottom:2px solid #e2e8f0;margin-bottom:12px">
+            <div style="padding:6px 10px;font-size:10px;background:#3b82f6;color:#fff;border-radius:4px 4px 0 0;margin-right:2px">회원</div>
+            <div style="padding:6px 10px;font-size:10px;color:#64748b;border-radius:4px 4px 0 0;margin-right:2px">업체검수</div>
+            <div style="padding:6px 10px;font-size:10px;color:#64748b;border-radius:4px 4px 0 0;margin-right:2px">기획상품</div>
+            <div style="padding:6px 10px;font-size:10px;color:#64748b;border-radius:4px 4px 0 0">픽업</div>
+          </div>
+          <div style="font-size:10px;color:#64748b">
+            <div style="display:flex;justify-content:space-between;padding:6px;background:#f8fafc;border-radius:4px;margin-bottom:3px">
+              <span>user@kakao.com</span><span style="color:#22c55e">활성</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:6px;background:#f8fafc;border-radius:4px;margin-bottom:3px">
+              <span>user2@google.com</span><span style="color:#22c55e">활성</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pros-cons" style="margin-top:8px">
+        <div class="pros"><h4>장점</h4><ul><li>빠르게 구현</li><li>기존 패턴 유지</li></ul></div>
+        <div class="cons"><h4>단점</h4><ul><li>기능 많아지면 복잡</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>섹션별 분리 페이지 + 관리자 홈</h3>
+      <p><code>/admin</code> 홈에서 카드로 섹션 이동, 각각 독립 페이지</p>
+      <div class="mockup" style="margin-top:12px">
+        <div class="mockup-body" style="padding:12px;min-height:160px">
+          <div style="font-size:11px;font-weight:700;margin-bottom:10px">관리자 홈 <span style="color:#94a3b8;font-weight:400">/admin</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:10px">
+            <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;padding:10px;cursor:pointer">
+              <div style="font-size:16px">👥</div>
+              <div style="font-weight:600;margin-top:4px">회원 관리</div>
+              <div style="color:#64748b">284명</div>
+            </div>
+            <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:6px;padding:10px;cursor:pointer">
+              <div style="font-size:16px">🏢</div>
+              <div style="font-weight:600;margin-top:4px">업체 검수</div>
+              <div style="color:#f59e0b">12건 대기</div>
+            </div>
+            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:10px;cursor:pointer">
+              <div style="font-size:16px">🎁</div>
+              <div style="font-weight:600;margin-top:4px">기획상품</div>
+              <div style="color:#64748b">5개 등록됨</div>
+            </div>
+            <div style="background:#fdf4ff;border:1px solid #e9d5ff;border-radius:6px;padding:10px;cursor:pointer">
+              <div style="font-size:16px">🚗</div>
+              <div style="font-weight:600;margin-top:4px">픽업 서비스</div>
+              <div style="color:#64748b">3건 예약중</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pros-cons" style="margin-top:8px">
+        <div class="pros"><h4>장점</h4><ul><li>직관적</li><li>현황 한눈에</li></ul></div>
+        <div class="cons"><h4>단점</h4><ul><li>페이지 여러 개</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>

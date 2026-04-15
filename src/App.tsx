@@ -27,7 +27,10 @@ import NotFound from "./pages/NotFound.tsx";
 import Login from "./pages/Login.tsx";
 import BusinessRegister from "./pages/BusinessRegister.tsx";
 import BusinessDashboard from "./pages/BusinessDashboard.tsx";
-import AdminListings from "./pages/AdminListings.tsx";
+import AdminLayout from "./components/admin/AdminLayout.tsx";
+import AdminHome from "./pages/admin/AdminHome.tsx";
+import AdminUsers from "./pages/admin/AdminUsers.tsx";
+import AdminListings from "./pages/admin/AdminListings.tsx";
 import ChecklistStatus from "./pages/ChecklistStatus.tsx";
 
 const queryClient = new QueryClient();
@@ -68,9 +71,13 @@ const App = () => (
               <Route path="/login" element={<Login />} />
               <Route path="/business/register" element={<BusinessRegister />} />
               <Route path="/business/dashboard" element={<BusinessDashboard />} />
-              <Route path="/admin/listings" element={<AdminListings />} />
               <Route path="/checklist" element={<ChecklistStatus />} />
               <Route path="*" element={<NotFound />} />
+            </Route>
+            <Route element={<AdminLayout />}>
+              <Route path="/admin" element={<AdminHome />} />
+              <Route path="/admin/users" element={<AdminUsers />} />
+              <Route path="/admin/listings" element={<AdminListings />} />
             </Route>
           </Routes>
         </BrowserRouter>

@@ -1,0 +1,186 @@
+<h2>서브시스템 1 — 전체 설계 확인</h2>
+<p class="subtitle">AdminLayout + 회원 관리. 이대로 진행할까요?</p>
+
+<div class="section">
+  <h3>1. 파일 구조</h3>
+  <div class="mockup">
+    <div class="mockup-body" style="font-size:11px;font-family:monospace;line-height:2">
+      <span style="color:#94a3b8">src/components/admin/</span><br>
+      &nbsp;&nbsp;<span style="color:#22c55e">AdminLayout.tsx</span> &nbsp;— 사이드바 + 콘텐츠 영역 래퍼<br>
+      <br>
+      <span style="color:#94a3b8">src/pages/admin/</span><br>
+      &nbsp;&nbsp;<span style="color:#22c55e">AdminHome.tsx</span> &nbsp;— /admin 현황 대시보드<br>
+      &nbsp;&nbsp;<span style="color:#22c55e">AdminUsers.tsx</span> &nbsp;— /admin/users 회원 관리<br>
+      &nbsp;&nbsp;<span style="color:#f59e0b">AdminListings.tsx</span> &nbsp;— /admin/listings (이동)<br>
+      &nbsp;&nbsp;<span style="color:#94a3b8">AdminProducts.tsx</span> &nbsp;— 추후 (서브시스템 2)<br>
+      &nbsp;&nbsp;<span style="color:#94a3b8">AdminOrders.tsx</span> &nbsp;— 추후 (서브시스템 3)<br>
+      <br>
+      <span style="color:#94a3b8">src/App.tsx</span> &nbsp;<span style="color:#f59e0b">← /admin/* 라우트를 AdminLayout으로 교체</span>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>2. AdminLayout 사이드바</h3>
+  <div class="mockup">
+    <div class="mockup-body" style="display:flex;gap:0;padding:0;min-height:200px">
+      <div style="width:160px;background:#0f172a;color:#94a3b8;padding:16px;font-size:11px;flex-shrink:0;border-radius:6px 0 0 6px">
+        <div style="color:#f1f5f9;font-weight:700;margin-bottom:4px;font-size:13px">🛠 관리자</div>
+        <div style="color:#475569;font-size:10px;margin-bottom:16px">admin@lucky.com</div>
+        <div style="padding:7px 10px;background:#1e40af;border-radius:5px;color:#fff;margin-bottom:3px;font-size:11px">📊 대시보드</div>
+        <div style="padding:7px 10px;margin-bottom:3px;font-size:11px">👥 회원 관리</div>
+        <div style="padding:7px 10px;margin-bottom:3px;font-size:11px;display:flex;justify-content:space-between;align-items:center">
+          🏢 업체 검수
+          <span style="background:#f59e0b;color:#fff;border-radius:9px;padding:1px 6px;font-size:9px">12</span>
+        </div>
+        <div style="padding:7px 10px;margin-bottom:3px;font-size:11px;color:#475569">🎁 기획상품</div>
+        <div style="padding:7px 10px;margin-bottom:3px;font-size:11px;color:#475569">🚗 픽업 서비스</div>
+        <div style="padding:7px 10px;font-size:11px;color:#475569">📦 주문 관리</div>
+        <div style="border-top:1px solid #1e293b;margin-top:16px;padding-top:12px">
+          <div style="padding:7px 10px;font-size:11px;color:#475569">← 사이트로 돌아가기</div>
+        </div>
+      </div>
+      <div style="flex:1;padding:16px;background:#f8fafc;border-radius:0 6px 6px 0;font-size:11px">
+        <div style="font-weight:700;font-size:13px;margin-bottom:12px">대시보드 현황</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:10px">
+            <div style="color:#64748b;font-size:10px">전체 회원</div>
+            <div style="font-size:22px;font-weight:700;color:#3b82f6">284</div>
+          </div>
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:10px">
+            <div style="color:#64748b;font-size:10px">업체 검수 대기</div>
+            <div style="font-size:22px;font-weight:700;color:#f59e0b">12</div>
+          </div>
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:10px">
+            <div style="color:#64748b;font-size:10px">이번달 주문</div>
+            <div style="font-size:22px;font-weight:700;color:#22c55e">8</div>
+          </div>
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:10px">
+            <div style="color:#64748b;font-size:10px">입금 대기</div>
+            <div style="font-size:22px;font-weight:700;color:#ef4444">3</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>3. 회원 관리 (/admin/users)</h3>
+  <div class="mockup">
+    <div class="mockup-body" style="font-size:11px">
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <div class="mock-input" style="flex:1;font-size:10px;padding:6px 10px">이름 또는 이메일 검색...</div>
+        <select style="border:1px solid #e2e8f0;border-radius:4px;padding:6px;font-size:10px;color:#64748b">
+          <option>전체 역할</option>
+          <option>user</option>
+          <option>admin</option>
+        </select>
+        <select style="border:1px solid #e2e8f0;border-radius:4px;padding:6px;font-size:10px;color:#64748b">
+          <option>전체 상태</option>
+          <option>활성</option>
+          <option>비활성</option>
+        </select>
+      </div>
+      <table style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr style="background:#f1f5f9;color:#475569">
+            <th style="padding:7px 8px;text-align:left;font-weight:600">회원</th>
+            <th style="padding:7px 8px;text-align:left;font-weight:600">가입일</th>
+            <th style="padding:7px 8px;text-align:left;font-weight:600">소셜</th>
+            <th style="padding:7px 8px;text-align:left;font-weight:600">역할</th>
+            <th style="padding:7px 8px;text-align:left;font-weight:600">상태</th>
+            <th style="padding:7px 8px;text-align:left;font-weight:600">주문</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid #f1f5f9;cursor:pointer" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background=''">
+            <td style="padding:8px">
+              <div style="font-weight:600">김다낭</div>
+              <div style="color:#94a3b8;font-size:10px">kim@kakao.com</div>
+            </td>
+            <td style="padding:8px;color:#64748b">2025.12.03</td>
+            <td style="padding:8px"><span style="background:#fef9c3;color:#854d0e;border-radius:4px;padding:2px 6px">카카오</span></td>
+            <td style="padding:8px"><span style="background:#dbeafe;color:#1e40af;border-radius:4px;padding:2px 6px">user</span></td>
+            <td style="padding:8px"><span style="color:#22c55e">● 활성</span></td>
+            <td style="padding:8px;font-weight:600;color:#7c3aed">3건</td>
+          </tr>
+          <tr style="border-bottom:1px solid #f1f5f9;cursor:pointer" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background=''">
+            <td style="padding:8px">
+              <div style="font-weight:600">이베트남</div>
+              <div style="color:#94a3b8;font-size:10px">lee@google.com</div>
+            </td>
+            <td style="padding:8px;color:#64748b">2026.01.15</td>
+            <td style="padding:8px"><span style="background:#dcfce7;color:#166534;border-radius:4px;padding:2px 6px">구글</span></td>
+            <td style="padding:8px"><span style="background:#fee2e2;color:#991b1b;border-radius:4px;padding:2px 6px">admin</span></td>
+            <td style="padding:8px"><span style="color:#22c55e">● 활성</span></td>
+            <td style="padding:8px;color:#94a3b8">0건</td>
+          </tr>
+          <tr style="cursor:pointer" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background=''">
+            <td style="padding:8px">
+              <div style="font-weight:600;color:#94a3b8">박호치민</div>
+              <div style="color:#94a3b8;font-size:10px">park@naver.com</div>
+            </td>
+            <td style="padding:8px;color:#94a3b8">2026.02.28</td>
+            <td style="padding:8px"><span style="background:#f0fdf4;color:#15803d;border-radius:4px;padding:2px 6px">네이버</span></td>
+            <td style="padding:8px"><span style="background:#dbeafe;color:#1e40af;border-radius:4px;padding:2px 6px">user</span></td>
+            <td style="padding:8px"><span style="color:#94a3b8">● 비활성</span></td>
+            <td style="padding:8px;color:#94a3b8">1건</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>4. 회원 상세 사이드 패널</h3>
+  <div class="mockup">
+    <div class="mockup-body" style="display:flex;gap:0;padding:0;min-height:180px">
+      <div style="flex:1;background:#f8fafc;padding:12px;font-size:11px;color:#94a3b8;border-radius:6px 0 0 6px;display:flex;align-items:center;justify-content:center">
+        ← 회원 목록 테이블
+      </div>
+      <div style="width:260px;background:#fff;border-left:1px solid #e2e8f0;padding:14px;font-size:11px;border-radius:0 6px 6px 0">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div style="font-weight:700;font-size:13px">김다낭</div>
+          <div style="color:#94a3b8;cursor:pointer">✕</div>
+        </div>
+        <div style="color:#64748b;margin-bottom:12px">kim@kakao.com · 카카오</div>
+        <div style="display:flex;gap:6px;margin-bottom:14px">
+          <button style="flex:1;background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;border-radius:5px;padding:5px;font-size:10px;cursor:pointer">user → admin</button>
+          <button style="flex:1;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:5px;padding:5px;font-size:10px;cursor:pointer">비활성화</button>
+        </div>
+        <div style="display:flex;gap:0;border-bottom:1px solid #e2e8f0;margin-bottom:10px">
+          <div style="padding:5px 8px;font-size:10px;border-bottom:2px solid #3b82f6;color:#2563eb;font-weight:600">주문(3)</div>
+          <div style="padding:5px 8px;font-size:10px;color:#94a3b8">작성글(7)</div>
+          <div style="padding:5px 8px;font-size:10px;color:#94a3b8">업체(1)</div>
+        </div>
+        <div style="font-size:10px">
+          <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f1f5f9">
+            <span>다낭 공항픽업 패키지</span>
+            <span style="color:#f59e0b">입금대기</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f1f5f9">
+            <span>한달살기 3박4일</span>
+            <span style="color:#22c55e">완료</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:5px 0">
+            <span>호텔+픽업 번들</span>
+            <span style="color:#22c55e">완료</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>5. 필요한 백엔드 API</h3>
+  <div style="background:#1e293b;color:#e2e8f0;border-radius:6px;padding:14px;font-size:11px;font-family:monospace;line-height:2">
+    <span style="color:#22c55e">GET</span>  /api/admin/users?search=&role=&status=&page=<br>
+    <span style="color:#22c55e">GET</span>  /api/admin/users/:id &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(글+업체+주문 포함)<br>
+    <span style="color:#f59e0b">PATCH</span> /api/admin/users/:id/role &nbsp;&nbsp;&nbsp;(user↔admin)<br>
+    <span style="color:#f59e0b">PATCH</span> /api/admin/users/:id/status &nbsp;(active/inactive)<br>
+    <span style="color:#22c55e">GET</span>  /api/admin/stats &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(대시보드 현황수치)
+  </div>
+</div>
