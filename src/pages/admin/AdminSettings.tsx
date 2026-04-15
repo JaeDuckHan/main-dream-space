@@ -29,7 +29,7 @@ export default function AdminSettings() {
     fetch("/api/settings")
       .then((r) => r.json())
       .then((d: SettingsMap) => setSettings(d))
-      .catch(() => {});
+      .catch(() => { console.error("Failed to load settings"); });
   }, []);
 
   const handleChange = (key: string, value: string) => {
@@ -46,8 +46,11 @@ export default function AdminSettings() {
         body: JSON.stringify(settings),
       });
       if (!res.ok) {
-        alert("저장에 실패했습니다.");
+        const body = await res.json().catch(() => ({})) as { error?: string };
+        alert(body.error ?? "저장에 실패했습니다.");
+        return;
       }
+      alert("설정이 저장되었습니다.");
     } catch {
       alert("저장에 실패했습니다.");
     } finally {
