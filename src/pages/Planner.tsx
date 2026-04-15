@@ -802,36 +802,23 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
   const [sessionId] = useState(() => getSessionId());
 
   // Feature C: 숙소 추천
-  interface ListingRecommendation {
-    id: number;
-    name: string;
-    slug: string;
-    address: string | null;
-    affiliate_url: string | null;
-    category_data: {
-      price_min_usd?: number;
-      price_monthly_usd?: number;
-    };
-  }
-
-  const USD_TO_KRW = 1350;
   const [listingRecs, setListingRecs] = useState<ListingRecommendation[]>([]);
 
   useEffect(() => {
     if (!data.city) return;
+    const controller = new AbortController();
     const budgetKrw = (data.budget || 150) * 10000;
-    fetch(`/api/listings?category=accommodation&city=${encodeURIComponent(data.city)}&limit=20`)
-      .then(r => r.json())
+    fetch(`/api/listings?category=accommodation&city=${encodeURIComponent(data.city)}&limit=20`, { signal: controller.signal })
+      .then(r => { if (!r.ok) throw new Error(r.statusText); return r.json(); })
       .then((rows: ListingRecommendation[]) => {
-        const filtered = rows.filter(r => {
-          const monthly = r.category_data?.price_monthly_usd;
-          const min = r.category_data?.price_min_usd;
-          const priceKrw = (monthly ?? min ?? 9999) * USD_TO_KRW;
-          return priceKrw <= budgetKrw * 0.6; // 예산의 60% 이하 숙소
+        const filtered = rows.filter((r) => {
+          const priceKrw = getMonthlyPriceKrw(r.category_data, 9999);
+          return priceKrw <= budgetKrw * 0.6;
         });
         setListingRecs(filtered.slice(0, 3));
       })
       .catch(() => null);
+    return () => controller.abort();
   }, [data.city, data.budget]);
 
   const persist = useCallback((updated: PlannerData) => {
@@ -1288,9 +1275,7 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
               </h4>
               <div className="space-y-2">
                 {listingRecs.map(listing => {
-                  const monthly = listing.category_data?.price_monthly_usd;
-                  const min = listing.category_data?.price_min_usd;
-                  const priceKrw = Math.round(((monthly ?? min ?? 0) * USD_TO_KRW) / 10000);
+                  const priceKrw = Math.round(getMonthlyPriceKrw(listing.category_data) / 10000);
                   return (
                     <div key={listing.id} className="flex items-center justify-between p-3 rounded-lg border border-border bg-card hover:border-primary/50 transition-colors">
                       <div>
@@ -1464,6 +1449,24 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
     </div>
   );
 };
+
+/* ── Feature C: 숙소 추천 ── */
+interface ListingRecommendation {
+  id: number;
+  name: string;
+  slug: string;
+  address: string | null;
+  affiliate_url: string | null;
+  category_data: {
+    price_min_usd?: number;
+    price_monthly_usd?: number;
+  };
+}
+
+const USD_TO_KRW = 1350;
+
+const getMonthlyPriceKrw = (cd: ListingRecommendation['category_data'], fallback = 0) =>
+  ((cd?.price_monthly_usd ?? cd?.price_min_usd ?? fallback) * USD_TO_KRW);
 
 /* ── Main Page ── */
 const Planner = () => {
