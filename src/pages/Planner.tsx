@@ -833,7 +833,6 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
 
   const start = new Date(data.startDate);
   const end = new Date(data.endDate);
-  const dDay = differenceInDays(start, new Date());
   const weeks = Math.max(1, Math.ceil(differenceInDays(end, start) / 7));
   const dateStr = `${format(start, "yyyy.MM.dd")} → ${format(end, "MM.dd")}`;
   const useRemoteChecklist = data.city === "다낭";
@@ -1062,6 +1061,7 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
   const dDay = useMemo(() => {
     if (!data.startDate) return null;
     const start = new Date(data.startDate);
+    start.setHours(0, 0, 0, 0);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const diff = differenceInDays(start, today);
@@ -1091,8 +1091,12 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
         <span className="text-[#AAA]">·</span>
         <span className="text-muted-foreground">{dateStr}</span>
         <span className="text-[#AAA]">·</span>
-        <span className="text-[24px] font-bold text-foreground leading-none">D{dDay > 0 ? `-${dDay}` : dDay === 0 ? "-Day" : `+${Math.abs(dDay)}`}</span>
-        <span className="text-[#AAA]">·</span>
+        {dDay !== null && (
+          <>
+            <span className="text-[24px] font-bold text-foreground leading-none">D{dDay > 0 ? `-${dDay}` : dDay === 0 ? "-Day" : `+${Math.abs(dDay)}`}</span>
+            <span className="text-[#AAA]">·</span>
+          </>
+        )}
         <span className="text-muted-foreground">{data.party}</span>
         <span className="text-[#AAA]">·</span>
         <span className="text-muted-foreground">{data.budget}만원/월</span>

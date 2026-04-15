@@ -231,20 +231,20 @@
   "hotPaths": [
     {
       "path": "src\\pages\\Planner.tsx",
-      "accessCount": 37,
-      "lastAccessed": 1776291199640,
+      "accessCount": 60,
+      "lastAccessed": 1776291650852,
       "type": "file"
     },
     {
       "path": "server\\src\\routes\\planner.ts",
-      "accessCount": 8,
-      "lastAccessed": 1776291212463,
+      "accessCount": 10,
+      "lastAccessed": 1776291306134,
       "type": "file"
     },
     {
       "path": "src\\pages\\PlannerShare.tsx",
-      "accessCount": 5,
-      "lastAccessed": 1776291213836,
+      "accessCount": 6,
+      "lastAccessed": 1776291299869,
       "type": "file"
     },
     {
@@ -287,6 +287,18 @@
       "path": "src",
       "accessCount": 1,
       "lastAccessed": 1776291110098,
+      "type": "directory"
+    },
+    {
+      "path": "server",
+      "accessCount": 1,
+      "lastAccessed": 1776291411680,
+      "type": "directory"
+    },
+    {
+      "path": "src\\pages",
+      "accessCount": 1,
+      "lastAccessed": 1776291545420,
       "type": "directory"
     }
   ],
