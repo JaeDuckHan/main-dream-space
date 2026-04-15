@@ -164,7 +164,8 @@
 
 **로직:**
 - 도시 일치 listings 중 `accommodation` 카테고리 필터
-- 예산 범위에 맞는 가격대 (listings.price_range 활용)
+- 예산 범위에 맞는 가격대: `category_data->>'price_monthly_usd'` 기준 (USD → KRW 환산 필요, 환율 상수로 하드코딩)
+- `price_monthly_usd`가 null인 항목은 `price_min_usd`로 fallback
 - 상위 3개 추천, 각 카드에 Agoda/Booking 애필리에이트 링크 포함
 
 **UI:**
@@ -257,3 +258,15 @@
 | 다른 사람 플랜 탐색 (B) | 중 | 중간 — A 완료 후 |
 
 **권장 구현 순서:** E → C → A → D(UI) → D(이메일) → B
+
+---
+
+## 구현 시 참고사항
+
+### Migration 파일
+- `server/migrations/012_planner_plans.sql` 신규 생성
+- `planner_plans` 테이블과 `planner_reminders` 테이블을 하나의 파일에 함께 포함
+
+### 업체 광고 수익화
+- 현재 스펙 범위 밖. 디렉토리 트래픽이 충분히 쌓이면 별도 스펙으로 정의 예정
+- 방식 후보: 월정액 고정비 / 상단 노출 입찰 / 클릭당 과금 중 선택
