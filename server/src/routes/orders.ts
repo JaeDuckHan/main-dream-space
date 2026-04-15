@@ -3,6 +3,7 @@ import { Router } from "express";
 import { z } from "zod";
 import { query } from "../db.js";
 import { requireAuth } from "../lib/auth.js";
+import { sendPendingPaymentAlimtalk } from "../lib/alimtalk.js";
 
 const router = Router();
 
@@ -74,6 +75,29 @@ router.post("/", requireAuth, async (req, res, next) => {
         [orderId, opt.id, opt.label, opt.price_delta],
       );
     }
+
+    // 알림톡: pending_payment (은행 정보 포함, 비동기 fire-and-forget)
+    const settingsRows = await query<{ key: string; value: string }>(
+      "SELECT key, value FROM site_settings WHERE key = ANY($1)",
+      [["bank_name", "bank_account", "bank_holder", "bank_notice", "company_email"]],
+    );
+    const s = Object.fromEntries(settingsRows.map((r) => [r.key, r.value]));
+    sendPendingPaymentAlimtalk(
+      {
+        id: orderId,
+        orderer_name: data.orderer_name,
+        orderer_phone: data.orderer_phone,
+        product_title: product.title,
+        total_price,
+      },
+      {
+        bank_name: s.bank_name ?? "",
+        bank_account: s.bank_account ?? "",
+        bank_holder: s.bank_holder ?? "",
+        bank_notice: s.bank_notice ?? "",
+        company_email: s.company_email ?? "",
+      },
+    ).catch(console.error);
 
     res.status(201).json({ id: orderId, status: "pending_payment", total_price });
   } catch (error) {
