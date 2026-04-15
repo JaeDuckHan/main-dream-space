@@ -142,25 +142,27 @@ router.patch("/:id/status", requireAdmin, async (req, res, next) => {
     }
 
     // 알림톡 발송 (비동기, 실패해도 응답에 영향 없음)
-    const settingsRows = await query<{ key: string; value: string }>(
-      "SELECT key, value FROM site_settings WHERE key = 'company_email'",
-      [],
-    );
-    const companyEmail = settingsRows[0]?.value ?? "";
-    const alimtalkData = {
+    const alimtalkOrder = {
       id: order.id,
       orderer_name: order.orderer_name,
       orderer_phone: order.orderer_phone,
       product_title: order.product_title,
       total_price: order.total_price,
     };
-    if (status === "payment_checking") {
-      sendPaymentCheckingAlimtalk(alimtalkData, companyEmail).catch(console.error);
-    } else if (status === "confirmed") {
-      sendOrderConfirmedAlimtalk(alimtalkData, companyEmail).catch(console.error);
-    } else if (status === "cancelled") {
-      sendOrderCancelledAlimtalk(alimtalkData, companyEmail).catch(console.error);
-    }
+    (async () => {
+      const settingsRows = await query<{ key: string; value: string }>(
+        "SELECT key, value FROM site_settings WHERE key = 'company_email'",
+        [],
+      );
+      const companyEmail = settingsRows[0]?.value ?? "";
+      if (status === "payment_checking") {
+        await sendPaymentCheckingAlimtalk(alimtalkOrder, companyEmail);
+      } else if (status === "confirmed") {
+        await sendOrderConfirmedAlimtalk(alimtalkOrder, companyEmail);
+      } else if (status === "cancelled") {
+        await sendOrderCancelledAlimtalk(alimtalkOrder, companyEmail);
+      }
+    })().catch(console.error);
 
     res.json({ ok: true, status });
   } catch (error) {
