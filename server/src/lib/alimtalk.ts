@@ -1,5 +1,4 @@
 const API_URL = "https://biz.service.iwinv.kr/api/send/";
-const SENDER_KEY = process.env.IWINV_SENDER_KEY ?? "";
 
 export interface OrderAlimtalkData {
   id: number;
@@ -18,7 +17,7 @@ export interface BankSettings {
 }
 
 function normalizePhone(phone: string): string {
-  return phone.replace(/-/g, "");
+  return phone.replace(/[^0-9]/g, "");
 }
 
 function formatPrice(n: number): string {
@@ -39,20 +38,25 @@ async function sendAlimtalk(
 ): Promise<void> {
   if (!process.env.IWINV_API_KEY) return;
   const auth = Buffer.from(process.env.IWINV_API_KEY).toString("base64");
-  await fetch(API_URL, {
+  const senderKey = process.env.IWINV_SENDER_KEY ?? "";
+  const response = await fetch(API_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json;charset=UTF-8",
       AUTH: auth,
     },
     body: JSON.stringify({
-      sender_key: SENDER_KEY,
+      sender_key: senderKey,
       template_code: templateCode,
       phone_number: normalizePhone(phone),
       message,
       fall_back_yn: false,
     }),
   });
+  if (!response.ok) {
+    const body = await response.text().catch(() => "");
+    throw new Error(`alimtalk failed (${response.status}): ${body}`);
+  }
 }
 
 // 템플릿 문구 (iwinv에 등록된 내용과 완전히 일치해야 함)
