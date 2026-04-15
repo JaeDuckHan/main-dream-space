@@ -32,6 +32,9 @@ import AdminHome from "./pages/admin/AdminHome.tsx";
 import AdminUsers from "./pages/admin/AdminUsers.tsx";
 import AdminListings from "./pages/admin/AdminListings.tsx";
 import ChecklistStatus from "./pages/ChecklistStatus.tsx";
+import Products from "./pages/Products";
+import ProductDetail from "./pages/ProductDetail";
+import AdminProducts from "./pages/admin/AdminProducts";
 
 const queryClient = new QueryClient();
 
@@ -67,6 +70,8 @@ const App = () => (
               <Route path="/planner" element={<Planner />} />
               <Route path="/compare" element={<Compare />} />
               <Route path="/directory" element={<Directory />} />
+              <Route path="/products" element={<Products />} />
+              <Route path="/products/:slug" element={<ProductDetail />} />
               <Route path="/insight" element={<Insight />} />
               <Route path="/login" element={<Login />} />
               <Route path="/business/register" element={<BusinessRegister />} />
@@ -78,6 +83,7 @@ const App = () => (
               <Route path="/admin" element={<AdminHome />} />
               <Route path="/admin/users" element={<AdminUsers />} />
               <Route path="/admin/listings" element={<AdminListings />} />
+              <Route path="/admin/products" element={<AdminProducts />} />
             </Route>
           </Routes>
         </BrowserRouter>
