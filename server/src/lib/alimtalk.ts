@@ -37,6 +37,8 @@ async function sendAlimtalk(
   message: string,
 ): Promise<void> {
   if (!process.env.IWINV_API_KEY) return;
+  const normalized = normalizePhone(phone);
+  if (!normalized) return;
   const auth = Buffer.from(process.env.IWINV_API_KEY).toString("base64");
   const senderKey = process.env.IWINV_SENDER_KEY ?? "";
   const response = await fetch(API_URL, {
@@ -48,7 +50,7 @@ async function sendAlimtalk(
     body: JSON.stringify({
       sender_key: senderKey,
       template_code: templateCode,
-      phone_number: normalizePhone(phone),
+      phone_number: normalized,
       message,
       fall_back_yn: false,
     }),
