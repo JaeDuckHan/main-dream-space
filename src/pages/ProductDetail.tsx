@@ -87,7 +87,9 @@ export default function ProductDetail() {
 
   const handleOrder = () => {
     if (!user) { setLoginDialog(true); return; }
-    alert("주문 기능은 준비 중입니다.");
+    const optionsParam = [...selectedOptions].join(",");
+    const url = `/orders/new?product=${product!.slug}${optionsParam ? `&options=${optionsParam}` : ""}`;
+    navigate(url);
   };
 
   if (loading) {
