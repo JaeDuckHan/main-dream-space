@@ -127,7 +127,7 @@ export default function PlannerExplore() {
                   </h3>
                   <div className="flex flex-wrap gap-1.5 mb-3">
                     {[plan.data?.city ?? "", plan.data?.party ?? "", `${plan.data?.budget ?? 0}만원`].map((tag, i) => (
-                      <span key={i} className="px-2 py-0.5 text-[11px] bg-muted text-muted-foreground rounded-full">
+                      <span key={`${plan.id}-tag-${i}`} className="px-2 py-0.5 text-[11px] bg-muted text-muted-foreground rounded-full">
                         {tag}
                       </span>
                     ))}

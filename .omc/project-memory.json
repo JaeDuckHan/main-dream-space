@@ -231,14 +231,14 @@
   "hotPaths": [
     {
       "path": "src\\pages\\Planner.tsx",
-      "accessCount": 98,
-      "lastAccessed": 1776296263904,
+      "accessCount": 101,
+      "lastAccessed": 1776296276102,
       "type": "file"
     },
     {
       "path": "server\\src\\routes\\planner.ts",
-      "accessCount": 21,
-      "lastAccessed": 1776296262799,
+      "accessCount": 23,
+      "lastAccessed": 1776296272279,
       "type": "file"
     },
     {
@@ -249,8 +249,8 @@
     },
     {
       "path": "src\\pages\\PlannerExplore.tsx",
-      "accessCount": 11,
-      "lastAccessed": 1776296254365,
+      "accessCount": 12,
+      "lastAccessed": 1776296282148,
       "type": "file"
     },
     {

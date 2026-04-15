@@ -761,7 +761,7 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
   // Feature E: 예산 시뮬레이터
   const [budgetRatios, setBudgetRatios] = useState<{ 숙소: number; 식비: number; 이동: number; 기타: number }>(() => {
     const rec = getRecommendation(initialData.city, initialData.party);
-    const total = Object.values(rec.budget).reduce((a, b) => a + b, 0);
+    const total = Object.values(rec.budget).reduce((a, b) => a + b, 0) || 1;
     return {
       숙소: Math.round((rec.budget.숙소 / total) * 100),
       식비: Math.round((rec.budget.식비 / total) * 100),
@@ -783,14 +783,14 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
       }
       // 합계가 100이 되도록 마지막 항목 보정
       const sum = Object.values(updated).reduce((a, b) => a + b, 0);
-      updated[others[others.length - 1]] += (100 - sum);
+      updated[others[others.length - 1]] = Math.max(0, updated[others[others.length - 1]] + (100 - sum));
       return updated;
     });
   };
 
   const resetBudgetRatios = () => {
     const rec = getRecommendation(data.city, data.party);
-    const total = Object.values(rec.budget).reduce((a, b) => a + b, 0);
+    const total = Object.values(rec.budget).reduce((a, b) => a + b, 0) || 1;
     setBudgetRatios({
       숙소: Math.round((rec.budget.숙소 / total) * 100),
       식비: Math.round((rec.budget.식비 / total) * 100),

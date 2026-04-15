@@ -169,7 +169,7 @@ router.get("/plans/:id", async (req, res, next) => {
 });
 
 // POST /api/planner/plans/:id/reminders — 리마인더 이메일 등록
-router.post("/plans/:id/reminders", async (req, res, next) => {
+router.post("/plans/:id/reminders", planReminderLimiter, async (req, res, next) => {
   try {
     const { id } = z.object({ id: z.string().uuid() }).parse(req.params);
     const { email } = z.object({ email: z.string().email() }).parse(req.body);
@@ -195,12 +195,21 @@ router.post("/plans/:id/reminders", async (req, res, next) => {
       })
       .filter(Boolean);
 
-    for (const remindAt of inserts) {
-      await query(
-        `INSERT INTO planner_reminders (plan_id, email, remind_at) VALUES ($1, $2, $3)
-         ON CONFLICT DO NOTHING`,
-        [id, email, remindAt],
-      );
+    const client = await pool.connect();
+    try {
+      await client.query("BEGIN");
+      for (const remindAt of inserts) {
+        await client.query(
+          `INSERT INTO planner_reminders (plan_id, email, remind_at) VALUES ($1, $2, $3) ON CONFLICT DO NOTHING`,
+          [id, email, remindAt],
+        );
+      }
+      await client.query("COMMIT");
+    } catch (err) {
+      await client.query("ROLLBACK");
+      throw err;
+    } finally {
+      client.release();
     }
 
     res.json({ ok: true, scheduled: inserts.length });
