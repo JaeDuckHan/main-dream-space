@@ -21,7 +21,9 @@ CREATE TABLE IF NOT EXISTS planner_reminders (
   email TEXT NOT NULL,
   remind_at TIMESTAMPTZ NOT NULL,
   sent BOOLEAN NOT NULL DEFAULT false,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (plan_id, email, remind_at)
 );
 
 CREATE INDEX IF NOT EXISTS idx_planner_reminders_pending ON planner_reminders(remind_at) WHERE sent = false;
+CREATE INDEX IF NOT EXISTS idx_planner_reminders_plan ON planner_reminders(plan_id);
