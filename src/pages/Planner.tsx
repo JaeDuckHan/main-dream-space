@@ -805,6 +805,8 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
   // Feature A: 공유 링크
   const [sharing, setSharing] = useState(false);
   const [sharedId, setSharedId] = useState<string | null>(null);
+  const [shareVisibility, setShareVisibility] = useState<"link" | "public">("link");
+  const [showShareModal, setShowShareModal] = useState(false);
 
   // Feature D-Email: 리마인더
   const [showReminderModal, setShowReminderModal] = useState(false);
@@ -1043,7 +1045,7 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
           session_id: getSessionId(),
           title: `${data.city} ${data.party} 한달살기 플랜`,
           data,
-          is_public: true,
+          is_public: shareVisibility === "public",
         }),
       });
       if (!res.ok) throw new Error("Share failed");
@@ -1133,6 +1135,49 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* Feature A: 공유 범위 선택 모달 */}
+      <Dialog open={showShareModal} onOpenChange={setShowShareModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>공유 범위 선택</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2 py-2">
+            <button
+              onClick={() => setShareVisibility("link")}
+              className={`w-full flex items-start gap-3 p-3 rounded-lg border transition-colors text-left ${
+                shareVisibility === "link" ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
+              }`}
+            >
+              <span className="text-lg mt-0.5">🔗</span>
+              <div>
+                <p className="text-[13px] font-semibold text-foreground">링크 있는 사람만</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">탐색 목록에는 표시되지 않아요</p>
+              </div>
+            </button>
+            <button
+              onClick={() => setShareVisibility("public")}
+              className={`w-full flex items-start gap-3 p-3 rounded-lg border transition-colors text-left ${
+                shareVisibility === "public" ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
+              }`}
+            >
+              <span className="text-lg mt-0.5">🌐</span>
+              <div>
+                <p className="text-[13px] font-semibold text-foreground">공개 목록에 공개</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">다른 사람 플랜 탐색에도 표시돼요</p>
+              </div>
+            </button>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowShareModal(false)}>취소</Button>
+            <Button
+              onClick={() => { setShowShareModal(false); void handleShare(); }}
+              disabled={sharing}
+            >
+              {sharing ? "저장 중..." : "공유 링크 생성"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       {/* Summary bar with progress */}
       <div
         className="bg-[#F8F9FA] rounded px-4 py-3 mb-6 flex flex-wrap items-center gap-x-3 gap-y-1 text-[14px] cursor-pointer hover:bg-[#F0F1F3] transition-colors"
@@ -1200,7 +1245,7 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
             다른 플랜 보기
           </Link>
           <button
-            onClick={() => void handleShare()}
+            onClick={() => setShowShareModal(true)}
             disabled={sharing}
             className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] rounded-lg border border-border hover:border-primary/50 hover:text-primary transition-colors disabled:opacity-50"
           >

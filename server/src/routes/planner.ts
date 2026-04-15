@@ -158,7 +158,7 @@ router.get("/plans/:id", async (req, res, next) => {
   try {
     const { id } = z.object({ id: z.string().uuid() }).parse(req.params);
     const rows = await query<{ id: string; title: string; data: Record<string, unknown>; created_at: string }>(
-      `SELECT id, title, data, created_at FROM planner_plans WHERE id = $1 AND is_public = true`,
+      `SELECT id, title, data, created_at FROM planner_plans WHERE id = $1`,
       [id],
     );
     if (!rows[0]) return res.status(404).json({ error: "플랜을 찾을 수 없습니다." });
