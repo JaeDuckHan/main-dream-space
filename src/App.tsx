@@ -35,6 +35,10 @@ import ChecklistStatus from "./pages/ChecklistStatus.tsx";
 import Products from "./pages/Products";
 import ProductDetail from "./pages/ProductDetail";
 import AdminProducts from "./pages/admin/AdminProducts";
+import AdminOrders from "./pages/admin/AdminOrders";
+import AdminSettings from "./pages/admin/AdminSettings";
+import OrderNew from "./pages/OrderNew";
+import MyOrders from "./pages/MyOrders";
 
 const queryClient = new QueryClient();
 
@@ -77,6 +81,8 @@ const App = () => (
               <Route path="/business/register" element={<BusinessRegister />} />
               <Route path="/business/dashboard" element={<BusinessDashboard />} />
               <Route path="/checklist" element={<ChecklistStatus />} />
+              <Route path="/orders/new" element={<OrderNew />} />
+              <Route path="/my/orders" element={<MyOrders />} />
               <Route path="*" element={<NotFound />} />
             </Route>
             <Route element={<AdminLayout />}>
@@ -84,6 +90,8 @@ const App = () => (
               <Route path="/admin/users" element={<AdminUsers />} />
               <Route path="/admin/listings" element={<AdminListings />} />
               <Route path="/admin/products" element={<AdminProducts />} />
+              <Route path="/admin/orders" element={<AdminOrders />} />
+              <Route path="/admin/settings" element={<AdminSettings />} />
             </Route>
           </Routes>
         </BrowserRouter>
