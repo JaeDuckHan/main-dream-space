@@ -400,9 +400,9 @@ router.patch("/posts/:id", requireAuth, async (req, res, next) => {
       await client.query(
         `UPDATE community_images
          SET post_id = $1
-         WHERE uploader_id = $2
-           AND url = ANY($3::text[])`,
-        [id, post.author_id, imageUrls],
+         WHERE url = ANY($3::text[])
+           AND uploader_id = ANY(ARRAY[$2, $4]::int[])`,
+        [id, post.author_id, imageUrls, req.authUser!.id],
       );
     }
 
