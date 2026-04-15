@@ -64,14 +64,16 @@ router.put("/:id", requireAdmin, async (req, res, next) => {
   try {
     const { id } = z.object({ id: z.coerce.number().int().positive() }).parse(req.params);
     const data = productSchema.parse(req.body);
-    await query(
+    const rows = await query<{ id: number }>(
       `UPDATE products
        SET slug=$1, category=$2, title=$3, description=$4, thumbnail_url=$5,
            base_price=$6, sort_order=$7, is_active=$8
-       WHERE id=$9`,
+       WHERE id=$9
+       RETURNING id`,
       [data.slug, data.category, data.title, data.description ?? null,
        data.thumbnail_url || null, data.base_price, data.sort_order, data.is_active, id],
     );
+    if (!rows[0]) return res.status(404).json({ error: "Product not found" });
     res.json({ ok: true });
   } catch (error) {
     next(error);
@@ -110,7 +112,7 @@ router.post("/:id/options", requireAdmin, async (req, res, next) => {
     const { id } = z.object({ id: z.coerce.number().int().positive() }).parse(req.params);
     const { label, price_delta, sort_order } = z.object({
       label: z.string().min(1).max(100),
-      price_delta: z.number().int().min(0),
+      price_delta: z.number().int(),
       sort_order: z.number().int().default(0),
     }).parse(req.body);
 
