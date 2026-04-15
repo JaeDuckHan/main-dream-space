@@ -23,6 +23,7 @@ import dashboardRoutes from "./routes/dashboard.js";
 import newsletterRoutes from "./routes/newsletter.js";
 import statsRoutes from "./routes/stats.js";
 import { errorHandler, notFound } from "./middleware/error.js";
+import { startPlannerReminderJob } from "./jobs/planner-reminders.js";
 import { pool } from "./db.js";
 import { authSessionMiddleware } from "./lib/auth.js";
 import { getUploadRoot } from "./lib/upload.js";
@@ -99,6 +100,8 @@ app.use("/api", dashboardRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
+
+startPlannerReminderJob();
 
 app.listen(port, () => {
   console.log(`dreamspace-api listening on ${port}`);

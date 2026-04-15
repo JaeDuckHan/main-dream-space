@@ -806,6 +806,12 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
   const [sharing, setSharing] = useState(false);
   const [sharedId, setSharedId] = useState<string | null>(null);
 
+  // Feature D-Email: 리마인더
+  const [showReminderModal, setShowReminderModal] = useState(false);
+  const [reminderEmail, setReminderEmail] = useState("");
+  const [reminderPlanId, setReminderPlanId] = useState<string | null>(null);
+  const [savingReminder, setSavingReminder] = useState(false);
+
   // Feature C: 숙소 추천
   const [listingRecs, setListingRecs] = useState<ListingRecommendation[]>([]);
 
@@ -1044,6 +1050,8 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
       const json = await res.json() as { id: string };
       const url = `${window.location.origin}/planner/share/${json.id}`;
       setSharedId(json.id);
+      setReminderPlanId(json.id);
+      if (data.startDate) setShowReminderModal(true);
       try {
         await navigator.clipboard.writeText(url);
         toast.success("링크가 복사됐어요!");
@@ -1054,6 +1062,24 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
       toast.error("공유에 실패했습니다.");
     } finally {
       setSharing(false);
+    }
+  };
+
+  const handleSaveReminder = async () => {
+    if (!reminderPlanId || !reminderEmail) return;
+    setSavingReminder(true);
+    try {
+      await fetch(`/api/planner/plans/${reminderPlanId}/reminders`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: reminderEmail }),
+      });
+      toast.success("리마인더가 등록됐어요!");
+      setShowReminderModal(false);
+    } catch {
+      toast.error("등록에 실패했습니다.");
+    } finally {
+      setSavingReminder(false);
     }
   };
 
@@ -1082,6 +1108,30 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
 
   return (
     <div className="max-w-[900px] mx-auto py-6 px-4">
+      {/* Feature D-Email: 리마인더 모달 */}
+      <Dialog open={showReminderModal} onOpenChange={setShowReminderModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>출발 전 알림 받기</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            출발 D-30, D-14, D-7에 미완료 체크리스트를 이메일로 알려드려요.
+          </p>
+          <Input
+            type="email"
+            placeholder="이메일 주소"
+            value={reminderEmail}
+            onChange={e => setReminderEmail(e.target.value)}
+            className="mt-2"
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowReminderModal(false)}>나중에</Button>
+            <Button onClick={() => void handleSaveReminder()} disabled={savingReminder || !reminderEmail}>
+              {savingReminder ? "등록 중..." : "알림 등록"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       {/* Summary bar with progress */}
       <div
         className="bg-[#F8F9FA] rounded px-4 py-3 mb-6 flex flex-wrap items-center gap-x-3 gap-y-1 text-[14px] cursor-pointer hover:bg-[#F0F1F3] transition-colors"

@@ -162,5 +162,47 @@ router.get("/plans/:id", async (req, res, next) => {
   }
 });
 
+// POST /api/planner/plans/:id/reminders — 리마인더 이메일 등록
+router.post("/plans/:id/reminders", async (req, res, next) => {
+  try {
+    const { id } = z.object({ id: z.string().uuid() }).parse(req.params);
+    const { email } = z.object({ email: z.string().email() }).parse(req.body);
+
+    const plans = await query<{ id: string; data: { startDate?: string } }>(
+      `SELECT id, data FROM planner_plans WHERE id = $1`,
+      [id],
+    );
+    if (!plans[0]) return res.status(404).json({ error: "플랜을 찾을 수 없습니다." });
+
+    const startDate = plans[0].data.startDate;
+    if (!startDate) return res.status(400).json({ error: "출발일이 설정되지 않았습니다." });
+
+    const start = new Date(startDate);
+    const remindDays = [30, 14, 7];
+    const now = new Date();
+
+    const inserts = remindDays
+      .map(d => {
+        const remindAt = new Date(start);
+        remindAt.setDate(remindAt.getDate() - d);
+        return remindAt > now ? remindAt : null;
+      })
+      .filter(Boolean);
+
+    for (const remindAt of inserts) {
+      await query(
+        `INSERT INTO planner_reminders (plan_id, email, remind_at) VALUES ($1, $2, $3)
+         ON CONFLICT DO NOTHING`,
+        [id, email, remindAt],
+      );
+    }
+
+    res.json({ ok: true, scheduled: inserts.length });
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;
+
 
