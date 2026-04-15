@@ -1,3 +1,4 @@
+import { Suspense, lazy } from "react";
 import Footer from "@/components/Footer";
 import { CityCostCards } from "@/components/home/CityCostCards";
 import { CityTabs } from "@/components/home/CityTabs";
@@ -10,12 +11,17 @@ import CalculatorSection from "@/components/CalculatorSection";
 import ServicesSection from "@/components/ServicesSection";
 import WeeklyUpdates from "@/components/WeeklyUpdates";
 
+const HeroScene = lazy(() => import("@/components/HeroScene"));
+
 const Index = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <main className="flex-1">
-        <section className="bg-gradient-to-b from-hero-from to-hero-to overflow-hidden pb-16 pt-[100px] text-white">
-          <div className="container text-center">
+        <section className="relative bg-gradient-to-b from-hero-from to-hero-to overflow-hidden pb-16 pt-[100px] text-white">
+          <Suspense fallback={null}>
+            <HeroScene />
+          </Suspense>
+          <div className="container relative text-center" style={{ zIndex: 2 }}>
             <h1 className="text-[32px] md:text-[48px] font-[800] leading-tight">
               다낭 한달살기 비용·월세·비자,
               <br />
