@@ -31,16 +31,19 @@ export default function PlannerExplore() {
 
   useEffect(() => {
     setLoading(true);
+    const controller = new AbortController();
     const params = new URLSearchParams();
     if (city) params.set("city", city);
     if (party) params.set("party", party);
     params.set("limit", "20");
 
-    fetch(`/api/planner/plans/public?${params}`)
-      .then(r => r.json())
+    fetch(`/api/planner/plans/public?${params}`, { signal: controller.signal })
+      .then(r => { if (!r.ok) throw new Error(r.statusText); return r.json(); })
       .then((data: PublicPlan[]) => setPlans(data))
-      .catch(() => setPlans([]))
-      .finally(() => setLoading(false));
+      .catch((e) => { if ((e as Error).name !== "AbortError") setPlans([]); })
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+
+    return () => controller.abort();
   }, [city, party]);
 
   const setFilter = (key: string, value: string) => {
@@ -112,7 +115,7 @@ export default function PlannerExplore() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {plans.map(plan => {
-              const ratio = getCheckedRatio(plan.data.checklist);
+              const ratio = getCheckedRatio(plan.data?.checklist);
               return (
                 <Link
                   key={plan.id}
@@ -120,11 +123,11 @@ export default function PlannerExplore() {
                   className="p-5 rounded-xl border border-border bg-card hover:border-primary/50 hover:shadow-sm transition-all"
                 >
                   <h3 className="text-[14px] font-semibold text-foreground mb-3 line-clamp-1">
-                    {plan.title || `${plan.data.city} 한달살기 플랜`}
+                    {plan.title || `${plan.data?.city ?? ""} 한달살기 플랜`}
                   </h3>
                   <div className="flex flex-wrap gap-1.5 mb-3">
-                    {[plan.data.city, plan.data.party, `${plan.data.budget}만원`].map(tag => (
-                      <span key={tag} className="px-2 py-0.5 text-[11px] bg-muted text-muted-foreground rounded-full">
+                    {[plan.data?.city ?? "", plan.data?.party ?? "", `${plan.data?.budget ?? 0}만원`].map((tag, i) => (
+                      <span key={i} className="px-2 py-0.5 text-[11px] bg-muted text-muted-foreground rounded-full">
                         {tag}
                       </span>
                     ))}
