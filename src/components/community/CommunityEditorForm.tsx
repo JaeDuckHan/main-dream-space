@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import MDEditor from "@uiw/react-md-editor";
+import { marked } from "marked";
+
+marked.use({ gfm: true, breaks: true });
 import { Loader2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -158,7 +161,13 @@ export default function CommunityEditorForm({
         </div>
 
         <div data-color-mode="light">
-          <MDEditor value={content} onChange={(value) => setContent(value || "")} preview={previewMode} height={520} />
+          <MDEditor
+            value={content}
+            onChange={(value) => setContent(value || "")}
+            preview={previewMode}
+            height={520}
+            renderHTML={(text) => marked.parse(text) as string}
+          />
         </div>
       </div>
 
