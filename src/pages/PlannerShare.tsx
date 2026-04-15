@@ -31,6 +31,7 @@ export default function PlannerShare() {
         return r.json();
       })
       .then(data => { if (data) setPlan(data); })
+      .catch(() => setNotFound(true))
       .finally(() => setLoading(false));
   }, [id]);
 

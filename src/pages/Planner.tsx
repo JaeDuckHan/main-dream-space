@@ -1022,6 +1022,13 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
   };
 
   const handleShare = async () => {
+    if (sharedId) {
+      // Already shared — just re-copy the URL
+      const url = `${window.location.origin}/planner/share/${sharedId}`;
+      await navigator.clipboard.writeText(url).catch(() => null);
+      toast.success("링크가 복사됐어요!");
+      return;
+    }
     setSharing(true);
     try {
       const res = await fetch("/api/planner/plans", {
@@ -1034,11 +1041,16 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
           is_public: true,
         }),
       });
+      if (!res.ok) throw new Error("Share failed");
       const json = await res.json() as { id: string };
       const url = `${window.location.origin}/planner/share/${json.id}`;
-      await navigator.clipboard.writeText(url);
       setSharedId(json.id);
-      toast.success("링크가 복사됐어요!");
+      try {
+        await navigator.clipboard.writeText(url);
+        toast.success("링크가 복사됐어요!");
+      } catch {
+        toast.info("링크가 생성됐어요. 위에서 확인하세요.");
+      }
     } catch {
       toast.error("공유에 실패했습니다.");
     } finally {

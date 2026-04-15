@@ -1,7 +1,7 @@
 {
   "tool_name": "Read",
   "tool_input_preview": "{\"file_path\":\"D:\\\\claude\\\\main-dream-space\\\\.worktrees\\\\feat-planner-enhancement\\\\src\\\\pages\\\\Planner.tsx\"}",
-  "error": "File content (22495 tokens) exceeds maximum allowed tokens (10000). Use offset and limit parameters to read specific portions of the file, or search for specific content instead of reading the whole file.",
-  "timestamp": "2026-04-15T22:02:51.681Z",
+  "error": "File content (23057 tokens) exceeds maximum allowed tokens (10000). Use offset and limit parameters to read specific portions of the file, or search for specific content instead of reading the whole file.",
+  "timestamp": "2026-04-15T22:12:53.748Z",
   "retry_count": 1
 }

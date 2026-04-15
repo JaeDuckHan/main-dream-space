@@ -231,9 +231,63 @@
   "hotPaths": [
     {
       "path": "src\\pages\\Planner.tsx",
-      "accessCount": 15,
-      "lastAccessed": 1776290618079,
+      "accessCount": 37,
+      "lastAccessed": 1776291199640,
       "type": "file"
+    },
+    {
+      "path": "server\\src\\routes\\planner.ts",
+      "accessCount": 8,
+      "lastAccessed": 1776291212463,
+      "type": "file"
+    },
+    {
+      "path": "src\\pages\\PlannerShare.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1776291213836,
+      "type": "file"
+    },
+    {
+      "path": "src\\App.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1776290992982,
+      "type": "file"
+    },
+    {
+      "path": "src\\pages\\PlannerExplore.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1776290992470,
+      "type": "file"
+    },
+    {
+      "path": "server\\src\\routes\\newsletter.ts",
+      "accessCount": 2,
+      "lastAccessed": 1776291189139,
+      "type": "directory"
+    },
+    {
+      "path": "",
+      "accessCount": 1,
+      "lastAccessed": 1776291103830,
+      "type": "directory"
+    },
+    {
+      "path": "server\\migrations\\012_planner_plans.sql",
+      "accessCount": 1,
+      "lastAccessed": 1776291108165,
+      "type": "file"
+    },
+    {
+      "path": "server\\src",
+      "accessCount": 1,
+      "lastAccessed": 1776291109530,
+      "type": "directory"
+    },
+    {
+      "path": "src",
+      "accessCount": 1,
+      "lastAccessed": 1776291110098,
+      "type": "directory"
     }
   ],
   "userDirectives": []

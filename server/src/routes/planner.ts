@@ -1,7 +1,16 @@
 import { Router } from "express";
+import rateLimit from "express-rate-limit";
 import { z } from "zod";
 import { query } from "../db.js";
 import type { ChecklistItemRow, ChecklistTemplate } from "../types.js";
+
+const planShareLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "요청이 너무 많습니다. 잠시 후 다시 시도해주세요." },
+});
 
 const router = Router();
 
@@ -83,7 +92,7 @@ router.post("/progress", async (req, res) => {
 // ── Plan Share ──────────────────────────────────────────────────────────────
 
 // POST /api/planner/plans — 플랜 저장
-router.post("/plans", async (req, res, next) => {
+router.post("/plans", planShareLimiter, async (req, res, next) => {
   try {
     const body = z.object({
       session_id: z.string().min(1).max(64),
