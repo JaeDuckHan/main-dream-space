@@ -57,7 +57,7 @@ export default function AdminOrders() {
     fetch(`/api/admin/orders?${params}`, { credentials: "include" })
       .then((r) => r.json())
       .then((d) => setOrders(d.items ?? []))
-      .catch(() => {});
+      .catch((err) => console.error("Failed to fetch orders:", err));
   };
 
   useEffect(() => { fetchOrders(); }, [statusFilter]);
@@ -69,26 +69,36 @@ export default function AdminOrders() {
   };
 
   const changeStatus = async (id: number, status: OrderStatus) => {
-    await fetch(`/api/admin/orders/${id}/status`, {
-      method: "PATCH",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
-    setSheetOpen(false);
-    fetchOrders();
+    try {
+      const res = await fetch(`/api/admin/orders/${id}/status`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      setSheetOpen(false);
+      fetchOrders();
+    } catch (err) {
+      console.error("Status change failed:", err);
+      alert("상태 변경에 실패했습니다.");
+    }
   };
 
-  const saveMemo = async () => {
-    if (!selected) return;
+  const saveMemo = async (orderId: number, memo: string) => {
     setSavingMemo(true);
-    await fetch(`/api/admin/orders/${selected.id}/memo`, {
-      method: "PATCH",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ admin_memo: adminMemo }),
-    }).catch(() => {});
-    setSavingMemo(false);
+    try {
+      await fetch(`/api/admin/orders/${orderId}/memo`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ admin_memo: memo }),
+      });
+    } catch (err) {
+      console.error("Failed to save memo:", err);
+    } finally {
+      setSavingMemo(false);
+    }
     fetchOrders();
   };
 
@@ -184,8 +194,8 @@ export default function AdminOrders() {
                 <div className="rounded-lg bg-slate-50 p-3 space-y-1">
                   <p className="text-xs text-slate-400">상품 / 금액</p>
                   <p className="font-medium">{selected.product_title}</p>
-                  {selected.options.map((o, i) => (
-                    <p key={i} className="text-xs text-slate-500">+ {o.label} ({o.price_delta.toLocaleString("ko-KR")}원)</p>
+                  {selected.options.map((o) => (
+                    <p key={`${o.label}-${o.price_delta}`} className="text-xs text-slate-500">+ {o.label} ({o.price_delta.toLocaleString("ko-KR")}원)</p>
                   ))}
                   <p className="font-bold text-blue-600 pt-1">{selected.total_price.toLocaleString("ko-KR")}원</p>
                 </div>
@@ -225,7 +235,7 @@ export default function AdminOrders() {
                     variant="outline"
                     className="mt-2"
                     disabled={savingMemo}
-                    onClick={() => void saveMemo()}
+                    onClick={() => void saveMemo(selected.id, adminMemo)}
                   >
                     {savingMemo ? "저장 중..." : "메모 저장"}
                   </Button>
