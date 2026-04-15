@@ -28,8 +28,7 @@ function AdminSidebar() {
     { href: "/admin", label: "대시보드", icon: "📊" },
     { href: "/admin/users", label: "회원 관리", icon: "👥" },
     { href: "/admin/listings", label: "업체 검수", icon: "🏢", badge: pendingCount },
-    { href: "/admin/products", label: "기획상품", icon: "🎁", disabled: true },
-    { href: "/admin/pickup", label: "픽업 서비스", icon: "🚗", disabled: true },
+    { href: "/admin/products", label: "기획/픽업 상품", icon: "🎁" },
     { href: "/admin/orders", label: "주문 관리", icon: "📦", disabled: true },
   ];
 
