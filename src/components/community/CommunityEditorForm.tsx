@@ -167,6 +167,7 @@ export default function CommunityEditorForm({
             preview={previewMode}
             height={520}
             renderHTML={(text) => marked.parse(text) as string}
+            previewOptions={{ className: "prose prose-slate max-w-none prose-img:rounded-xl !px-4" }}
           />
         </div>
       </div>
