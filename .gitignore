@@ -28,3 +28,6 @@ server/.env
 *.sw?
 server/.env
 server/.env.bak*
+
+# Git worktrees
+.worktrees/
