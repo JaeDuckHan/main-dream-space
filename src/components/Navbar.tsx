@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ChevronDown, ClipboardList, LogOut, Menu, Settings, User as UserIcon, X } from "lucide-react";
+import { Bookmark, ChevronDown, ClipboardList, LogOut, Menu, Settings, User as UserIcon, X } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -84,6 +84,12 @@ const Navbar = ({ forceRender = false }: { forceRender?: boolean }) => {
             <div className="truncate text-xs font-normal text-muted-foreground">{user.email}</div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
+          <DropdownMenuItem asChild>
+            <Link to="/community/bookmarks" className="cursor-pointer">
+              <Bookmark className="mr-2 h-4 w-4" />
+              저장한 글
+            </Link>
+          </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link to="/business/dashboard" className="cursor-pointer">
               <UserIcon className="mr-2 h-4 w-4" />

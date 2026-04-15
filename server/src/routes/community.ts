@@ -615,6 +615,52 @@ router.post("/posts/:id/bookmark", requireAuth, async (req, res, next) => {
   }
 });
 
+router.get("/bookmarks", requireAuth, async (req, res, next) => {
+  try {
+    const rows = await query<Record<string, unknown>>(
+      `SELECT
+         p.id,
+         p.category,
+         p.title,
+         p.view_count,
+         p.like_count,
+         p.comment_count,
+         p.is_pinned,
+         p.created_at,
+         u.id AS author_id,
+         COALESCE(u.display_name, split_part(u.email, '@', 1)) AS author_display_name,
+         u.avatar_url AS author_avatar_url
+       FROM community_bookmarks b
+       JOIN community_posts p ON p.id = b.post_id
+       JOIN users u ON u.id = p.author_id
+       WHERE b.user_id = $1
+         AND p.is_deleted = FALSE
+       ORDER BY b.created_at DESC`,
+      [req.authUser!.id],
+    );
+
+    res.json({
+      posts: rows.map((row) => ({
+        id: row.id,
+        category: row.category,
+        title: row.title,
+        view_count: row.view_count,
+        like_count: row.like_count,
+        comment_count: row.comment_count,
+        is_pinned: row.is_pinned,
+        created_at: row.created_at,
+        author: {
+          id: row.author_id,
+          display_name: row.author_display_name,
+          avatar_url: row.author_avatar_url,
+        },
+      })),
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.post("/reports", requireAuth, async (req, res, next) => {
   try {
     const payload = reportSchema.parse(req.body);

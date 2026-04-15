@@ -16,6 +16,7 @@ import Community from "./pages/Community.tsx";
 import CommunityWrite from "./pages/CommunityWrite.tsx";
 import CommunityPostDetail from "./pages/CommunityPostDetail.tsx";
 import CommunityEdit from "./pages/CommunityEdit.tsx";
+import CommunityBookmarks from "./pages/CommunityBookmarks.tsx";
 import CoffeeChats from "./pages/CoffeeChats.tsx";
 import Residents from "./pages/Residents.tsx";
 import ResidentMe from "./pages/ResidentMe.tsx";
@@ -68,6 +69,7 @@ const App = () => (
               <Route path="/community/write" element={<CommunityWrite />} />
               <Route path="/community/:id" element={<CommunityPostDetail />} />
               <Route path="/community/:id/edit" element={<CommunityEdit />} />
+              <Route path="/community/bookmarks" element={<CommunityBookmarks />} />
               <Route path="/coffee-chats" element={<CoffeeChats />} />
               <Route path="/residents" element={<Residents />} />
               <Route path="/residents/me" element={<ResidentMe />} />
