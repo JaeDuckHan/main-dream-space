@@ -200,13 +200,16 @@ export interface BankSettings {
   company_email: string;
 }
 
+// 내부: 전화번호 정규화 (하이픈 제거 "010-1234-1234" → "01012341234")
+function normalizePhone(phone: string): string
+
 // 내부: #{변수명} 치환
 function buildMessage(template: string, vars: Record<string, string>): string
 
 // 내부: iwinv API 호출 (API 키 없으면 silent return)
 async function sendAlimtalk(
   templateCode: string,
-  phone: string,
+  phone: string,   // normalizePhone() 적용 후 전달
   message: string
 ): Promise<void>
 
