@@ -14,9 +14,10 @@ router.get("/", async (_req, res, next) => {
       `SELECT key, value FROM site_settings WHERE key = ANY($1)`,
       [SETTING_KEYS],
     );
+    const rowMap = new Map(rows.map((r) => [r.key, r.value]));
     const result: Record<string, string> = {};
     for (const key of SETTING_KEYS) {
-      result[key] = rows.find((r) => r.key === key)?.value ?? "";
+      result[key] = rowMap.get(key) ?? "";
     }
     res.json(result);
   } catch (error) {
