@@ -41,15 +41,19 @@ export default function Products() {
     const url = filter === "all" ? "/api/products" : `/api/products?category=${filter}`;
     setLoading(true);
     fetch(url)
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
       .then((d) => setProducts(d.items ?? []))
       .catch(() => setProducts([]))
       .finally(() => setLoading(false));
   }, [filter]);
 
   const minPrice = (p: Product) => {
-    const lowestOption = Math.min(...p.options.map((o) => o.price_delta), 0);
-    return p.base_price + (lowestOption < 0 ? lowestOption : 0);
+    if (p.options.length === 0) return p.base_price;
+    const lowestDelta = Math.min(...p.options.map((o) => o.price_delta));
+    return p.base_price + Math.min(lowestDelta, 0);
   };
 
   return (
