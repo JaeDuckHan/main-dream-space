@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Slider } from "@/components/ui/slider";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -755,6 +756,48 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
   const navigate = useNavigate();
   const [data, setData] = useState<PlannerData>(initialData);
   const [tab, setTab] = useState<"summary" | "checklist" | "housing" | "notes">("summary");
+
+  // Feature E: 예산 시뮬레이터
+  const [budgetRatios, setBudgetRatios] = useState<{ 숙소: number; 식비: number; 이동: number; 기타: number }>(() => {
+    const rec = getRecommendation(initialData.city, initialData.party);
+    const total = Object.values(rec.budget).reduce((a, b) => a + b, 0);
+    return {
+      숙소: Math.round((rec.budget.숙소 / total) * 100),
+      식비: Math.round((rec.budget.식비 / total) * 100),
+      이동: Math.round((rec.budget.이동 / total) * 100),
+      기타: 100 - Math.round((rec.budget.숙소 / total) * 100) - Math.round((rec.budget.식비 / total) * 100) - Math.round((rec.budget.이동 / total) * 100),
+    };
+  });
+
+  const updateBudgetRatio = (key: keyof typeof budgetRatios, newVal: number) => {
+    setBudgetRatios(prev => {
+      const diff = newVal - prev[key];
+      const others = (Object.keys(prev) as (keyof typeof prev)[]).filter(k => k !== key);
+      const totalOther = others.reduce((s, k) => s + prev[k], 0);
+      const updated = { ...prev, [key]: newVal };
+      if (totalOther > 0) {
+        others.forEach(k => {
+          updated[k] = Math.max(0, Math.round(prev[k] - (prev[k] / totalOther) * diff));
+        });
+      }
+      // 합계가 100이 되도록 마지막 항목 보정
+      const sum = Object.values(updated).reduce((a, b) => a + b, 0);
+      updated[others[others.length - 1]] += (100 - sum);
+      return updated;
+    });
+  };
+
+  const resetBudgetRatios = () => {
+    const rec = getRecommendation(data.city, data.party);
+    const total = Object.values(rec.budget).reduce((a, b) => a + b, 0);
+    setBudgetRatios({
+      숙소: Math.round((rec.budget.숙소 / total) * 100),
+      식비: Math.round((rec.budget.식비 / total) * 100),
+      이동: Math.round((rec.budget.이동 / total) * 100),
+      기타: 100 - Math.round((rec.budget.숙소 / total) * 100) - Math.round((rec.budget.식비 / total) * 100) - Math.round((rec.budget.이동 / total) * 100),
+    });
+  };
+
   const [resetOpen, setResetOpen] = useState(false);
   const [sessionId] = useState(() => getSessionId());
 
@@ -1061,6 +1104,41 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
 
           <div className="text-[13px] text-[#AAA]">
             환율 ₩1 = 18.4동 · 예산 현지화 약 {(data.budget * 10000 * 18.4 / 10000).toLocaleString()}만동
+          </div>
+
+          {/* Feature E: 예산 시뮬레이터 */}
+          <div className="mt-6 border-t border-border pt-5">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[13px] font-semibold text-foreground">예산 배분 조정</span>
+              <button
+                onClick={resetBudgetRatios}
+                className="text-[11px] text-primary hover:underline"
+              >
+                {data.city} 평균으로 초기화
+              </button>
+            </div>
+            {(Object.keys(budgetRatios) as (keyof typeof budgetRatios)[]).map(key => {
+              const amount = Math.round(data.budget * budgetRatios[key] / 100);
+              return (
+                <div key={key} className="mb-4">
+                  <div className="flex justify-between text-[12px] text-muted-foreground mb-1">
+                    <span>{key}</span>
+                    <span className="font-medium text-foreground">{budgetRatios[key]}% · 약 {amount}만원</span>
+                  </div>
+                  <Slider
+                    value={[budgetRatios[key]]}
+                    onValueChange={([v]) => updateBudgetRatio(key, v)}
+                    min={0}
+                    max={70}
+                    step={1}
+                    className="w-full"
+                  />
+                </div>
+              );
+            })}
+            <div className="text-right text-[12px] text-muted-foreground mt-1">
+              총 예산 {data.budget}만원 기준
+            </div>
           </div>
         </div>
       )}
