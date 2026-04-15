@@ -111,30 +111,49 @@ export default function OrderNew() {
       alert("주문자 정보를 모두 입력해주세요.");
       return;
     }
+    if (product.category === "package") {
+      if (!packageBooking.travel_start || !packageBooking.travel_end) {
+        alert("여행 기간을 입력해주세요.");
+        return;
+      }
+    } else {
+      if (!pickupBooking.date || !pickupBooking.hotel_name.trim()) {
+        alert("날짜와 호텔명을 입력해주세요.");
+        return;
+      }
+    }
     setSubmitting(true);
 
     const booking_data = product.category === "package"
       ? { travel_start: packageBooking.travel_start, travel_end: packageBooking.travel_end, num_people: Number(packageBooking.num_people) }
       : { ...pickupBooking, num_people: Number(pickupBooking.num_people) };
 
-    const res = await fetch("/api/orders", {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        product_id: product.id,
-        selected_option_ids: selectedOptionIds,
-        orderer_name: ordererName,
-        orderer_phone: ordererPhone,
-        orderer_email: ordererEmail,
-        booking_data,
-        memo: memo || undefined,
-      }),
-    }).catch(() => null);
-
-    setSubmitting(false);
-    if (!res?.ok) { alert("주문 중 오류가 발생했습니다."); return; }
-    navigate("/my/orders");
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          product_id: product.id,
+          selected_option_ids: selectedOptionIds,
+          orderer_name: ordererName,
+          orderer_phone: ordererPhone,
+          orderer_email: ordererEmail,
+          booking_data,
+          memo: memo || undefined,
+        }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({})) as { error?: string };
+        alert(body.error ?? "주문 중 오류가 발생했습니다.");
+        return;
+      }
+      navigate("/my/orders");
+    } catch {
+      alert("네트워크 오류가 발생했습니다. 인터넷 연결을 확인해주세요.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (!product) return <div className="min-h-screen flex items-center justify-center text-muted-foreground">로딩 중...</div>;
@@ -175,11 +194,11 @@ export default function OrderNew() {
           </div>
           <div>
             <Label>연락처</Label>
-            <Input value={ordererPhone} onChange={(e) => setOrdererPhone(e.target.value)} placeholder="010-1234-5678" />
+            <Input type="tel" value={ordererPhone} onChange={(e) => setOrdererPhone(e.target.value)} placeholder="010-1234-5678" />
           </div>
           <div>
             <Label>이메일</Label>
-            <Input value={ordererEmail} onChange={(e) => setOrdererEmail(e.target.value)} placeholder="hong@email.com" />
+            <Input type="email" value={ordererEmail} onChange={(e) => setOrdererEmail(e.target.value)} placeholder="hong@email.com" />
           </div>
         </section>
 
