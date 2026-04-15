@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -1193,6 +1193,12 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
               공유 페이지 보기
             </a>
           )}
+          <Link
+            to="/planner/explore"
+            className="text-[12px] text-muted-foreground hover:text-foreground transition-colors"
+          >
+            다른 플랜 보기
+          </Link>
           <button
             onClick={() => void handleShare()}
             disabled={sharing}
