@@ -40,7 +40,7 @@ const SAFE_TAGS = [
 
 const SAFE_ATTR = ["alt", "class", "href", "rel", "src", "target", "title"] as const;
 
-marked.setOptions({
+marked.use({
   gfm: true,
   breaks: true,
 });
