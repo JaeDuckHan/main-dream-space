@@ -48,17 +48,21 @@ export default function MyOrders() {
     fetch("/api/orders/my", { credentials: "include" })
       .then((r) => r.json())
       .then((d) => setOrders(d.items ?? []))
-      .catch(() => {});
+      .catch((err) => console.error("Failed to load orders:", err));
     fetch("/api/settings")
       .then((r) => r.json())
       .then((d: Settings) => setSettings(d))
-      .catch(() => {});
+      .catch((err) => console.error("Failed to load settings:", err));
   }, [user, navigate]);
 
   const copyAccount = async (orderId: number) => {
-    await navigator.clipboard.writeText(settings.bank_account);
-    setCopied(orderId);
-    setTimeout(() => setCopied(null), 2000);
+    try {
+      await navigator.clipboard.writeText(settings.bank_account);
+      setCopied(orderId);
+      setTimeout(() => setCopied(null), 2000);
+    } catch {
+      alert("계좌 복사에 실패했습니다. 수동으로 복사해주세요.");
+    }
   };
 
   return (
