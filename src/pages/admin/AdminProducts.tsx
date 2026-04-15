@@ -66,7 +66,8 @@ export default function AdminProducts() {
   const fetchProducts = () => {
     fetch("/api/admin/products", { credentials: "include" })
       .then((r) => r.json())
-      .then((d) => setProducts(d.items ?? []));
+      .then((d) => setProducts(d.items ?? []))
+      .catch(() => {});
   };
 
   useEffect(() => { fetchProducts(); }, []);
@@ -180,8 +181,17 @@ export default function AdminProducts() {
               return (
                 <tr key={p.id} className="border-t border-slate-100">
                   <td className="px-4 py-3">
-                    <div className="font-medium">{p.title}</div>
-                    <div className="text-xs text-slate-400">{p.slug}</div>
+                    <div className="flex items-center gap-3">
+                      {p.thumbnail_url ? (
+                        <img src={p.thumbnail_url} alt="" className="h-10 w-10 rounded object-cover" />
+                      ) : (
+                        <div className="h-10 w-10 rounded bg-slate-100" />
+                      )}
+                      <div>
+                        <div className="font-medium">{p.title}</div>
+                        <div className="text-xs text-slate-400">{p.slug}</div>
+                      </div>
+                    </div>
                   </td>
                   <td className="px-4 py-3">
                     <Badge className={cat.className}>{cat.label}</Badge>
