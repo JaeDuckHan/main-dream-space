@@ -58,7 +58,7 @@ async function sendPendingReminders() {
           <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px">
             <h2 style="color:#1a1a1a">${escapeHtml(row.plan_title || "") || (escapeHtml(row.plan_data.city || "여행") + " 한달살기 플랜")}</h2>
             <p style="color:#555">출발일 <strong>${escapeHtml(startDate)}</strong>까지 아직 <strong>${unchecked}개</strong>의 체크리스트가 남았어요.</p>
-            <a href="${process.env.VITE_SITE_URL || "https://luckydanang.com"}/planner"
+            <a href="${process.env.SITE_URL || "https://luckydanang.com"}/planner"
                style="display:inline-block;margin-top:16px;padding:12px 24px;background:#6366f1;color:#fff;border-radius:8px;text-decoration:none;font-weight:600">
               플래너 확인하기
             </a>

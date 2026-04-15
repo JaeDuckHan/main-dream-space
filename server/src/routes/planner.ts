@@ -1,7 +1,7 @@
 import { Router } from "express";
 import rateLimit from "express-rate-limit";
 import { z } from "zod";
-import { query } from "../db.js";
+import { pool, query } from "../db.js";
 import type { ChecklistItemRow, ChecklistTemplate } from "../types.js";
 
 const planShareLimiter = rateLimit({
@@ -11,6 +11,8 @@ const planShareLimiter = rateLimit({
   legacyHeaders: false,
   message: { error: "요청이 너무 많습니다. 잠시 후 다시 시도해주세요." },
 });
+
+const planReminderLimiter = rateLimit({ windowMs: 60 * 1000, max: 10, standardHeaders: true, legacyHeaders: false });
 
 const router = Router();
 
@@ -101,6 +103,10 @@ router.post("/plans", planShareLimiter, async (req, res, next) => {
       is_public: z.boolean().default(false),
     }).parse(req.body);
 
+    if (JSON.stringify(body.data).length > 50_000) {
+      return res.status(400).json({ error: "플랜 데이터가 너무 큽니다." });
+    }
+
     const userId = (req as any).authUser?.id ?? null;
 
     const rows = await query<{ id: string }>(
@@ -117,7 +123,7 @@ router.post("/plans", planShareLimiter, async (req, res, next) => {
 });
 
 // GET /api/planner/plans/public — 공개 플랜 목록
-router.get("/plans/public", async (req, res, next) => {
+router.get("/plans/public", planShareLimiter, async (req, res, next) => {
   try {
     const params = z.object({
       city: z.string().optional(),
