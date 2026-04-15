@@ -801,6 +801,39 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
   const [resetOpen, setResetOpen] = useState(false);
   const [sessionId] = useState(() => getSessionId());
 
+  // Feature C: 숙소 추천
+  interface ListingRecommendation {
+    id: number;
+    name: string;
+    slug: string;
+    address: string | null;
+    affiliate_url: string | null;
+    category_data: {
+      price_min_usd?: number;
+      price_monthly_usd?: number;
+    };
+  }
+
+  const USD_TO_KRW = 1350;
+  const [listingRecs, setListingRecs] = useState<ListingRecommendation[]>([]);
+
+  useEffect(() => {
+    if (!data.city) return;
+    const budgetKrw = (data.budget || 150) * 10000;
+    fetch(`/api/listings?category=accommodation&city=${encodeURIComponent(data.city)}&limit=20`)
+      .then(r => r.json())
+      .then((rows: ListingRecommendation[]) => {
+        const filtered = rows.filter(r => {
+          const monthly = r.category_data?.price_monthly_usd;
+          const min = r.category_data?.price_min_usd;
+          const priceKrw = (monthly ?? min ?? 9999) * USD_TO_KRW;
+          return priceKrw <= budgetKrw * 0.6; // 예산의 60% 이하 숙소
+        });
+        setListingRecs(filtered.slice(0, 3));
+      })
+      .catch(() => null);
+  }, [data.city, data.budget]);
+
   const persist = useCallback((updated: PlannerData) => {
     setData(updated);
     saveData(updated);
@@ -1246,6 +1279,53 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
       {/* Tab: Housing */}
       {tab === "housing" && (
         <div>
+          {/* Feature C: DB 숙소 추천 */}
+          {listingRecs.length > 0 && (
+            <div className="mb-6">
+              <h4 className="text-[13px] font-semibold text-foreground mb-3">
+                예산 맞춤 추천 숙소
+                <span className="ml-2 text-[11px] font-normal text-muted-foreground">(예산 {data.budget}만원 기준)</span>
+              </h4>
+              <div className="space-y-2">
+                {listingRecs.map(listing => {
+                  const monthly = listing.category_data?.price_monthly_usd;
+                  const min = listing.category_data?.price_min_usd;
+                  const priceKrw = Math.round(((monthly ?? min ?? 0) * USD_TO_KRW) / 10000);
+                  return (
+                    <div key={listing.id} className="flex items-center justify-between p-3 rounded-lg border border-border bg-card hover:border-primary/50 transition-colors">
+                      <div>
+                        <p className="text-[13px] font-medium text-foreground">{listing.name}</p>
+                        {listing.address && <p className="text-[11px] text-muted-foreground mt-0.5">{listing.address}</p>}
+                      </div>
+                      <div className="flex items-center gap-2 ml-3 shrink-0">
+                        {priceKrw > 0 && (
+                          <span className="text-[12px] text-primary font-medium">월 {priceKrw}만원~</span>
+                        )}
+                        {listing.affiliate_url && (
+                          <a
+                            href={listing.affiliate_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[11px] px-2 py-1 bg-primary text-primary-foreground rounded hover:opacity-90"
+                            onClick={() => {
+                              fetch("/api/affiliate/click", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ listing_id: listing.id, partner: "agoda" }),
+                              }).catch(() => null);
+                            }}
+                          >
+                            예약
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* City-specific housing recommendations */}
           <div className="mb-6">
             <h3 className="text-[15px] font-bold text-foreground mb-3">🏠 {data.city} 추천 숙소</h3>
