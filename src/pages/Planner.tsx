@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -801,6 +802,10 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
   const [resetOpen, setResetOpen] = useState(false);
   const [sessionId] = useState(() => getSessionId());
 
+  // Feature A: 공유 링크
+  const [sharing, setSharing] = useState(false);
+  const [sharedId, setSharedId] = useState<string | null>(null);
+
   // Feature C: 숙소 추천
   const [listingRecs, setListingRecs] = useState<ListingRecommendation[]>([]);
 
@@ -1016,6 +1021,31 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
     window.location.reload();
   };
 
+  const handleShare = async () => {
+    setSharing(true);
+    try {
+      const res = await fetch("/api/planner/plans", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          session_id: getSessionId(),
+          title: `${data.city} ${data.party} 한달살기 플랜`,
+          data,
+          is_public: true,
+        }),
+      });
+      const json = await res.json() as { id: string };
+      const url = `${window.location.origin}/planner/share/${json.id}`;
+      await navigator.clipboard.writeText(url);
+      setSharedId(json.id);
+      toast.success("링크가 복사됐어요!");
+    } catch {
+      toast.error("공유에 실패했습니다.");
+    } finally {
+      setSharing(false);
+    }
+  };
+
   const tabs = [
     { key: "summary" as const, label: "요약" },
     { key: "checklist" as const, label: "체크리스트" },
@@ -1049,7 +1079,7 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-[#EEE] mb-6">
+      <div className="flex border-b border-[#EEE] mb-6 items-center">
         {tabs.map(t => (
           <button
             key={t.key}
@@ -1064,6 +1094,25 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
             {t.label}
           </button>
         ))}
+        <div className="flex items-center gap-2 ml-auto">
+          {sharedId && (
+            <a
+              href={`/planner/share/${sharedId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[12px] text-primary hover:underline"
+            >
+              공유 페이지 보기
+            </a>
+          )}
+          <button
+            onClick={() => void handleShare()}
+            disabled={sharing}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] rounded-lg border border-border hover:border-primary/50 hover:text-primary transition-colors disabled:opacity-50"
+          >
+            {sharing ? "저장 중..." : "🔗 공유하기"}
+          </button>
+        </div>
       </div>
 
       {/* Tab: Summary */}
