@@ -383,7 +383,7 @@ router.patch("/posts/:id", requireAuth, async (req, res, next) => {
     await client.query("BEGIN");
     const updated = await client.query<{ id: number }>(
       `UPDATE community_posts
-       SET category = $2,
+       SET category = $2::community_category_enum,
            title = $3,
            content = $4,
            content_html = $5,
