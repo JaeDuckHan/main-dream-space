@@ -13,10 +13,10 @@
  *   NOTION_AUTHOR_ID    게시글 작성자 user.id (기본값: 1)
  *
  * Notion 데이터베이스 속성 구조:
- *   - Title     (title)   게시글 제목
- *   - Category  (select)  notice | question | review | info
- *   - Status    (select)  Draft | Ready | Published
- *   - 페이지 본문          게시글 내용 (마크다운으로 변환됨)
+ *   - Title     (title)         게시글 제목
+ *   - Category  (select/multi)  맛집|숙소 → review, 꿀팁|환율/통신|관광지|교통|일정 → info, 공지 → notice
+ *   - Status    (select)        발행대기 | 발행완료
+ *   - 페이지 본문               게시글 내용 (마크다운으로 변환됨)
  */
 
 import path from "node:path";
@@ -71,10 +71,19 @@ function extractTitle(page) {
 }
 
 const CATEGORY_MAP = {
+  // 내부 enum 직접 매핑
   공지: "notice",
   질문: "question",
   후기: "review",
   정보: "info",
+  // 노션 실제 운영값
+  맛집: "review",
+  숙소: "review",
+  꿀팁: "info",
+  "환율/통신": "info",
+  관광지: "info",
+  교통: "info",
+  일정: "info",
 };
 
 function extractCategory(page) {
