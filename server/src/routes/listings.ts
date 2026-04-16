@@ -86,21 +86,46 @@ router.get("/", async (req, res, next) => {
   }
 });
 
+const ACCOMMODATION_THEMES = [
+  {
+    title: "다낭 평점 TOP 숙소",
+    subtitle: "럭키다낭 + Agoda 평점 기준",
+    orderBy: "a.rating DESC NULLS LAST, a.review_count DESC NULLS LAST",
+  },
+  {
+    title: "다낭 가성비 TOP 숙소",
+    subtitle: "가격 대비 만족도 높은 순",
+    orderBy: "a.price_min_usd ASC NULLS LAST, a.rating DESC NULLS LAST",
+  },
+  {
+    title: "다낭 리뷰 많은 숙소",
+    subtitle: "실제 투숙객 리뷰 많은 순",
+    orderBy: "a.review_count DESC NULLS LAST, a.rating DESC NULLS LAST",
+  },
+  {
+    title: "이번 주 럭키 추천 숙소",
+    subtitle: "이번 주 럭키다낭 픽",
+    orderBy: `(random() * 0 + extract(epoch from date_trunc('week', now()))::float / 1e10)`,
+  },
+] as const;
+
 router.get("/top", async (req, res, next) => {
   try {
     const queryParams = z.object({
       category: z.string().optional().default("숙소"),
       city: z.string().optional().default("danang"),
-      limit: z.coerce.number().int().min(1).max(10).optional().default(3),
+      limit: z.coerce.number().int().min(1).max(12).optional().default(6),
     }).parse(req.query);
 
     if (queryParams.city !== "danang") {
-      return res.json({ items: [] });
+      return res.json({ items: [], title: "", subtitle: "" });
     }
 
     const normalizedCategory = queryParams.category === "숙소" ? "accommodation" : queryParams.category;
 
     if (normalizedCategory === "accommodation") {
+      const theme = ACCOMMODATION_THEMES[Math.floor(Math.random() * ACCOMMODATION_THEMES.length)];
+
       const items = await query<Record<string, unknown>>(
         `SELECT
            a.id,
@@ -114,12 +139,14 @@ router.get("/top", async (req, res, next) => {
            jsonb_build_object('agoda_url', a.agoda_url) AS category_data
          FROM accommodations a
          WHERE a.is_active = TRUE
-         ORDER BY a.rating DESC NULLS LAST, a.review_count DESC NULLS LAST, a.price_min_usd ASC
+         ORDER BY ${theme.orderBy}
          LIMIT $1`,
         [queryParams.limit],
       );
 
       return res.json({
+        title: theme.title,
+        subtitle: theme.subtitle,
         items: items.map((item) => ({
           ...item,
           rating: item.rating === null || item.rating === undefined ? null : Number(item.rating),
@@ -128,10 +155,10 @@ router.get("/top", async (req, res, next) => {
       });
     }
 
-    return res.json({ items: [] });
+    return res.json({ items: [], title: "", subtitle: "" });
   } catch (error) {
     console.error("[listings/top] error", error);
-    return res.status(500).json({ items: [] });
+    return res.status(500).json({ items: [], title: "", subtitle: "" });
   }
 });
 

@@ -17,20 +17,24 @@ type TopHotel = {
 
 export function TopHotels() {
   const [hotels, setHotels] = useState<TopHotel[]>([]);
+  const [title, setTitle] = useState("다낭 인기 숙소");
+  const [subtitle, setSubtitle] = useState("럭키다낭 + Agoda 연동");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const controller = new AbortController();
 
-    fetch("/api/listings/top?category=%EC%88%99%EC%86%8C&city=danang&limit=3", { signal: controller.signal })
+    fetch("/api/listings/top?category=%EC%88%99%EC%86%8C&city=danang&limit=6", { signal: controller.signal })
       .then(async (response) => {
         if (!response.ok) {
           throw new Error(`Failed to load top hotels: ${response.status}`);
         }
-        return response.json() as Promise<{ items?: TopHotel[] }>;
+        return response.json() as Promise<{ items?: TopHotel[]; title?: string; subtitle?: string }>;
       })
       .then((payload) => {
         setHotels(payload.items ?? []);
+        if (payload.title) setTitle(payload.title);
+        if (payload.subtitle) setSubtitle(payload.subtitle);
       })
       .catch(() => {
         if (!controller.signal.aborted) {
@@ -55,15 +59,15 @@ export function TopHotels() {
       <div className="container">
         <div className="mb-8 flex items-center justify-between gap-4">
           <div>
-            <h2 className="text-[28px] font-[800] text-foreground md:text-[32px]">다낭 인기 숙소 TOP 3</h2>
-            <p className="mt-1 text-sm text-muted-foreground">럭키다낭 + Agoda 연동</p>
+            <h2 className="text-[28px] font-[800] text-foreground md:text-[32px]">{title}</h2>
+            <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p>
           </div>
           <a href={ROUTES.compare({ city: "danang" })} className="text-sm font-medium text-primary hover:underline">
             전체 숙소 보기 →
           </a>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
           {hotels.map((hotel) => (
             <article key={hotel.id} className="overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-shadow hover:shadow-lg">
               {hotel.thumbnail_url ? (
