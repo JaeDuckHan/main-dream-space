@@ -183,7 +183,7 @@ export default function CommunityEditorForm({
             onChange={(value) => setContent(value || "")}
             preview={previewMode}
             height={520}
-            renderHTML={(text) => marked.parse(text) as string}
+            renderHTML={(text) => marked.parse(text.replace(/(?<!~)~(?!~)/g, "\\~")) as string}
             previewOptions={{ className: "prose prose-slate max-w-none prose-img:rounded-xl !px-4" }}
             textareaProps={{
               onBlur: (e) => { cursorPosRef.current = e.target.selectionStart; },

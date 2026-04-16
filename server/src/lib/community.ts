@@ -45,8 +45,13 @@ marked.use({
   breaks: true,
 });
 
+// 한국어 범위 표기(10~20만동)의 단독 물결표가 subscript/del로 파싱되지 않도록 이스케이프
+function escapeLoneTildes(text: string) {
+  return text.replace(/(?<!~)~(?!~)/g, "\\~");
+}
+
 export function renderMarkdownHtml(content: string) {
-  const rawHtml = marked.parse(content) as string;
+  const rawHtml = marked.parse(escapeLoneTildes(content)) as string;
   return DOMPurify.sanitize(rawHtml, {
     ALLOWED_TAGS: [...SAFE_TAGS],
     ALLOWED_ATTR: [...SAFE_ATTR],
