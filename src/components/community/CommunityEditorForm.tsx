@@ -32,12 +32,13 @@ export default function CommunityEditorForm({
 }: CommunityEditorFormProps) {
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const cursorPosRef = useRef<number | null>(null);
   const [category, setCategory] = useState<CategoryEn>(initialCategory);
   const [title, setTitle] = useState(initialTitle);
   const [content, setContent] = useState(initialContent);
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [previewMode, setPreviewMode] = useState<"edit" | "preview">("edit");
+  const [previewMode, setPreviewMode] = useState<"edit" | "preview" | "live">("live");
 
   useEffect(() => {
     setCategory(initialCategory);
@@ -60,7 +61,16 @@ export default function CommunityEditorForm({
         method: "POST",
         body: formData,
       });
-      setContent((prev) => `${prev}${prev.trim().length > 0 ? "\n\n" : ""}![image](${uploaded.url})`);
+      const imageMarkdown = `![image](${uploaded.url})`;
+      setContent((prev) => {
+        const pos = cursorPosRef.current ?? prev.length;
+        const before = prev.slice(0, pos);
+        const after = prev.slice(pos);
+        const prefix = before.length > 0 && !before.endsWith("\n") ? "\n\n" : "";
+        const suffix = after.length > 0 && !after.startsWith("\n") ? "\n\n" : "";
+        return before + prefix + imageMarkdown + suffix + after;
+      });
+      cursorPosRef.current = null;
       toast.success("이미지를 본문에 추가했습니다.");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "이미지 업로드에 실패했습니다.");
@@ -133,7 +143,7 @@ export default function CommunityEditorForm({
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
           <div>
             <div className="text-sm font-semibold text-foreground">본문</div>
-            <div className="text-xs text-muted-foreground">마크다운으로 작성하고 이미지는 로컬 업로드 후 본문에 삽입됩니다.</div>
+            <div className="text-xs text-muted-foreground">이미지 업로드 버튼으로 사진을 삽입하고, 오른쪽에서 실시간으로 미리보기됩니다.</div>
           </div>
           <div className="flex items-center gap-2">
             <div className="inline-flex rounded-md border border-border bg-background p-1">
@@ -143,6 +153,13 @@ export default function CommunityEditorForm({
                 className={`rounded px-3 py-1.5 text-sm ${previewMode === "edit" ? "bg-foreground text-background" : "text-muted-foreground"}`}
               >
                 편집
+              </button>
+              <button
+                type="button"
+                onClick={() => setPreviewMode("live")}
+                className={`rounded px-3 py-1.5 text-sm ${previewMode === "live" ? "bg-foreground text-background" : "text-muted-foreground"}`}
+              >
+                동시보기
               </button>
               <button
                 type="button"
@@ -168,6 +185,10 @@ export default function CommunityEditorForm({
             height={520}
             renderHTML={(text) => marked.parse(text) as string}
             previewOptions={{ className: "prose prose-slate max-w-none prose-img:rounded-xl !px-4" }}
+            textareaProps={{
+              onBlur: (e) => { cursorPosRef.current = e.target.selectionStart; },
+              onSelect: (e) => { cursorPosRef.current = (e.target as HTMLTextAreaElement).selectionStart; },
+            }}
           />
         </div>
       </div>

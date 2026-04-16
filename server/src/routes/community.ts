@@ -57,6 +57,11 @@ const uploadMinuteLimit = createRateLimit({ key: "community:upload:minute", wind
 const uploadDayLimit = createRateLimit({ key: "community:upload:day", windowMs: 86_400_000, max: 50 });
 const likeLimit = createRateLimit({ key: "community:like:minute", windowMs: 60_000, max: 30 });
 
+function extractFirstImageUrl(content: string): string | null {
+  const match = content.match(/!\[.*?\]\((https?:\/\/[^\s)]+)\)/);
+  return match ? match[1] : null;
+}
+
 function buildPostOrder(sort: "latest" | "popular") {
   if (sort === "popular") {
     return "p.is_pinned DESC, p.like_count DESC, p.comment_count DESC, p.created_at DESC";
@@ -136,6 +141,7 @@ router.get("/posts", async (req, res, next) => {
          p.id,
          p.category,
          p.title,
+         p.thumbnail_url,
          p.view_count,
          p.like_count,
          p.comment_count,
@@ -159,6 +165,7 @@ router.get("/posts", async (req, res, next) => {
         id: row.id,
         category: row.category,
         title: row.title,
+        thumbnail_url: row.thumbnail_url ?? null,
         view_count: row.view_count,
         like_count: row.like_count,
         comment_count: row.comment_count,
@@ -326,13 +333,14 @@ router.post("/posts", requireAuth, createPostMinuteLimit, createPostDayLimit, as
 
     const contentHtml = renderMarkdownHtml(payload.content);
     const imageUrls = extractImageUrls(payload.content);
+    const thumbnailUrl = extractFirstImageUrl(payload.content);
 
     await client.query("BEGIN");
     const inserted = await client.query<{ id: number; created_at: string }>(
-      `INSERT INTO community_posts (author_id, category, title, content, content_html, is_pinned)
-       VALUES ($1, $2, $3, $4, $5, $6)
+      `INSERT INTO community_posts (author_id, category, title, content, content_html, is_pinned, thumbnail_url)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
        RETURNING id, created_at`,
-      [req.authUser!.id, payload.category, payload.title, payload.content, contentHtml, payload.category === "notice"],
+      [req.authUser!.id, payload.category, payload.title, payload.content, contentHtml, payload.category === "notice", thumbnailUrl],
     );
 
     if (imageUrls.length > 0) {
@@ -370,6 +378,7 @@ router.patch("/posts/:id", requireAuth, async (req, res, next) => {
 
     const contentHtml = renderMarkdownHtml(payload.content);
     const imageUrls = extractImageUrls(payload.content);
+    const thumbnailUrl = extractFirstImageUrl(payload.content);
 
     await client.query("BEGIN");
     const updated = await client.query<{ id: number }>(
@@ -378,11 +387,12 @@ router.patch("/posts/:id", requireAuth, async (req, res, next) => {
            title = $3,
            content = $4,
            content_html = $5,
+           thumbnail_url = $6,
            is_pinned = CASE WHEN $2::text = 'notice' THEN is_pinned ELSE FALSE END
        WHERE id = $1
          AND is_deleted = FALSE
        RETURNING id`,
-      [id, payload.category, payload.title, payload.content, contentHtml],
+      [id, payload.category, payload.title, payload.content, contentHtml, thumbnailUrl],
     );
 
     if (!updated.rows[0]) {

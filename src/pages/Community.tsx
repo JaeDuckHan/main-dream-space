@@ -145,32 +145,42 @@ export default function Community() {
                   {posts.map((post) => (
                     <div
                       key={post.id}
-                      className="py-[11px] cursor-pointer hover:bg-muted/30 transition-colors"
+                      className="py-[11px] cursor-pointer hover:bg-muted/30 transition-colors flex items-center gap-3"
                       style={{ borderBottom: "1px solid #EEE" }}
                       onClick={() => navigate(`/community/${post.id}`)}
                     >
-                      <div className="flex items-baseline justify-between gap-2">
-                        <div className="flex items-baseline gap-1.5 min-w-0">
-                          <span className={cn("text-[14px] font-extrabold shrink-0", CATEGORY_COLORS[post.category])}>
-                            [{CATEGORY_LABELS[post.category]}]
-                          </span>
-                          <span className="text-[16px] text-foreground truncate">{post.title}</span>
-                          {post.comment_count > 0 && (
-                            <span className={cn("text-[14px] font-bold shrink-0", post.comment_count >= 5 ? "text-red-500" : "text-muted-foreground")}>
-                              [{post.comment_count}]
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-baseline justify-between gap-2">
+                          <div className="flex items-baseline gap-1.5 min-w-0">
+                            <span className={cn("text-[14px] font-extrabold shrink-0", CATEGORY_COLORS[post.category])}>
+                              [{CATEGORY_LABELS[post.category]}]
                             </span>
-                          )}
+                            <span className="text-[16px] text-foreground truncate">{post.title}</span>
+                            {post.comment_count > 0 && (
+                              <span className={cn("text-[14px] font-bold shrink-0", post.comment_count >= 5 ? "text-red-500" : "text-muted-foreground")}>
+                                [{post.comment_count}]
+                              </span>
+                            )}
+                          </div>
+                          <span className="text-[13px] shrink-0" style={{ color: "#AAA" }}>
+                            {formatRelativeTime(post.created_at)}
+                          </span>
                         </div>
-                        <span className="text-[13px] shrink-0" style={{ color: "#AAA" }}>
-                          {formatRelativeTime(post.created_at)}
-                        </span>
+                        <div className="mt-1 pl-0.5">
+                          <span className="text-[13px]" style={{ color: "#888" }}>
+                            {post.author.display_name}
+                            {post.is_pinned ? " · 상단 고정" : ""}
+                          </span>
+                        </div>
                       </div>
-                      <div className="mt-1 pl-0.5">
-                        <span className="text-[13px]" style={{ color: "#888" }}>
-                          {post.author.display_name}
-                          {post.is_pinned ? " · 상단 고정" : ""}
-                        </span>
-                      </div>
+                      {post.thumbnail_url && (
+                        <img
+                          src={post.thumbnail_url}
+                          alt=""
+                          className="w-14 h-14 rounded-lg object-cover shrink-0"
+                          loading="lazy"
+                        />
+                      )}
                     </div>
                   ))}
                 </div>
