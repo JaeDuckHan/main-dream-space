@@ -3,7 +3,6 @@ import Footer from "@/components/Footer";
 import { CityCostCards } from "@/components/home/CityCostCards";
 import { CityTabs } from "@/components/home/CityTabs";
 import { HeroSearch } from "@/components/home/HeroSearch";
-import { FeaturedProducts } from "@/components/home/FeaturedProducts";
 import { NewsletterForm } from "@/components/home/NewsletterForm";
 import { TopHotels } from "@/components/home/TopHotels";
 import { TrustIndicators } from "@/components/home/TrustIndicators";
@@ -45,7 +44,6 @@ const Index = () => {
         <CityCostCards />
         <CalculatorSection />
         <ServicesSection />
-        <FeaturedProducts />
         <WeeklyUpdates />
         <section className="py-20 bg-primary">
           <div className="container text-center">
