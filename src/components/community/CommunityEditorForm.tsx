@@ -170,7 +170,17 @@ export default function CommunityEditorForm({
               </button>
             </div>
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
-            <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                // 클릭 시점에 MDEditor 내부 textarea에서 커서 위치 직접 읽기
+                const textarea = document.querySelector<HTMLTextAreaElement>(".w-md-editor-text-input");
+                if (textarea) cursorPosRef.current = textarea.selectionStart;
+                fileInputRef.current?.click();
+              }}
+              disabled={uploading}
+            >
               {uploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
               이미지 업로드
             </Button>
@@ -185,10 +195,6 @@ export default function CommunityEditorForm({
             height={520}
             renderHTML={(text) => marked.parse(text.replace(/(?<!~)~(?!~)/g, "\\~")) as string}
             previewOptions={{ className: "prose prose-slate max-w-none prose-img:rounded-xl !px-4" }}
-            textareaProps={{
-              onBlur: (e) => { cursorPosRef.current = e.target.selectionStart; },
-              onSelect: (e) => { cursorPosRef.current = (e.target as HTMLTextAreaElement).selectionStart; },
-            }}
           />
         </div>
       </div>
