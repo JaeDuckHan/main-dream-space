@@ -57,9 +57,12 @@ const uploadMinuteLimit = createRateLimit({ key: "community:upload:minute", wind
 const uploadDayLimit = createRateLimit({ key: "community:upload:day", windowMs: 86_400_000, max: 50 });
 const likeLimit = createRateLimit({ key: "community:like:minute", windowMs: 60_000, max: 30 });
 
-function extractFirstImageUrl(content: string): string | null {
+function extractFirstImageThumbnailUrl(content: string): string | null {
   const match = content.match(/!\[.*?\]\((https?:\/\/[^\s)]+)\)/);
-  return match ? match[1] : null;
+  if (!match) return null;
+  const url = match[1];
+  // 업로드된 이미지(.webp)는 -thumb.webp 썸네일 버전 사용
+  return url.endsWith(".webp") ? url.slice(0, -5) + "-thumb.webp" : url;
 }
 
 function buildPostOrder(sort: "latest" | "popular") {
@@ -333,7 +336,7 @@ router.post("/posts", requireAuth, createPostMinuteLimit, createPostDayLimit, as
 
     const contentHtml = renderMarkdownHtml(payload.content);
     const imageUrls = extractImageUrls(payload.content);
-    const thumbnailUrl = extractFirstImageUrl(payload.content);
+    const thumbnailUrl = extractFirstImageThumbnailUrl(payload.content);
 
     await client.query("BEGIN");
     const inserted = await client.query<{ id: number; created_at: string }>(
@@ -378,7 +381,7 @@ router.patch("/posts/:id", requireAuth, async (req, res, next) => {
 
     const contentHtml = renderMarkdownHtml(payload.content);
     const imageUrls = extractImageUrls(payload.content);
-    const thumbnailUrl = extractFirstImageUrl(payload.content);
+    const thumbnailUrl = extractFirstImageThumbnailUrl(payload.content);
 
     await client.query("BEGIN");
     const updated = await client.query<{ id: number }>(
@@ -701,7 +704,7 @@ router.post("/upload", requireAuth, uploadMinuteLimit, uploadDayLimit, upload.si
        RETURNING id, url, width, height`,
       [req.authUser!.id, saved.url, saved.relativePath, saved.sizeBytes, saved.mimeType, saved.width, saved.height],
     );
-    res.status(201).json(rows[0]);
+    res.status(201).json({ ...rows[0], thumbnailUrl: saved.thumbnailUrl });
   } catch (error) {
     next(error);
   }

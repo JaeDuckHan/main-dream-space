@@ -177,7 +177,7 @@ export default function Community() {
                         <img
                           src={post.thumbnail_url}
                           alt=""
-                          className="w-14 h-14 rounded-lg object-cover shrink-0"
+                          className="w-[220px] h-[180px] rounded-lg object-cover shrink-0"
                           loading="lazy"
                         />
                       )}
