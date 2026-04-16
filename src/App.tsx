@@ -21,6 +21,8 @@ import CoffeeChats from "./pages/CoffeeChats.tsx";
 import Residents from "./pages/Residents.tsx";
 import ResidentMe from "./pages/ResidentMe.tsx";
 import Planner from "./pages/Planner.tsx";
+import PlannerShare from "./pages/PlannerShare.tsx";
+import PlannerExplore from "./pages/PlannerExplore.tsx";
 import Compare from "./pages/Compare.tsx";
 import Directory from "./pages/Directory.tsx";
 import Insight from "./pages/Insight.tsx";
@@ -74,6 +76,8 @@ const App = () => (
               <Route path="/residents" element={<Residents />} />
               <Route path="/residents/me" element={<ResidentMe />} />
               <Route path="/planner" element={<Planner />} />
+              <Route path="/planner/share/:id" element={<PlannerShare />} />
+              <Route path="/planner/explore" element={<PlannerExplore />} />
               <Route path="/compare" element={<Compare />} />
               <Route path="/directory" element={<Directory />} />
               <Route path="/products" element={<Products />} />

@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Slider } from "@/components/ui/slider";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -755,8 +757,82 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
   const navigate = useNavigate();
   const [data, setData] = useState<PlannerData>(initialData);
   const [tab, setTab] = useState<"summary" | "checklist" | "housing" | "notes">("summary");
+
+  // Feature E: 예산 시뮬레이터
+  const [budgetRatios, setBudgetRatios] = useState<{ 숙소: number; 식비: number; 이동: number; 기타: number }>(() => {
+    const rec = getRecommendation(initialData.city, initialData.party);
+    const total = Object.values(rec.budget).reduce((a, b) => a + b, 0) || 1;
+    return {
+      숙소: Math.round((rec.budget.숙소 / total) * 100),
+      식비: Math.round((rec.budget.식비 / total) * 100),
+      이동: Math.round((rec.budget.이동 / total) * 100),
+      기타: 100 - Math.round((rec.budget.숙소 / total) * 100) - Math.round((rec.budget.식비 / total) * 100) - Math.round((rec.budget.이동 / total) * 100),
+    };
+  });
+
+  const updateBudgetRatio = (key: keyof typeof budgetRatios, newVal: number) => {
+    setBudgetRatios(prev => {
+      const diff = newVal - prev[key];
+      const others = (Object.keys(prev) as (keyof typeof prev)[]).filter(k => k !== key);
+      const totalOther = others.reduce((s, k) => s + prev[k], 0);
+      const updated = { ...prev, [key]: newVal };
+      if (totalOther > 0) {
+        others.forEach(k => {
+          updated[k] = Math.max(0, Math.round(prev[k] - (prev[k] / totalOther) * diff));
+        });
+      }
+      // 합계가 100이 되도록 마지막 항목 보정
+      const sum = Object.values(updated).reduce((a, b) => a + b, 0);
+      updated[others[others.length - 1]] = Math.max(0, updated[others[others.length - 1]] + (100 - sum));
+      return updated;
+    });
+  };
+
+  const resetBudgetRatios = () => {
+    const rec = getRecommendation(data.city, data.party);
+    const total = Object.values(rec.budget).reduce((a, b) => a + b, 0) || 1;
+    setBudgetRatios({
+      숙소: Math.round((rec.budget.숙소 / total) * 100),
+      식비: Math.round((rec.budget.식비 / total) * 100),
+      이동: Math.round((rec.budget.이동 / total) * 100),
+      기타: 100 - Math.round((rec.budget.숙소 / total) * 100) - Math.round((rec.budget.식비 / total) * 100) - Math.round((rec.budget.이동 / total) * 100),
+    });
+  };
+
   const [resetOpen, setResetOpen] = useState(false);
   const [sessionId] = useState(() => getSessionId());
+
+  // Feature A: 공유 링크
+  const [sharing, setSharing] = useState(false);
+  const [sharedId, setSharedId] = useState<string | null>(null);
+  const [shareVisibility, setShareVisibility] = useState<"link" | "public">("link");
+  const [showShareModal, setShowShareModal] = useState(false);
+
+  // Feature D-Email: 리마인더
+  const [showReminderModal, setShowReminderModal] = useState(false);
+  const [reminderEmail, setReminderEmail] = useState("");
+  const [reminderPlanId, setReminderPlanId] = useState<string | null>(null);
+  const [savingReminder, setSavingReminder] = useState(false);
+
+  // Feature C: 숙소 추천
+  const [listingRecs, setListingRecs] = useState<ListingRecommendation[]>([]);
+
+  useEffect(() => {
+    if (!data.city) return;
+    const controller = new AbortController();
+    const budgetKrw = (data.budget || 150) * 10000;
+    fetch(`/api/listings?category=accommodation&city=${encodeURIComponent(data.city)}&limit=20`, { signal: controller.signal })
+      .then(r => { if (!r.ok) throw new Error(r.statusText); return r.json(); })
+      .then((rows: ListingRecommendation[]) => {
+        const filtered = rows.filter((r) => {
+          const priceKrw = getMonthlyPriceKrw(r.category_data, 9999);
+          return priceKrw <= budgetKrw * 0.6;
+        });
+        setListingRecs(filtered.slice(0, 3));
+      })
+      .catch(() => null);
+    return () => controller.abort();
+  }, [data.city, data.budget]);
 
   const persist = useCallback((updated: PlannerData) => {
     setData(updated);
@@ -765,7 +841,6 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
 
   const start = new Date(data.startDate);
   const end = new Date(data.endDate);
-  const dDay = differenceInDays(start, new Date());
   const weeks = Math.max(1, Math.ceil(differenceInDays(end, start) / 7));
   const dateStr = `${format(start, "yyyy.MM.dd")} → ${format(end, "MM.dd")}`;
   const useRemoteChecklist = data.city === "다낭";
@@ -953,6 +1028,75 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
     window.location.reload();
   };
 
+  const handleShare = async () => {
+    if (sharedId) {
+      // Already shared — just re-copy the URL
+      const url = `${window.location.origin}/planner/share/${sharedId}`;
+      await navigator.clipboard.writeText(url).catch(() => null);
+      toast.success("링크가 복사됐어요!");
+      return;
+    }
+    setSharing(true);
+    try {
+      const res = await fetch("/api/planner/plans", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          session_id: getSessionId(),
+          title: `${data.city} ${data.party} 한달살기 플랜`,
+          data,
+          is_public: shareVisibility === "public",
+        }),
+      });
+      if (!res.ok) throw new Error("Share failed");
+      const json = await res.json() as { id: string };
+      const url = `${window.location.origin}/planner/share/${json.id}`;
+      setSharedId(json.id);
+      setReminderPlanId(json.id);
+      if (data.startDate) setShowReminderModal(true);
+      try {
+        await navigator.clipboard.writeText(url);
+        toast.success("링크가 복사됐어요!");
+      } catch {
+        toast.info("링크가 생성됐어요. 위에서 확인하세요.");
+      }
+    } catch {
+      toast.error("공유에 실패했습니다.");
+    } finally {
+      setSharing(false);
+    }
+  };
+
+  const handleSaveReminder = async () => {
+    if (!reminderPlanId || !reminderEmail) return;
+    setSavingReminder(true);
+    try {
+      const res = await fetch(`/api/planner/plans/${reminderPlanId}/reminders`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: reminderEmail }),
+      });
+      if (!res.ok) throw new Error("Reminder save failed");
+      toast.success("리마인더가 등록됐어요!");
+      setShowReminderModal(false);
+    } catch {
+      toast.error("등록에 실패했습니다.");
+    } finally {
+      setSavingReminder(false);
+    }
+  };
+
+  // Feature D: D-day
+  const dDay = useMemo(() => {
+    if (!data.startDate) return null;
+    const start = new Date(data.startDate);
+    start.setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const diff = differenceInDays(start, today);
+    return diff;
+  }, [data.startDate]);
+
   const tabs = [
     { key: "summary" as const, label: "요약" },
     { key: "checklist" as const, label: "체크리스트" },
@@ -967,6 +1111,73 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
 
   return (
     <div className="max-w-[900px] mx-auto py-6 px-4">
+      {/* Feature D-Email: 리마인더 모달 */}
+      <Dialog open={showReminderModal} onOpenChange={setShowReminderModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>출발 전 알림 받기</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            출발 D-30, D-14, D-7에 미완료 체크리스트를 이메일로 알려드려요.
+          </p>
+          <Input
+            type="email"
+            placeholder="이메일 주소"
+            value={reminderEmail}
+            onChange={e => setReminderEmail(e.target.value)}
+            className="mt-2"
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowReminderModal(false)}>나중에</Button>
+            <Button onClick={() => void handleSaveReminder()} disabled={savingReminder || !reminderEmail}>
+              {savingReminder ? "등록 중..." : "알림 등록"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Feature A: 공유 범위 선택 모달 */}
+      <Dialog open={showShareModal} onOpenChange={setShowShareModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>공유 범위 선택</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2 py-2">
+            <button
+              onClick={() => setShareVisibility("link")}
+              className={`w-full flex items-start gap-3 p-3 rounded-lg border transition-colors text-left ${
+                shareVisibility === "link" ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
+              }`}
+            >
+              <span className="text-lg mt-0.5">🔗</span>
+              <div>
+                <p className="text-[13px] font-semibold text-foreground">링크 있는 사람만</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">탐색 목록에는 표시되지 않아요</p>
+              </div>
+            </button>
+            <button
+              onClick={() => setShareVisibility("public")}
+              className={`w-full flex items-start gap-3 p-3 rounded-lg border transition-colors text-left ${
+                shareVisibility === "public" ? "border-primary bg-primary/5" : "border-border hover:border-primary/40"
+              }`}
+            >
+              <span className="text-lg mt-0.5">🌐</span>
+              <div>
+                <p className="text-[13px] font-semibold text-foreground">공개 목록에 공개</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">다른 사람 플랜 탐색에도 표시돼요</p>
+              </div>
+            </button>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowShareModal(false)}>취소</Button>
+            <Button
+              onClick={() => { setShowShareModal(false); void handleShare(); }}
+              disabled={sharing}
+            >
+              {sharing ? "저장 중..." : "공유 링크 생성"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       {/* Summary bar with progress */}
       <div
         className="bg-[#F8F9FA] rounded px-4 py-3 mb-6 flex flex-wrap items-center gap-x-3 gap-y-1 text-[14px] cursor-pointer hover:bg-[#F0F1F3] transition-colors"
@@ -976,8 +1187,12 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
         <span className="text-[#AAA]">·</span>
         <span className="text-muted-foreground">{dateStr}</span>
         <span className="text-[#AAA]">·</span>
-        <span className="text-[24px] font-bold text-foreground leading-none">D{dDay > 0 ? `-${dDay}` : dDay === 0 ? "-Day" : `+${Math.abs(dDay)}`}</span>
-        <span className="text-[#AAA]">·</span>
+        {dDay !== null && (
+          <>
+            <span className="text-[24px] font-bold text-foreground leading-none">D{dDay > 0 ? `-${dDay}` : dDay === 0 ? "-Day" : `+${Math.abs(dDay)}`}</span>
+            <span className="text-[#AAA]">·</span>
+          </>
+        )}
         <span className="text-muted-foreground">{data.party}</span>
         <span className="text-[#AAA]">·</span>
         <span className="text-muted-foreground">{data.budget}만원/월</span>
@@ -986,7 +1201,7 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-[#EEE] mb-6">
+      <div className="flex border-b border-[#EEE] mb-6 items-center">
         {tabs.map(t => (
           <button
             key={t.key}
@@ -1001,6 +1216,42 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
             {t.label}
           </button>
         ))}
+        <div className="flex items-center gap-2 ml-auto">
+          {dDay !== null && (
+            <span className={cn(
+              "text-[12px] font-semibold px-2.5 py-1 rounded-full",
+              dDay > 14 ? "bg-blue-100 text-blue-700" :
+              dDay > 0 ? "bg-orange-100 text-orange-700" :
+              dDay === 0 ? "bg-green-100 text-green-700" :
+              "bg-slate-100 text-slate-500"
+            )}>
+              {dDay > 0 ? `D-${dDay}` : dDay === 0 ? "D-Day!" : `D+${Math.abs(dDay)}`}
+            </span>
+          )}
+          {sharedId && (
+            <a
+              href={`/planner/share/${sharedId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[12px] text-primary hover:underline"
+            >
+              공유 페이지 보기
+            </a>
+          )}
+          <Link
+            to="/planner/explore"
+            className="text-[12px] text-muted-foreground hover:text-foreground transition-colors"
+          >
+            다른 플랜 보기
+          </Link>
+          <button
+            onClick={() => setShowShareModal(true)}
+            disabled={sharing}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-[12px] rounded-lg border border-border hover:border-primary/50 hover:text-primary transition-colors disabled:opacity-50"
+          >
+            {sharing ? "저장 중..." : "🔗 공유하기"}
+          </button>
+        </div>
       </div>
 
       {/* Tab: Summary */}
@@ -1061,6 +1312,41 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
 
           <div className="text-[13px] text-[#AAA]">
             환율 ₩1 = 18.4동 · 예산 현지화 약 {(data.budget * 10000 * 18.4 / 10000).toLocaleString()}만동
+          </div>
+
+          {/* Feature E: 예산 시뮬레이터 */}
+          <div className="mt-6 border-t border-border pt-5">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-[13px] font-semibold text-foreground">예산 배분 조정</span>
+              <button
+                onClick={resetBudgetRatios}
+                className="text-[11px] text-primary hover:underline"
+              >
+                {data.city} 평균으로 초기화
+              </button>
+            </div>
+            {(Object.keys(budgetRatios) as (keyof typeof budgetRatios)[]).map(key => {
+              const amount = Math.round(data.budget * budgetRatios[key] / 100);
+              return (
+                <div key={key} className="mb-4">
+                  <div className="flex justify-between text-[12px] text-muted-foreground mb-1">
+                    <span>{key}</span>
+                    <span className="font-medium text-foreground">{budgetRatios[key]}% · 약 {amount}만원</span>
+                  </div>
+                  <Slider
+                    value={[budgetRatios[key]]}
+                    onValueChange={([v]) => updateBudgetRatio(key, v)}
+                    min={0}
+                    max={70}
+                    step={1}
+                    className="w-full"
+                  />
+                </div>
+              );
+            })}
+            <div className="text-right text-[12px] text-muted-foreground mt-1">
+              총 예산 {data.budget}만원 기준
+            </div>
           </div>
         </div>
       )}
@@ -1168,6 +1454,51 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
       {/* Tab: Housing */}
       {tab === "housing" && (
         <div>
+          {/* Feature C: DB 숙소 추천 */}
+          {listingRecs.length > 0 && (
+            <div className="mb-6">
+              <h4 className="text-[13px] font-semibold text-foreground mb-3">
+                예산 맞춤 추천 숙소
+                <span className="ml-2 text-[11px] font-normal text-muted-foreground">(예산 {data.budget}만원 기준)</span>
+              </h4>
+              <div className="space-y-2">
+                {listingRecs.map(listing => {
+                  const priceKrw = Math.round(getMonthlyPriceKrw(listing.category_data) / 10000);
+                  return (
+                    <div key={listing.id} className="flex items-center justify-between p-3 rounded-lg border border-border bg-card hover:border-primary/50 transition-colors">
+                      <div>
+                        <p className="text-[13px] font-medium text-foreground">{listing.name}</p>
+                        {listing.address && <p className="text-[11px] text-muted-foreground mt-0.5">{listing.address}</p>}
+                      </div>
+                      <div className="flex items-center gap-2 ml-3 shrink-0">
+                        {priceKrw > 0 && (
+                          <span className="text-[12px] text-primary font-medium">월 {priceKrw}만원~</span>
+                        )}
+                        {listing.affiliate_url && (
+                          <a
+                            href={listing.affiliate_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[11px] px-2 py-1 bg-primary text-primary-foreground rounded hover:opacity-90"
+                            onClick={() => {
+                              fetch("/api/affiliate/click", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ listing_id: listing.id, partner: "agoda" }),
+                              }).catch(() => null);
+                            }}
+                          >
+                            예약
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* City-specific housing recommendations */}
           <div className="mb-6">
             <h3 className="text-[15px] font-bold text-foreground mb-3">🏠 {data.city} 추천 숙소</h3>
@@ -1306,6 +1637,24 @@ const Dashboard = ({ initialData }: { initialData: PlannerData }) => {
     </div>
   );
 };
+
+/* ── Feature C: 숙소 추천 ── */
+interface ListingRecommendation {
+  id: number;
+  name: string;
+  slug: string;
+  address: string | null;
+  affiliate_url: string | null;
+  category_data: {
+    price_min_usd?: number;
+    price_monthly_usd?: number;
+  };
+}
+
+const USD_TO_KRW = 1350;
+
+const getMonthlyPriceKrw = (cd: ListingRecommendation['category_data'], fallback = 0) =>
+  ((cd?.price_monthly_usd ?? cd?.price_min_usd ?? fallback) * USD_TO_KRW);
 
 /* ── Main Page ── */
 const Planner = () => {
