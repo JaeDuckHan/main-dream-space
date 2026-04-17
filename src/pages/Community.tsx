@@ -150,26 +150,23 @@ export default function Community() {
                       onClick={() => navigate(`/community/${post.id}`)}
                     >
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-baseline justify-between gap-2">
-                          <div className="flex items-baseline gap-1.5 min-w-0">
-                            <span className={cn("text-[14px] font-extrabold shrink-0", CATEGORY_COLORS[post.category])}>
-                              [{CATEGORY_LABELS[post.category]}]
-                            </span>
-                            <span className="text-[16px] text-foreground truncate">{post.title}</span>
-                            {post.comment_count > 0 && (
-                              <span className={cn("text-[14px] font-bold shrink-0", post.comment_count >= 5 ? "text-red-500" : "text-muted-foreground")}>
-                                [{post.comment_count}]
-                              </span>
-                            )}
-                          </div>
-                          <span className="text-[13px] shrink-0" style={{ color: "#AAA" }}>
-                            {formatRelativeTime(post.created_at)}
+                        <div className="flex items-baseline gap-1.5 min-w-0">
+                          <span className={cn("text-[14px] font-extrabold shrink-0", CATEGORY_COLORS[post.category])}>
+                            [{CATEGORY_LABELS[post.category]}]
                           </span>
+                          <span className="text-[16px] text-foreground truncate">{post.title}</span>
+                          {post.comment_count > 0 && (
+                            <span className={cn("text-[14px] font-bold shrink-0", post.comment_count >= 5 ? "text-red-500" : "text-muted-foreground")}>
+                              [{post.comment_count}]
+                            </span>
+                          )}
                         </div>
                         <div className="mt-1 pl-0.5">
                           <span className="text-[13px]" style={{ color: "#888" }}>
                             {post.author.display_name}
                             {post.is_pinned ? " · 상단 고정" : ""}
+                            {" · "}
+                            {formatRelativeTime(post.created_at)}
                           </span>
                         </div>
                       </div>
@@ -177,7 +174,7 @@ export default function Community() {
                         <img
                           src={post.thumbnail_url}
                           alt=""
-                          className="w-[90px] h-[72px] sm:w-[160px] sm:h-[130px] rounded-lg object-cover shrink-0"
+                          className="w-[110px] h-[88px] sm:w-[160px] sm:h-[130px] rounded-lg object-cover shrink-0"
                           loading="lazy"
                         />
                       )}

@@ -23,7 +23,7 @@ const HeroSection = () => {
           5개 도시와 비교하세요.
         </h1>
 
-        <p className="mt-4 text-[16px] md:text-[18px] text-white/70 max-w-xl mx-auto leading-relaxed">
+        <p className="mt-4 text-[16px] md:text-[18px] text-white/70 max-w-xl mx-auto px-4 sm:px-0 leading-relaxed">
           1인 월 생활비 기준 — 다낭 130만원 · 나트랑 112만원 · 푸꾸옥 133만원
           <br />
           <span className="text-[14px]">
