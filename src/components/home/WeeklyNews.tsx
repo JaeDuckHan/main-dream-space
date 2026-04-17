@@ -20,7 +20,7 @@ export function WeeklyNews() {
         <div className="space-y-4">
           {(news as WeeklyNewsItem[]).map((item) => (
             <article key={item.id} className="rounded-xl border border-border bg-card p-5">
-              <div className="mb-2 flex items-center gap-2 text-xs">
+              <div className="mb-2 flex items-center gap-2 text-sm">
                 <span className="text-muted-foreground">{item.date}</span>
                 <span className="rounded-full bg-accent px-2 py-0.5 font-medium text-accent-foreground">{item.tag}</span>
               </div>

@@ -25,7 +25,7 @@ export function HeroSearch() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto max-w-2xl px-4 sm:px-0">
       <form className="flex gap-2 rounded-full bg-white p-2 shadow-lg" onSubmit={submit}>
         <input
           type="text"

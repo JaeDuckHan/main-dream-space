@@ -50,7 +50,7 @@ export function NewsletterForm({ source = "main" }: { source?: string }) {
   };
 
   return (
-    <div className="mx-auto max-w-md">
+    <div className="mx-auto max-w-md px-4 sm:px-0">
       <div className="flex gap-2">
         <input
           type="email"

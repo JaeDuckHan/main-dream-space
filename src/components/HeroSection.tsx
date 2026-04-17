@@ -48,7 +48,7 @@ const HeroSection = () => {
         </div>
 
         {/* Search bar */}
-        <div className="mt-6 max-w-lg mx-auto flex items-center bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-white/30">
+        <div className="mt-6 max-w-lg mx-4 sm:mx-auto flex items-center bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-white/30">
           <Search size={18} className="ml-4 text-white/50 shrink-0" />
           <input
             type="text"
