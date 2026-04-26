@@ -26,6 +26,7 @@ import PlannerExplore from "./pages/PlannerExplore.tsx";
 import Compare from "./pages/Compare.tsx";
 import Directory from "./pages/Directory.tsx";
 import Insight from "./pages/Insight.tsx";
+import InsightDetail from "./pages/InsightDetail.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Login from "./pages/Login.tsx";
 import BusinessRegister from "./pages/BusinessRegister.tsx";
@@ -83,6 +84,7 @@ const App = () => (
               <Route path="/products" element={<Products />} />
               <Route path="/products/:slug" element={<ProductDetail />} />
               <Route path="/insight" element={<Insight />} />
+              <Route path="/insight/:slug" element={<InsightDetail />} />
               <Route path="/login" element={<Login />} />
               <Route path="/business/register" element={<BusinessRegister />} />
               <Route path="/business/dashboard" element={<BusinessDashboard />} />

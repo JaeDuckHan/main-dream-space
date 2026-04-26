@@ -1,0 +1,18 @@
+{
+  "name": "luckydanang-news-bot",
+  "version": "1.0.0",
+  "description": "다낭 생활뉴스 수집·번역·발행 봇",
+  "scripts": {
+    "collect": "node collect.js",
+    "translate": "node translate.js",
+    "publish:morning": "node publish.js morning",
+    "publish:afternoon": "node publish.js afternoon"
+  },
+  "dependencies": {
+    "@notionhq/client": "^2.2.15",
+    "dotenv": "^16.4.5",
+    "mysql2": "^3.9.4",
+    "openai": "^4.47.1",
+    "rss-parser": "^3.13.0"
+  }
+}
