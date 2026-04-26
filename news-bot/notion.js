@@ -15,7 +15,17 @@ function extractText(prop) {
   return '';
 }
 
-// 페이지 본문 블록을 마크다운 스타일 텍스트로 변환
+// rich_text 배열 → 마크다운 텍스트 (링크 보존)
+function richTextToMarkdown(rt) {
+  if (!rt) return '';
+  return rt.map(t => {
+    const text = t.plain_text || '';
+    if (t.href) return `[${text}](${t.href})`;
+    return text;
+  }).join('');
+}
+
+// 페이지 본문 블록을 마크다운 스타일 텍스트로 변환 (링크·이미지 보존)
 async function getPageContent(pageId) {
   const blocks = [];
   let cursor;
@@ -26,9 +36,32 @@ async function getPageContent(pageId) {
   } while (cursor);
 
   return blocks.map(b => {
-    const rt = b[b.type]?.rich_text;
+    const type = b.type;
+
+    // 이미지 블록
+    if (type === 'image') {
+      const img = b.image;
+      const url = img?.external?.url || img?.file?.url || '';
+      const caption = richTextToMarkdown(img?.caption);
+      return url ? `![${caption}](${url})` : '';
+    }
+
+    // 구분선
+    if (type === 'divider') return '---';
+
+    // 제목 블록
+    if (type === 'heading_1') return `# ${richTextToMarkdown(b.heading_1?.rich_text)}`;
+    if (type === 'heading_2') return `## ${richTextToMarkdown(b.heading_2?.rich_text)}`;
+    if (type === 'heading_3') return `### ${richTextToMarkdown(b.heading_3?.rich_text)}`;
+
+    // 글머리 목록
+    if (type === 'bulleted_list_item') return `- ${richTextToMarkdown(b.bulleted_list_item?.rich_text)}`;
+    if (type === 'numbered_list_item') return `1. ${richTextToMarkdown(b.numbered_list_item?.rich_text)}`;
+
+    // 일반 단락 (가장 많음)
+    const rt = b[type]?.rich_text;
     if (!rt) return '';
-    return rt.map(t => t.plain_text).join('');
+    return richTextToMarkdown(rt);
   }).filter(Boolean).join('\n\n');
 }
 

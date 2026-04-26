@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -28,25 +28,78 @@ function formatDate(str: string) {
   return new Date(str).toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric" });
 }
 
+// 인라인 마크다운 링크·굵게 파싱 → React 노드 배열
+function parseInline(text: string): React.ReactNode[] {
+  const result: React.ReactNode[] = [];
+  // [텍스트](URL) 형태 링크 파싱
+  const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+  let last = 0;
+  let m: RegExpExecArray | null;
+  while ((m = linkRegex.exec(text)) !== null) {
+    if (m.index > last) result.push(text.slice(last, m.index));
+    result.push(
+      <a key={m.index} href={m[2]} target="_blank" rel="noopener noreferrer"
+         className="text-primary underline underline-offset-2 hover:opacity-75 break-all">
+        {m[1]}
+      </a>
+    );
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) result.push(text.slice(last));
+  return result.length ? result : [text];
+}
+
+// 단락 한 개를 렌더링 (이미지 / 구분선 / 일반 텍스트)
+function renderParagraph(p: string, i: number): React.ReactNode {
+  // 이미지 블록 ![alt](url)
+  const imgMatch = p.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
+  if (imgMatch) {
+    return (
+      <figure key={i} className="my-6">
+        <img src={imgMatch[2]} alt={imgMatch[1]}
+             className="w-full rounded-xl object-cover max-h-[420px]"
+             onError={e => (e.currentTarget.parentElement!.remove())} />
+        {imgMatch[1] && <figcaption className="text-[12px] text-muted-foreground/60 mt-2 text-center">{imgMatch[1]}</figcaption>}
+      </figure>
+    );
+  }
+  // 구분선
+  if (p.trim() === '---') return <hr key={i} className="my-6 border-border" />;
+  // 제목
+  if (p.startsWith('# '))  return <h2 key={i} className="text-[22px] font-[900] mt-8 mb-3">{parseInline(p.slice(2))}</h2>;
+  if (p.startsWith('## ')) return <h3 key={i} className="text-[19px] font-[800] mt-6 mb-2">{parseInline(p.slice(3))}</h3>;
+  if (p.startsWith('### '))return <h4 key={i} className="text-[17px] font-[700] mt-5 mb-2">{parseInline(p.slice(4))}</h4>;
+  // 글머리 목록 (여러 줄)
+  if (p.split('\n').some(l => l.startsWith('- ') || /^\d+\.\s/.test(l))) {
+    return (
+      <ul key={i} className="my-3 pl-5 space-y-1 list-disc marker:text-primary">
+        {p.split('\n').filter(Boolean).map((l, j) => {
+          const text = l.replace(/^[-\d]+\.?\s*/, '');
+          return <li key={j} className="text-[16px] leading-relaxed">{parseInline(text)}</li>;
+        })}
+      </ul>
+    );
+  }
+  // 일반 단락
+  return <p key={i} className="mb-4 leading-[1.85]">{parseInline(p)}</p>;
+}
+
 function renderContent(text: string) {
-  const parts = text.split("\n\n---\n");
+  const parts = text.split("\n\n---\n참고/출처");
   const body = parts[0];
-  const footer = parts[1] || "";
+  const footerRaw = parts[1] || "";
 
-  const bodyHtml = body.split("\n\n").filter(Boolean).map((p, i) => (
-    <p key={i} className="mb-5">{p}</p>
-  ));
-
-  const footerLines = footer.split("\n").filter(Boolean);
+  const paragraphs = body.split("\n\n").filter(Boolean);
+  const footerLines = footerRaw.split("\n").filter(Boolean);
 
   return (
     <>
-      {bodyHtml}
+      {paragraphs.map((p, i) => renderParagraph(p, i))}
       {footerLines.length > 0 && (
         <div className="mt-8 p-4 bg-muted/50 rounded-lg border border-border text-[13px] text-muted-foreground leading-relaxed">
           <p className="font-semibold text-foreground mb-2">참고 / 출처</p>
           {footerLines.map((line, i) => (
-            <p key={i}>{line}</p>
+            <p key={i}>{parseInline(line)}</p>
           ))}
         </div>
       )}
