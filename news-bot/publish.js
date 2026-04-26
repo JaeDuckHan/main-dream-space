@@ -1,10 +1,10 @@
 /**
- * publish.js — Notion APPROVED → MySQL → PUBLISHED
- * npm run publish:morning   (권장: 매일 09:00 KST)
- * npm run publish:afternoon (권장: 매일 15:00 KST)
+ * publish.js — Notion APPROVED → PostgreSQL → PUBLISHED
+ * npm run publish:morning   (권장: 매일 09:00 KST = UTC 00:00)
+ * npm run publish:afternoon (권장: 매일 15:00 KST = UTC 06:00)
  */
 require('dotenv').config();
-const mysql = require('mysql2/promise');
+const { Pool } = require('pg');
 const { queryByStatus, getPageContent, extractText, updatePage } = require('./notion');
 
 const SLOT = process.argv[2]; // 'morning' | 'afternoon'
@@ -14,13 +14,12 @@ if (!['morning', 'afternoon'].includes(SLOT)) {
 }
 const MAX_PER_SLOT = 2;
 
-const db = mysql.createPool({
+const db = new Pool({
   host: process.env.DB_HOST || 'localhost',
-  port: Number(process.env.DB_PORT) || 3306,
-  user: process.env.DB_USER || 'root',
+  port: Number(process.env.DB_PORT) || 5432,
+  user: process.env.DB_USER || 'dreamspace',
   password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'luckydanang',
-  charset: 'utf8mb4',
+  database: process.env.DB_NAME || 'dreamspace',
 });
 
 function makeSlug(title) {
@@ -74,21 +73,23 @@ async function run() {
       continue;
     }
 
-    // 출처 자동 추가
     content += buildSourceFooter(sourceName, sourceUrl, imageCredit);
 
     const slug = makeSlug(title);
     const publishedAt = new Date();
 
     try {
-      await db.execute(
+      await db.query(
         `INSERT INTO news_articles
-          (notion_id, title, summary, content, category, image_url, image_credit,
-           source_name, source_url, slug, publish_slot, published_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-         ON DUPLICATE KEY UPDATE
-           title=VALUES(title), summary=VALUES(summary), content=VALUES(content),
-           publish_slot=VALUES(publish_slot), published_at=VALUES(published_at)`,
+           (notion_id, title, summary, content, category, image_url, image_credit,
+            source_name, source_url, slug, publish_slot, published_at)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+         ON CONFLICT (notion_id) DO UPDATE SET
+           title        = EXCLUDED.title,
+           summary      = EXCLUDED.summary,
+           content      = EXCLUDED.content,
+           publish_slot = EXCLUDED.publish_slot,
+           published_at = EXCLUDED.published_at`,
         [page.id, title, summary, content, category,
          imageUrl || null, imageCredit || null,
          sourceName || null, sourceUrl || null,
@@ -108,4 +109,8 @@ async function run() {
   console.log(`\n📊 완료 — ${done}건 발행`);
 }
 
-run().catch(e => { console.error('치명적 오류:', e); db.end(); process.exit(1); });
+run().catch(async e => {
+  console.error('치명적 오류:', e);
+  await db.end();
+  process.exit(1);
+});
