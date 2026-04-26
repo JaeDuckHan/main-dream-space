@@ -222,9 +222,22 @@ function renderBlocks(blocks: MdBlock[]): React.ReactNode {
 }
 
 // ── 전체 content 렌더 (출처 푸터 분리) ──────────────────────────────────
-function renderContent(text: string) {
+// heroUrl: article.image_url — 본문 첫 이미지가 이것과 같으면 중복이므로 제거
+function renderContent(text: string, heroUrl?: string | null) {
   const [body, footerRaw = ""] = text.split("\n\n---\n참고/출처");
-  const blocks = parseBlocks(body);
+  let blocks = parseBlocks(body);
+
+  // 본문 첫 번째 image 블록이 상단 대표 이미지와 같으면 제거
+  if (heroUrl) {
+    const firstImgIdx = blocks.findIndex(b => b.t === 'image');
+    if (firstImgIdx !== -1) {
+      const firstImg = blocks[firstImgIdx] as { t: 'image'; src: string; alt: string };
+      if (firstImg.src === heroUrl) {
+        blocks = [...blocks.slice(0, firstImgIdx), ...blocks.slice(firstImgIdx + 1)];
+      }
+    }
+  }
+
   const footerLines = footerRaw.split("\n").filter(Boolean);
 
   return (
@@ -312,7 +325,7 @@ const InsightDetail = () => {
             )}
 
             <div className="text-[17px] text-foreground/90">
-              {renderContent(article.content || article.summary || "")}
+              {renderContent(article.content || article.summary || "", article.image_url)}
             </div>
 
             {article.source_url && (
