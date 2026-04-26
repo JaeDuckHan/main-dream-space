@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { useAuth } from "@/hooks/use-auth";
 
 const categoryColors: Record<string, string> = {
   "비자/정책": "#3B82F6",
@@ -253,9 +254,134 @@ function renderContent(text: string, heroUrl?: string | null) {
   );
 }
 
+// ── 댓글 타입 ────────────────────────────────────────────────────────────
+interface Comment {
+  id: number;
+  content: string;
+  created_at: string;
+  user_id: number;
+  display_name: string | null;
+  avatar_url: string | null;
+}
+
+// ── 댓글 섹션 ────────────────────────────────────────────────────────────
+function CommentSection({ slug }: { slug: string }) {
+  const { user } = useAuth();
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [text, setText] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    fetch(`/api/insight/${slug}/comments`)
+      .then(r => r.json())
+      .then(data => Array.isArray(data) && setComments(data))
+      .catch(() => {});
+  }, [slug]);
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!text.trim()) return;
+    setSubmitting(true);
+    try {
+      const res = await fetch(`/api/insight/${slug}/comments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ content: text.trim() }),
+      });
+      if (!res.ok) throw new Error();
+      const comment = await res.json();
+      setComments(prev => [...prev, comment]);
+      setText("");
+    } catch {
+      alert("댓글 작성에 실패했습니다.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const deleteComment = async (id: number) => {
+    if (!confirm("댓글을 삭제하시겠습니까?")) return;
+    try {
+      const res = await fetch(`/api/insight/comments/${id}`, {
+        method: "DELETE", credentials: "include",
+      });
+      if (!res.ok) throw new Error();
+      setComments(prev => prev.filter(c => c.id !== id));
+    } catch {
+      alert("삭제에 실패했습니다.");
+    }
+  };
+
+  return (
+    <div className="mt-12 border-t border-border pt-10">
+      <h3 className="text-[18px] font-[800] mb-6">댓글 {comments.length > 0 && <span className="text-primary">{comments.length}</span>}</h3>
+
+      {/* 댓글 목록 */}
+      {comments.length === 0
+        ? <p className="text-[14px] text-muted-foreground mb-6">아직 댓글이 없습니다. 첫 번째 댓글을 남겨보세요.</p>
+        : <div className="space-y-4 mb-8">
+            {comments.map(c => (
+              <div key={c.id} className="flex gap-3 group">
+                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-[13px] font-[700] shrink-0 overflow-hidden">
+                  {c.avatar_url
+                    ? <img src={c.avatar_url} alt="" className="w-full h-full object-cover" />
+                    : (c.display_name?.[0] ?? "?").toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-[13px] font-[700]">{c.display_name ?? "회원"}</span>
+                    <span className="text-[11px] text-muted-foreground">{formatDate(c.created_at)}</span>
+                  </div>
+                  <p className="text-[14px] leading-relaxed whitespace-pre-wrap break-words">{c.content}</p>
+                </div>
+                {user && (user.id === c.user_id || user.role === "admin") && (
+                  <button onClick={() => deleteComment(c.id)}
+                          className="text-[12px] text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-1">
+                    삭제
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+      }
+
+      {/* 댓글 입력 */}
+      {user ? (
+        <form onSubmit={submit} className="flex gap-3">
+          <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-[13px] font-[700] shrink-0 overflow-hidden">
+            {user.avatar_url
+              ? <img src={user.avatar_url} alt="" className="w-full h-full object-cover" />
+              : (user.display_name?.[0] ?? "?").toUpperCase()}
+          </div>
+          <div className="flex-1">
+            <textarea ref={textareaRef} value={text} onChange={e => setText(e.target.value)}
+                      rows={3} maxLength={1000} placeholder="댓글을 작성하세요... (최대 1000자)"
+                      className="w-full px-3 py-2 text-[14px] border border-border rounded-lg bg-background resize-none focus:outline-none focus:ring-2 focus:ring-primary/40" />
+            <div className="flex justify-between items-center mt-2">
+              <span className="text-[11px] text-muted-foreground">{text.length} / 1000</span>
+              <button type="submit" disabled={submitting || !text.trim()}
+                      className="px-4 py-1.5 bg-primary text-white text-[13px] font-[700] rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors">
+                {submitting ? "작성 중…" : "댓글 작성"}
+              </button>
+            </div>
+          </div>
+        </form>
+      ) : (
+        <Link to="/login" className="block text-center py-4 border border-dashed border-border rounded-xl text-[14px] text-muted-foreground hover:border-primary/40 hover:text-primary transition-colors">
+          로그인 후 댓글을 작성할 수 있습니다 →
+        </Link>
+      )}
+    </div>
+  );
+}
+
 // ── 메인 컴포넌트 ────────────────────────────────────────────────────────
 const InsightDetail = () => {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -269,16 +395,45 @@ const InsightDetail = () => {
       .finally(() => setLoading(false));
   }, [slug]);
 
+  const handleDelete = async () => {
+    if (!confirm("기사를 삭제하시겠습니까? 되돌릴 수 없습니다.")) return;
+    try {
+      const res = await fetch(`/api/insight/${slug}`, {
+        method: "DELETE", credentials: "include",
+      });
+      if (!res.ok) throw new Error();
+      navigate("/insight");
+    } catch {
+      alert("삭제에 실패했습니다.");
+    }
+  };
+
   const color = article ? (categoryColors[article.category] || "#6B7280") : "#6B7280";
+  const isAdmin = user?.role === "admin";
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
 
       <div className="container py-8 max-w-[760px]">
-        <Link to="/insight" className="inline-flex items-center gap-1 text-[14px] font-semibold text-primary hover:underline mb-6">
-          ← 뉴스 목록
-        </Link>
+        <div className="flex items-center justify-between mb-6">
+          <Link to="/insight" className="inline-flex items-center gap-1 text-[14px] font-semibold text-primary hover:underline">
+            ← 뉴스 목록
+          </Link>
+          {/* 관리자 버튼 */}
+          {isAdmin && article && (
+            <div className="flex gap-2">
+              <Link to={`/insight/${slug}/edit`}
+                    className="px-3 py-1.5 text-[12px] font-[700] border border-border rounded-lg hover:border-primary hover:text-primary transition-colors">
+                ✏️ 수정
+              </Link>
+              <button onClick={handleDelete}
+                      className="px-3 py-1.5 text-[12px] font-[700] border border-border rounded-lg hover:border-destructive hover:text-destructive transition-colors">
+                🗑 삭제
+              </button>
+            </div>
+          )}
+        </div>
 
         {loading && (
           <div className="animate-pulse space-y-4">
@@ -342,6 +497,9 @@ const InsightDetail = () => {
                 내 맞춤 플랜 만들기 →
               </Link>
             </div>
+
+            {/* 댓글 섹션 */}
+            <CommentSection slug={slug!} />
           </>
         )}
       </div>
