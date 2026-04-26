@@ -167,6 +167,7 @@ export default function InsightEdit() {
             <label className={labelCls}>본문 (마크다운)</label>
             <p className="text-[12px] text-muted-foreground mb-1">
               ## 소제목 &nbsp;|&nbsp; - 목록 &nbsp;|&nbsp; 1. 번호목록 &nbsp;|&nbsp; [링크텍스트](URL) &nbsp;|&nbsp; ![이미지](URL) &nbsp;|&nbsp; &gt; 💡 콜아웃 &nbsp;|&nbsp; --- 구분선
+              &nbsp;&nbsp;|&nbsp;&nbsp;구글맵: [📍 위치 보기](place-URL) &nbsp;[⭐ 리뷰 보기](리뷰탭-URL — 리뷰탭 클릭 후 주소창 복사)
             </p>
             <textarea className={`${inputCls} font-mono text-[13px] resize-y`} rows={24}
                       value={form.content} onChange={set("content")} required

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ExternalLink } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { useAuth } from "@/hooks/use-auth";
 
 const categories = ["전체", "비자/정책", "생활비/물가", "한달살기 팁", "날씨/시기", "교통/이동", "음식/맛집"] as const;
 
@@ -137,6 +138,7 @@ const Insight = () => {
   const [active, setActive] = useState("전체");
   const [articles, setArticles] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
     fetch(`/api/insight?limit=30`)
@@ -163,6 +165,14 @@ const Insight = () => {
           <p className="text-[16px] text-muted-foreground">
             베트남 최신 소식을 한국어로 정리했어요
           </p>
+          {user?.role === "admin" && (
+            <Link
+              to="/insight/write"
+              className="inline-block mt-5 px-5 py-2 bg-primary text-white text-[14px] font-[700] rounded-lg hover:bg-primary/90 transition-colors"
+            >
+              + 새 기사 작성
+            </Link>
+          )}
         </div>
       </section>
 

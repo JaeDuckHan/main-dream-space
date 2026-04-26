@@ -119,8 +119,8 @@ RAW → TRANSLATED → (검수) → APPROVED → PUBLISHED
 
 #### ✅ 올바른 방법 — place URL 사용
 ```
-[📍 구글맵에서 보기](https://www.google.com/maps/place/장소명/@위도,경도,17z/...)
-[🖼 사진 보기](https://www.google.com/maps/place/장소명/@위도,경도,17z/.../photos)
+[📍 위치 보기](https://www.google.com/maps/place/장소명/@위도,경도,17z/...)
+[⭐ 리뷰 보기](https://www.google.com/maps/place/장소명/@위도,경도,17z/.../data=...!9m1!1b1)
 ```
 
 **place URL 찾는 법:**
@@ -128,12 +128,16 @@ RAW → TRANSLATED → (검수) → APPROVED → PUBLISHED
 2. 장소 클릭 후 "공유" 버튼
 3. "링크 복사" → `maps.app.goo.gl/...` 단축 URL 또는 전체 URL 사용
 
-#### ❌ 사용 금지 — search URL
+**리뷰 URL 찾는 법:**
+1. 구글맵에서 장소 클릭
+2. "리뷰" 탭 클릭
+3. 브라우저 주소창 URL 복사 (끝에 `!9m1!1b1` 포함된 URL)
+
+#### ❌ 사용 금지
 ```
-❌ https://www.google.com/maps/search/Mi+Quang+1A+Da+Nang
-❌ https://www.google.com/maps/search/장소명/photos  (photos 탭 미지원)
+❌ https://www.google.com/maps/search/Mi+Quang+1A+Da+Nang  (search URL — 부정확)
+❌ https://www.google.com/maps/place/.../photos             (photos 탭 URL — 미작동)
 ```
-- 검색 URL은 부정확한 결과로 이동하고, `/photos` 접미사가 작동하지 않음
 
 ---
 
