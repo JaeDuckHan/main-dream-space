@@ -37,6 +37,9 @@ RAW → TRANSLATED → (검수) → APPROVED → PUBLISHED
 - 슬롯당 최대 2건 발행
 
 ### Image URL
+- **필수** — 모든 기사는 반드시 Image URL을 설정해야 함. 빈칸 발행 금지.
+- **기사별 고유 이미지** — 다른 기사와 동일한 이미지 사용 금지 (썸네일 중복)
+- **주제 연관성** — 기사 내용과 관련 있는 이미지 사용. 랜덤 스톡 사진 금지.
 - Pexels CDN (`images.pexels.com`) 또는 Wikimedia Commons(`upload.wikimedia.org`) 사용
 - ❌ Unsplash photo ID는 검증 후 사용 (없는 ID는 404)
 - ❌ Google Maps 사진 직접 URL 사용 불가 (임시 URL, 시간 지나면 만료)
@@ -202,17 +205,24 @@ RAW → TRANSLATED → (검수) → APPROVED → PUBLISHED
 
 ### 이미지 삽입 규칙
 
-#### 대표 이미지 (Image URL 속성)
-- 기사 상단에 노출되는 대표 이미지
-- 본문 첫 `![](url)` 이미지와 같은 URL이면 자동으로 중복 제거됨
+#### 대표 이미지 (Image URL 속성) — 필수
+- 기사 상단에 노출되는 대표 이미지. **모든 기사에 반드시 설정.**
+- Pexels 형식: `https://images.pexels.com/photos/{ID}/pexels-photo-{ID}.jpeg?w=1200&q=80`
+- 브라우저 새 탭에서 URL 직접 열어 이미지가 보이는지 확인 후 사용.
 
-#### 본문 이미지
-- 상단 1장 + 중간 1~2장 + 하단 1장 권장
-- Pexels 예시: `https://images.pexels.com/photos/{ID}/pexels-photo-{ID}.jpeg?w=1200&q=80`
-- Wikimedia 예시: `https://upload.wikimedia.org/wikipedia/commons/thumb/a/b/파일명.jpg/1200px-파일명.jpg`
+#### 본문 인라인 이미지 — ❌ 금지
+- 본문 안에 `![](url)` 이미지 블록을 삽입하지 않는다.
+- 대표 이미지(Image URL 속성)가 기사 상단에 자동으로 표시됨.
+- 본문에 이미지를 넣으면 레이아웃이 깨지고 관리가 어려워짐.
 
-#### 검증 방법
-브라우저 새 탭에서 이미지 URL 직접 열어서 이미지가 보이는지 확인 후 사용.
+#### ❌ 본문에 삽입 금지 링크 유형
+```
+❌ [사진 보기](url)  — 구글맵 사진 탭 링크 (미작동)
+❌ [🖼 사진 보기](url)
+❌ [예약하기](url)   — 외부 예약 링크 (유지보수 불가)
+❌ [Book Now](url)
+```
+구글맵은 `[📍 위치 보기]`와 `[⭐ 리뷰 보기]`만 사용.
 
 ---
 
@@ -223,8 +233,10 @@ RAW → TRANSLATED → (검수) → APPROVED → PUBLISHED
 [ ] 서머리: 한국인 관점 의견형, 2~3문장
 [ ] 카테고리: 올바르게 선택됨
 [ ] 가격: VND + 원화 병기
-[ ] 구글맵 링크: place URL 사용 (search URL 아님)
-[ ] 이미지: 브라우저에서 직접 열어 확인됨
+[ ] 구글맵 링크: place URL 사용 (search URL 아님), 위치보기·리뷰보기만 사용
+[ ] Image URL: 설정됨 + 브라우저에서 열어 확인 + 다른 기사와 중복 아님
+[ ] 본문 인라인 이미지(![](url)) 없음
+[ ] 사진보기·예약하기 링크 없음
 [ ] Publish Slot: morning 또는 afternoon 선택
 [ ] Status: APPROVED로 변경
 [ ] (음식/맛집 단일) 주소 + 가격대 + 영업시간 + 대표 메뉴 포함됨
