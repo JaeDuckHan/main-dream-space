@@ -31,3 +31,6 @@ server/.env.bak*
 
 # Git worktrees
 .worktrees/
+
+# Local tooling
+.omc/
