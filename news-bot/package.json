@@ -7,7 +7,9 @@
     "translate": "node translate.js",
     "publish:morning": "node publish.js morning",
     "publish:afternoon": "node publish.js afternoon",
-    "repub": "node repub.js"
+    "repub": "node repub.js",
+    "fix-content": "node fix-content.js",
+    "fix-content:apply": "node fix-content.js --apply"
   },
   "dependencies": {
     "@notionhq/client": "^2.2.15",
