@@ -21,6 +21,7 @@ import settingsRoutes from "./routes/settings.js";
 import adminSettingsRoutes from "./routes/admin-settings.js";
 import dashboardRoutes from "./routes/dashboard.js";
 import newsletterRoutes from "./routes/newsletter.js";
+import newsRoutes from "./routes/news.js";
 import statsRoutes from "./routes/stats.js";
 import { errorHandler, notFound } from "./middleware/error.js";
 import { startPlannerReminderJob } from "./jobs/planner-reminders.js";
@@ -95,6 +96,7 @@ app.use("/api/admin/orders", adminOrderRoutes);
 app.use("/api/settings", settingsRoutes);
 app.use("/api/admin/settings", adminSettingsRoutes);
 app.use("/api/newsletter", newsletterRoutes);
+app.use("/api/insight", newsRoutes);
 app.use("/api/stats", statsRoutes);
 app.use("/api", dashboardRoutes);
 
