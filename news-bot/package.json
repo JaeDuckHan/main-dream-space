@@ -6,7 +6,8 @@
     "collect": "node collect.js",
     "translate": "node translate.js",
     "publish:morning": "node publish.js morning",
-    "publish:afternoon": "node publish.js afternoon"
+    "publish:afternoon": "node publish.js afternoon",
+    "repub": "node repub.js"
   },
   "dependencies": {
     "@notionhq/client": "^2.2.15",
