@@ -28,85 +28,219 @@ function formatDate(str: string) {
   return new Date(str).toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric" });
 }
 
-// 인라인 마크다운 링크·굵게 파싱 → React 노드 배열
+// ── 인라인 파서: [텍스트](URL) → <a>, **굵게** → <strong> ──────────────
 function parseInline(text: string): React.ReactNode[] {
   const result: React.ReactNode[] = [];
-  // [텍스트](URL) 형태 링크 파싱
-  const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+  // 링크와 굵게를 순서대로 처리
+  const regex = /(\[([^\]]+)\]\(([^)]+)\)|\*\*([^*]+)\*\*)/g;
   let last = 0;
   let m: RegExpExecArray | null;
-  while ((m = linkRegex.exec(text)) !== null) {
+  while ((m = regex.exec(text)) !== null) {
     if (m.index > last) result.push(text.slice(last, m.index));
-    result.push(
-      <a key={m.index} href={m[2]} target="_blank" rel="noopener noreferrer"
-         className="text-primary underline underline-offset-2 hover:opacity-75 break-all">
-        {m[1]}
-      </a>
-    );
+    if (m[0].startsWith('[')) {
+      result.push(
+        <a key={m.index} href={m[3]} target="_blank" rel="noopener noreferrer"
+           className="text-primary underline underline-offset-2 hover:opacity-75 break-words">
+          {m[2]}
+        </a>
+      );
+    } else {
+      result.push(<strong key={m.index} className="font-[700]">{m[4]}</strong>);
+    }
     last = m.index + m[0].length;
   }
   if (last < text.length) result.push(text.slice(last));
   return result.length ? result : [text];
 }
 
-// 단락 한 개를 렌더링 (이미지 / 구분선 / 일반 텍스트)
-function renderParagraph(p: string, i: number): React.ReactNode {
-  // 이미지 블록 ![alt](url)
-  const imgMatch = p.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
-  if (imgMatch) {
-    return (
-      <figure key={i} className="my-6">
-        <img src={imgMatch[2]} alt={imgMatch[1]}
-             className="w-full rounded-xl object-cover max-h-[420px]"
-             onError={e => (e.currentTarget.parentElement!.remove())} />
-        {imgMatch[1] && <figcaption className="text-[12px] text-muted-foreground/60 mt-2 text-center">{imgMatch[1]}</figcaption>}
-      </figure>
-    );
+// ── 블록 타입 정의 ────────────────────────────────────────────────────────
+type MdBlock =
+  | { t: 'h1' | 'h2' | 'h3'; text: string }
+  | { t: 'p';  text: string }
+  | { t: 'ul'; items: string[] }
+  | { t: 'ol'; items: string[] }
+  | { t: 'image'; src: string; alt: string }
+  | { t: 'divider' }
+  | { t: 'quote';   text: string }
+  | { t: 'callout'; icon: string; text: string }
+  | { t: 'code';    text: string };
+
+// ── 마크다운 텍스트 → 블록 배열 ──────────────────────────────────────────
+function parseBlocks(raw: string): MdBlock[] {
+  // \n\n 기준으로 분리. 단, ``` 코드 블록은 통째로 보존
+  const chunks: string[] = [];
+  let buf = '';
+  let inCode = false;
+  for (const line of raw.split('\n')) {
+    if (line.startsWith('```')) {
+      inCode = !inCode;
+      buf += line + '\n';
+      if (!inCode) { chunks.push(buf.trim()); buf = ''; }
+      continue;
+    }
+    if (inCode) { buf += line + '\n'; continue; }
+    if (line === '') {
+      if (buf.trim()) { chunks.push(buf.trim()); buf = ''; }
+    } else {
+      buf += (buf ? '\n' : '') + line;
+    }
   }
-  // 구분선
-  if (p.trim() === '---') return <hr key={i} className="my-6 border-border" />;
-  // 제목
-  if (p.startsWith('# '))  return <h2 key={i} className="text-[22px] font-[900] mt-8 mb-3">{parseInline(p.slice(2))}</h2>;
-  if (p.startsWith('## ')) return <h3 key={i} className="text-[19px] font-[800] mt-6 mb-2">{parseInline(p.slice(3))}</h3>;
-  if (p.startsWith('### '))return <h4 key={i} className="text-[17px] font-[700] mt-5 mb-2">{parseInline(p.slice(4))}</h4>;
-  // 글머리 목록 (여러 줄)
-  if (p.split('\n').some(l => l.startsWith('- ') || /^\d+\.\s/.test(l))) {
-    return (
-      <ul key={i} className="my-3 pl-5 space-y-1 list-disc marker:text-primary">
-        {p.split('\n').filter(Boolean).map((l, j) => {
-          const text = l.replace(/^[-\d]+\.?\s*/, '');
-          return <li key={j} className="text-[16px] leading-relaxed">{parseInline(text)}</li>;
-        })}
-      </ul>
-    );
+  if (buf.trim()) chunks.push(buf.trim());
+
+  const blocks: MdBlock[] = [];
+
+  const last = () => blocks[blocks.length - 1];
+
+  for (const chunk of chunks) {
+    // 코드 블록
+    if (chunk.startsWith('```')) {
+      const code = chunk.replace(/^```[^\n]*\n?/, '').replace(/\n?```$/, '');
+      blocks.push({ t: 'code', text: code });
+      continue;
+    }
+
+    // 이미지 (단독 라인)
+    const imgM = chunk.match(/^!\[([^\]]*)\]\(([^)\s]+)\)$/);
+    if (imgM) { blocks.push({ t: 'image', alt: imgM[1], src: imgM[2] }); continue; }
+
+    // 구분선
+    if (chunk === '---') { blocks.push({ t: 'divider' }); continue; }
+
+    // 제목
+    if (chunk.startsWith('# '))   { blocks.push({ t: 'h1', text: chunk.slice(2) }); continue; }
+    if (chunk.startsWith('## '))  { blocks.push({ t: 'h2', text: chunk.slice(3) }); continue; }
+    if (chunk.startsWith('### ')) { blocks.push({ t: 'h3', text: chunk.slice(4) }); continue; }
+
+    // 콜아웃: "> 💡 ..." 또는 "> ⚠️ ..."
+    if (chunk.startsWith('> ')) {
+      const inner = chunk.slice(2);
+      const callM = inner.match(/^([\p{Emoji_Presentation}\p{Extended_Pictographic}])\s+(.+)$/su);
+      if (callM) {
+        blocks.push({ t: 'callout', icon: callM[1], text: callM[2] });
+      } else {
+        const prev = last();
+        if (prev?.t === 'quote') prev.text += '\n' + inner;
+        else blocks.push({ t: 'quote', text: inner });
+      }
+      continue;
+    }
+
+    // 글머리 목록 — 청크 내 여러 줄 지원
+    const ulLines = chunk.split('\n').filter(l => l.startsWith('- '));
+    if (ulLines.length > 0 && ulLines.length === chunk.split('\n').filter(Boolean).length) {
+      const items = ulLines.map(l => l.slice(2));
+      const prev = last();
+      if (prev?.t === 'ul') prev.items.push(...items);
+      else blocks.push({ t: 'ul', items });
+      continue;
+    }
+
+    // 번호 목록 — 청크 내 여러 줄 지원, 순번 재계산
+    const olLines = chunk.split('\n').filter(l => /^\d+\.\s/.test(l));
+    if (olLines.length > 0 && olLines.length === chunk.split('\n').filter(Boolean).length) {
+      const items = olLines.map(l => l.replace(/^\d+\.\s*/, ''));
+      const prev = last();
+      if (prev?.t === 'ol') prev.items.push(...items);
+      else blocks.push({ t: 'ol', items });
+      continue;
+    }
+
+    // 일반 단락
+    blocks.push({ t: 'p', text: chunk });
   }
-  // 일반 단락
-  return <p key={i} className="mb-4 leading-[1.85]">{parseInline(p)}</p>;
+
+  return blocks;
 }
 
-function renderContent(text: string) {
-  const parts = text.split("\n\n---\n참고/출처");
-  const body = parts[0];
-  const footerRaw = parts[1] || "";
+// ── 블록 → JSX ───────────────────────────────────────────────────────────
+function renderBlocks(blocks: MdBlock[]): React.ReactNode {
+  return blocks.map((b, i) => {
+    switch (b.t) {
+      case 'h1': return <h2 key={i} className="text-[24px] font-[900] mt-10 mb-3 text-foreground">{parseInline(b.text)}</h2>;
+      case 'h2': return <h3 key={i} className="text-[20px] font-[800] mt-8 mb-2 text-foreground">{parseInline(b.text)}</h3>;
+      case 'h3': return <h4 key={i} className="text-[17px] font-[700] mt-6 mb-2 text-foreground">{parseInline(b.text)}</h4>;
 
-  const paragraphs = body.split("\n\n").filter(Boolean);
+      case 'p':
+        return <p key={i} className="mb-5 leading-[1.9] text-foreground/90">{parseInline(b.text)}</p>;
+
+      case 'ul':
+        return (
+          <ul key={i} className="my-4 pl-6 space-y-1.5 list-disc marker:text-primary">
+            {b.items.map((item, j) => (
+              <li key={j} className="leading-relaxed">{parseInline(item)}</li>
+            ))}
+          </ul>
+        );
+
+      case 'ol':
+        return (
+          <ol key={i} className="my-4 pl-6 space-y-1.5 list-decimal marker:text-primary marker:font-[700]">
+            {b.items.map((item, j) => (
+              <li key={j} className="leading-relaxed">{parseInline(item)}</li>
+            ))}
+          </ol>
+        );
+
+      case 'image':
+        return (
+          <figure key={i} className="my-7">
+            <img src={b.src} alt={b.alt}
+                 className="w-full rounded-xl object-cover max-h-[460px]"
+                 onError={e => (e.currentTarget.parentElement!.remove())} />
+            {b.alt && <figcaption className="text-[12px] text-muted-foreground/60 mt-2 text-center">{b.alt}</figcaption>}
+          </figure>
+        );
+
+      case 'divider':
+        return <hr key={i} className="my-8 border-border" />;
+
+      case 'quote':
+        return (
+          <blockquote key={i} className="my-5 pl-4 border-l-4 border-primary/40 text-muted-foreground italic leading-relaxed">
+            {parseInline(b.text)}
+          </blockquote>
+        );
+
+      case 'callout':
+        return (
+          <div key={i} className="my-5 flex gap-3 p-4 bg-muted/60 rounded-xl border border-border text-[15px] leading-relaxed">
+            <span className="text-[20px] shrink-0 mt-0.5">{b.icon}</span>
+            <span>{parseInline(b.text)}</span>
+          </div>
+        );
+
+      case 'code':
+        return (
+          <pre key={i} className="my-5 p-4 bg-muted rounded-xl overflow-x-auto text-[13px] leading-relaxed font-mono">
+            <code>{b.text}</code>
+          </pre>
+        );
+
+      default: return null;
+    }
+  });
+}
+
+// ── 전체 content 렌더 (출처 푸터 분리) ──────────────────────────────────
+function renderContent(text: string) {
+  const [body, footerRaw = ""] = text.split("\n\n---\n참고/출처");
+  const blocks = parseBlocks(body);
   const footerLines = footerRaw.split("\n").filter(Boolean);
 
   return (
     <>
-      {paragraphs.map((p, i) => renderParagraph(p, i))}
+      {renderBlocks(blocks)}
       {footerLines.length > 0 && (
-        <div className="mt-8 p-4 bg-muted/50 rounded-lg border border-border text-[13px] text-muted-foreground leading-relaxed">
-          <p className="font-semibold text-foreground mb-2">참고 / 출처</p>
-          {footerLines.map((line, i) => (
-            <p key={i}>{parseInline(line)}</p>
-          ))}
+        <div className="mt-10 p-4 bg-muted/50 rounded-xl border border-border text-[13px] text-muted-foreground leading-[1.8]">
+          <p className="font-[700] text-foreground mb-2 text-[14px]">참고 / 출처</p>
+          {footerLines.map((line, i) => <p key={i}>{parseInline(line)}</p>)}
         </div>
       )}
     </>
   );
 }
 
+// ── 메인 컴포넌트 ────────────────────────────────────────────────────────
 const InsightDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const [article, setArticle] = useState<Article | null>(null);
@@ -154,7 +288,8 @@ const InsightDetail = () => {
 
         {article && (
           <>
-            <span className="inline-block px-3 py-1 text-[12px] font-semibold rounded-full text-white mb-4" style={{ backgroundColor: color }}>
+            <span className="inline-block px-3 py-1 text-[12px] font-semibold rounded-full text-white mb-4"
+                  style={{ backgroundColor: color }}>
               {article.category}
             </span>
             <h1 className="text-[28px] md:text-[36px] font-[900] text-foreground leading-tight tracking-tight mb-4">
@@ -167,36 +302,30 @@ const InsightDetail = () => {
 
             {article.image_url && (
               <div className="mb-6">
-                <img
-                  src={article.image_url}
-                  alt={article.title}
-                  className="w-full max-h-[420px] object-cover rounded-xl"
-                  onError={(e) => (e.currentTarget.parentElement!.remove())}
-                />
+                <img src={article.image_url} alt={article.title}
+                     className="w-full max-h-[420px] object-cover rounded-xl"
+                     onError={e => (e.currentTarget.parentElement!.remove())} />
                 {article.image_credit && (
                   <p className="text-[12px] text-muted-foreground/60 mt-2 text-right">이미지: {article.image_credit}</p>
                 )}
               </div>
             )}
 
-            <div className="text-[17px] text-foreground/90 leading-[1.85]">
+            <div className="text-[17px] text-foreground/90">
               {renderContent(article.content || article.summary || "")}
             </div>
 
             {article.source_url && (
-              <a
-                href={article.source_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 mt-8 px-5 py-3 border border-border rounded-lg text-[14px] font-semibold text-muted-foreground hover:border-primary hover:text-primary transition-colors"
-              >
+              <a href={article.source_url} target="_blank" rel="noopener noreferrer"
+                 className="inline-flex items-center gap-2 mt-8 px-5 py-3 border border-border rounded-lg text-[14px] font-semibold text-muted-foreground hover:border-primary hover:text-primary transition-colors">
                 원문 기사 보기 →
               </a>
             )}
 
             <div className="mt-12 p-6 rounded-xl text-white text-center" style={{ backgroundColor: "#1A1A2E" }}>
               <p className="font-[800] text-[18px] mb-2">다낭 한달살기, 어디서 시작할지 모르겠다면?</p>
-              <Link to="/planner" className="inline-block mt-3 px-6 py-2.5 bg-primary text-primary-foreground font-bold rounded-lg hover:bg-primary/90 transition-colors">
+              <Link to="/planner"
+                    className="inline-block mt-3 px-6 py-2.5 bg-primary text-primary-foreground font-bold rounded-lg hover:bg-primary/90 transition-colors">
                 내 맞춤 플랜 만들기 →
               </Link>
             </div>

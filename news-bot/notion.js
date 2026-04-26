@@ -58,6 +58,18 @@ async function getPageContent(pageId) {
     if (type === 'bulleted_list_item') return `- ${richTextToMarkdown(b.bulleted_list_item?.rich_text)}`;
     if (type === 'numbered_list_item') return `1. ${richTextToMarkdown(b.numbered_list_item?.rich_text)}`;
 
+    // 콜아웃
+    if (type === 'callout') {
+      const emoji = b.callout?.icon?.emoji || '💡';
+      return `> ${emoji} ${richTextToMarkdown(b.callout?.rich_text)}`;
+    }
+
+    // 인용문
+    if (type === 'quote') return `> ${richTextToMarkdown(b.quote?.rich_text)}`;
+
+    // 코드 블록
+    if (type === 'code') return `\`\`\`\n${richTextToMarkdown(b.code?.rich_text)}\n\`\`\``;
+
     // 일반 단락 (가장 많음)
     const rt = b[type]?.rich_text;
     if (!rt) return '';
